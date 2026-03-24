@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>BODY MASTER — 体系管理 & 筋トレ DX</title>
+  <meta name="description" content="体系管理・筋力トレーニング記録・疲労回復管理の統合ツール">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<canvas id="particle-canvas"></canvas>
+
+<!-- ======== NAVBAR ======== -->
+<nav class="navbar">
+  <div class="navbar__logo">
+    <div class="navbar__logo-icon">🔥</div>
+    <span class="navbar__logo-text">BODY MASTER</span>
+  </div>
+  <span class="navbar__section-title" id="section-title">ホーム</span>
+</nav>
+
+<!-- ======== MAIN CONTENT ======== -->
+<div class="main-content">
+
+  <!-- =============================================
+       SECTION 1: HOME (CALENDAR)
+       ============================================= -->
+  <div class="section active" id="sec-home" data-title="ホーム">
+    <!-- Calendar -->
+    <div class="card calendar" id="calendar-card">
+      <div class="calendar__header">
+        <span class="calendar__month" id="calendar-month"></span>
+        <div class="calendar__nav">
+          <button class="calendar__nav-btn" onclick="changeMonth(-1)">◀</button>
+          <button class="calendar__nav-btn" onclick="changeMonth(0)">●</button>
+          <button class="calendar__nav-btn" onclick="changeMonth(1)">▶</button>
+        </div>
+      </div>
+      <div class="calendar__weekdays">
+        <div class="calendar__weekday">日</div>
+        <div class="calendar__weekday">月</div>
+        <div class="calendar__weekday">火</div>
+        <div class="calendar__weekday">水</div>
+        <div class="calendar__weekday">木</div>
+        <div class="calendar__weekday">金</div>
+        <div class="calendar__weekday">土</div>
+      </div>
+      <div class="calendar__days" id="calendar-days"></div>
+    </div>
+
+    <!-- Monthly summary -->
+    <div class="stat-grid stat-grid--3" id="home-monthly-stats">
+      <div class="stat-box">
+        <div class="stat-box__value stat-box__value--red" id="home-train-days">0</div>
+        <div class="stat-box__label">トレ日数</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box__value stat-box__value--gold" id="home-total-sets">0</div>
+        <div class="stat-box__label">合計セット</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box__value stat-box__value--green" id="home-total-volume">0</div>
+        <div class="stat-box__label">総ボリューム(kg)</div>
+      </div>
+    </div>
+
+    <!-- Quick Input -->
+    <div class="card card--red">
+      <div class="card__title"><span class="card__title-icon">⚡</span>クイック入力</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">体重 (kg)</label>
+          <input class="form-input" type="number" id="quick-weight" step="0.1" inputmode="decimal" placeholder="82.5">
+        </div>
+        <div class="form-group">
+          <label class="form-label">摂取kcal</label>
+          <input class="form-input" type="number" id="quick-calories" inputmode="numeric" placeholder="2400">
+        </div>
+      </div>
+      <button class="btn btn--primary btn--full" onclick="submitQuickInput()">📊 記録する</button>
+    </div>
+
+    <!-- GAS Config Banner -->
+    <div class="config-banner" id="gas-config-banner" style="display: none;">
+      ⚙️ GAS URLが未設定です。<a href="#" onclick="openModal('gas-modal'); return false;" style="color: var(--victory-gold); text-decoration: underline;">設定する</a>
+    </div>
+  </div>
+
+  <!-- =============================================
+       SECTION 2: BODY MANAGEMENT
+       ============================================= -->
+  <div class="section" id="sec-body" data-title="体系管理">
+    <div class="card card--red">
+      <div class="card__title"><span class="card__title-icon">📐</span>プロフィール設定</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">身長 (cm)</label>
+          <input class="form-input" type="number" id="body-height" step="0.1" inputmode="decimal">
+        </div>
+        <div class="form-group">
+          <label class="form-label">体重 (kg)</label>
+          <input class="form-input" type="number" id="body-weight" step="0.1" inputmode="decimal">
+        </div>
+      </div>
+      <div class="form-row--3" style="display: grid; gap: 10px;">
+        <div class="form-group">
+          <label class="form-label">年齢</label>
+          <input class="form-input" type="number" id="body-age" inputmode="numeric">
+        </div>
+        <div class="form-group">
+          <label class="form-label">性別</label>
+          <select class="form-select" id="body-gender">
+            <option value="male">男性</option>
+            <option value="female">女性</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">腹囲 (cm)</label>
+          <input class="form-input" type="number" id="body-waist" step="0.1" inputmode="decimal">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">活動量</label>
+          <select class="form-select" id="body-activity">
+            <option value="1.2">座りがち</option>
+            <option value="1.375" selected>軽い運動</option>
+            <option value="1.55">中程度</option>
+            <option value="1.725">活発</option>
+            <option value="1.9">非常に活発</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">1日赤字目標 (kcal)</label>
+          <input class="form-input" type="number" id="body-deficit" value="500" inputmode="numeric">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">減量目標 (kg)</label>
+        <input class="form-input" type="number" id="body-target-loss" value="10" step="0.5" inputmode="decimal">
+      </div>
+      <button class="btn btn--primary btn--full" onclick="calculateBody()">📊 計算する</button>
+    </div>
+
+    <!-- Results -->
+    <div id="body-results" style="display: none;">
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-box__value stat-box__value--red" id="result-bmr">--</div><div class="stat-box__label">基礎代謝 kcal</div></div>
+        <div class="stat-box"><div class="stat-box__value stat-box__value--gold" id="result-maintenance">--</div><div class="stat-box__label">メンテナンス kcal</div></div>
+        <div class="stat-box"><div class="stat-box__value stat-box__value--green" id="result-target">--</div><div class="stat-box__label">必要摂取 kcal</div></div>
+        <div class="stat-box"><div class="stat-box__value" id="result-bmi">--</div><div class="stat-box__label">BMI</div></div>
+      </div>
+      <div class="result-banner">
+        <div class="result-banner__title">🎯 減量達成まで</div>
+        <div class="result-banner__value" id="result-days">--</div>
+      </div>
+      <div class="card" style="margin-top: 12px;">
+        <div class="card__title"><span class="card__title-icon">💡</span>分析サマリー</div>
+        <div id="body-analysis-text" style="font-size: 13px; line-height: 1.6; color: #ccc;"></div>
+      </div>
+      <button class="btn btn--gold btn--full" onclick="submitBodyData()" style="margin-top: 8px;">📤 プロフィールをスプレッドシートに保存</button>
+    </div>
+
+    <!-- Daily Data Input -->
+    <div class="card card--gold" style="margin-top: 12px;">
+      <div class="card__title"><span class="card__title-icon">📊</span>日次データ入力</div>
+      <div class="form-group">
+        <label class="form-label">日付</label>
+        <input class="form-input" type="date" id="daily-date">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">体重 (kg)</label>
+          <input class="form-input" type="number" id="daily-weight" step="0.1" inputmode="decimal">
+        </div>
+        <div class="form-group">
+          <label class="form-label">腹囲 (cm)</label>
+          <input class="form-input" type="number" id="daily-waist" step="0.1" inputmode="decimal">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">アプリ摂取kcal</label>
+          <input class="form-input" type="number" id="daily-app-kcal" inputmode="numeric">
+        </div>
+        <div class="form-group">
+          <label class="form-label">追加kcal</label>
+          <input class="form-input" type="number" id="daily-extra-kcal" inputmode="numeric" placeholder="0">
+        </div>
+      </div>
+      <div id="daily-calc-result" style="display: none; margin-bottom: 12px;">
+        <div class="stat-grid stat-grid--3">
+          <div class="stat-box"><div class="stat-box__value" id="daily-total-kcal">0</div><div class="stat-box__label">合計 kcal</div></div>
+          <div class="stat-box"><div class="stat-box__value" id="daily-maintenance-display">--</div><div class="stat-box__label">メンテ</div></div>
+          <div class="stat-box"><div class="stat-box__value" id="daily-gap">0</div><div class="stat-box__label">ギャップ</div></div>
+        </div>
+      </div>
+      <button class="btn btn--gold btn--full" onclick="submitDailyData()">📤 日次データを記録</button>
+    </div>
+  </div>
+
+  <!-- =============================================
+       SECTION 3: TRAINING
+       ============================================= -->
+  <div class="section" id="sec-training" data-title="トレーニング">
+
+    <!-- Sub-page: Training Home -->
+    <div class="sub-page active" id="training-home">
+      <!-- Sleep Input -->
+      <div class="sleep-input-row">
+        <span class="sleep-input-row__icon">😴</span>
+        <span class="sleep-input-row__label">前日の睡眠時間</span>
+        <input type="number" id="training-sleep-hours" step="0.5" min="0" max="14" value="5" inputmode="decimal">
+        <span style="color: #888; font-size: 12px;">時間</span>
+      </div>
+
+      <!-- Training Timer Bar -->
+      <div class="training-timer-bar">
+        <div class="training-timer-bar__time" id="training-elapsed">00:00:00</div>
+        <div class="training-timer-bar__controls">
+          <button class="training-timer-bar__btn training-timer-bar__btn--start" id="training-start-btn" onclick="toggleTrainingTimer()">▶</button>
+          <button class="training-timer-bar__btn training-timer-bar__btn--stop" onclick="stopTrainingTimer()">⏹</button>
+        </div>
+      </div>
+
+      <!-- Training Summary -->
+      <div class="training-summary">
+        <div class="training-summary__item">
+          <div class="training-summary__value" id="train-total-sets">0</div>
+          <div class="training-summary__label">セット</div>
+        </div>
+        <div class="training-summary__item">
+          <div class="training-summary__value" id="train-total-volume">0</div>
+          <div class="training-summary__label">ボリューム(kg)</div>
+        </div>
+        <div class="training-summary__item">
+          <div class="training-summary__value" id="train-prev-sets">--</div>
+          <div class="training-summary__label">前回セット</div>
+        </div>
+      </div>
+
+      <!-- Rest Timer (compact) -->
+      <div class="rest-timer">
+        <div class="card__title" style="margin-bottom: 8px;"><span class="card__title-icon">⏱</span>レストタイマー</div>
+        <div class="rest-timer__display" id="rest-timer-display">0:00</div>
+        <div class="rest-timer__progress"><div class="rest-timer__progress-fill" id="rest-timer-progress" style="width: 0%;"></div></div>
+        <div class="rest-timer__controls">
+          <button class="btn btn--secondary btn--circle" style="width:40px;height:40px;font-size:16px;" onclick="resetRestTimer()">↺</button>
+          <button class="btn btn--primary btn--circle" style="width:56px;height:56px;font-size:22px;" id="rest-start-btn" onclick="toggleRestTimer()">▶</button>
+        </div>
+        <div class="rest-timer__presets" id="rest-presets">
+          <div class="rest-timer__preset" onclick="setRestPreset(60)">1:00</div>
+          <div class="rest-timer__preset" onclick="setRestPreset(90)">1:30</div>
+          <div class="rest-timer__preset" onclick="setRestPreset(120)">2:00</div>
+          <div class="rest-timer__preset" onclick="setRestPreset(180)">3:00</div>
+        </div>
+      </div>
+
+      <!-- Today's Menu -->
+      <div class="card">
+        <div class="card__title"><span class="card__title-icon">📋</span>今日のメニュー<span id="today-menu-count" style="font-size: 11px; color: #888; margin-left: auto;">0種目</span></div>
+        <div id="today-menu-list">
+          <p style="color: #555; text-align: center; padding: 16px 0; font-size: 13px;">メニューを追加してください</p>
+        </div>
+        <button class="btn btn--secondary btn--full" onclick="showSubPage('training-menu-select')" style="margin-top: 8px;">➕ メニューを追加</button>
+      </div>
+
+      <!-- Submit Training -->
+      <button class="btn btn--gold btn--full" id="submit-training-btn" onclick="submitTrainingData()" style="display: none; margin-top: 8px;">📤 トレーニングを記録</button>
+    </div>
+
+    <!-- Sub-page: Menu Selection (Muscle groups) -->
+    <div class="sub-page" id="training-menu-select">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+        <button class="back-btn" onclick="cancelExerciseSelect()" style="margin: 0;">← 戻る</button>
+        <span class="section-header__title" style="flex: 1;">種目を選択</span>
+        <button class="btn btn--secondary" onclick="openModal('weight-settings-modal')" style="font-size: 12px; padding: 6px 10px;">⚙️ 重量設定</button>
+      </div>
+      <div class="chip-group" id="muscle-chips">
+        <div class="chip active" data-muscle="all" onclick="filterMuscleGroup('all', this)">全て</div>
+        <div class="chip" data-muscle="脚" onclick="filterMuscleGroup('脚', this)">🦵 脚</div>
+        <div class="chip" data-muscle="胸" onclick="filterMuscleGroup('胸', this)">🏋️ 胸</div>
+        <div class="chip" data-muscle="背筋" onclick="filterMuscleGroup('背筋', this)">🔙 背筋</div>
+        <div class="chip" data-muscle="肩" onclick="filterMuscleGroup('肩', this)">🤾 肩</div>
+        <div class="chip" data-muscle="腕" onclick="filterMuscleGroup('腕', this)">💪 腕</div>
+        <div class="chip" data-muscle="腹筋" onclick="filterMuscleGroup('腹筋', this)">🎯 腹筋</div>
+        <div class="chip" data-muscle="カーディオ" onclick="filterMuscleGroup('カーディオ', this)">🏃 カーディオ</div>
+      </div>
+
+      <div id="exercise-list"></div>
+
+      <!-- Batch add bar (sticky bottom) -->
+      <div class="batch-add-bar" id="batch-add-bar" style="display: none;">
+        <span class="batch-add-bar__count" id="batch-count">0種目選択中</span>
+        <button class="btn btn--primary" onclick="batchAddExercises()">一括追加</button>
+      </div>
+
+      <!-- Add Custom Exercise Button -->
+      <button class="btn btn--secondary btn--full" onclick="openModal('add-exercise-modal')" style="margin-top: 8px;">🆕 トレーニングを新規追加</button>
+    </div>
+
+    <!-- Sub-page: Exercise Set Input (Slider) -->
+    <div class="sub-page" id="training-set-input">
+      <button class="back-btn" onclick="showSubPage('training-home')">← メニューに戻る</button>
+      <div class="card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+          <span style="font-size: 28px;" id="set-exercise-icon">🏋️</span>
+          <div>
+            <div style="font-size: 16px; font-weight: 700;" id="set-exercise-name">種目名</div>
+            <div style="font-size: 11px; color: #888;" id="set-exercise-category">部位</div>
+          </div>
+        </div>
+
+        <!-- Previous Record -->
+        <div class="prev-record" id="prev-record-display" style="display: none;">
+          <span class="prev-record__icon">📊</span>
+          <span class="prev-record__label">前回:</span>
+          <span class="prev-record__value" id="prev-record-text">--</span>
+          <span style="margin-left: auto; color: #888;">|</span>
+          <span class="prev-record__label" style="margin-left: 8px;">最大:</span>
+          <span class="prev-record__value" id="prev-max-text">--</span>
+        </div>
+
+        <!-- Set Cards -->
+        <div id="set-cards-container"></div>
+
+        <!-- Add / Save -->
+        <div style="display: flex; gap: 8px; margin-top: 10px;">
+          <button class="btn btn--secondary" style="flex: 1;" onclick="addSetCard()">＋ セット追加</button>
+          <button class="btn btn--primary" style="flex: 2;" onclick="saveExercise()">✅ 記録する</button>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="form-group" style="margin-top: 8px;">
+        <label class="form-label">メモ</label>
+        <input class="form-input" type="text" id="exercise-notes" placeholder="メモ（任意）">
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================
+       SECTION 4: RECOVERY / FATIGUE
+       ============================================= -->
+  <div class="section" id="sec-recovery" data-title="回復">
+    <div class="section-header">
+      <span class="section-header__title">💪 疲労 & 回復管理</span>
+    </div>
+
+    <!-- Sleep Input for Recovery -->
+    <div class="sleep-input-row">
+      <span class="sleep-input-row__icon">😴</span>
+      <span class="sleep-input-row__label">平均睡眠時間</span>
+      <input type="number" id="recovery-sleep-hours" step="0.5" min="0" max="14" value="5" inputmode="decimal" onchange="updateRecoveryView()">
+      <span style="color: #888; font-size: 12px;">時間</span>
+    </div>
+
+    <!-- Body Model (Detailed Muscle Groups) -->
+    <div class="body-model-container">
+      <!-- ===== FRONT ===== -->
+      <div class="body-model">
+        <div class="body-model__label">前面</div>
+        <svg viewBox="0 0 200 420" id="body-svg-front">
+          <!-- Head -->
+          <ellipse cx="100" cy="28" rx="18" ry="22" fill="#555" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+          <!-- Neck -->
+          <rect x="92" y="50" width="16" height="14" rx="3" fill="#4a4a4a"/>
+
+          <!-- === SHOULDERS (三角筋) Front Deltoid === -->
+          <path class="muscle-group" id="m-delt-front-l" data-muscle="三角筋前部"
+            d="M60,64 Q52,62 42,72 L38,95 Q48,90 58,85 Z" fill="#444" onclick="showMuscleDetail('三角筋前部')"/>
+          <path class="muscle-group" id="m-delt-front-r" data-muscle="三角筋前部"
+            d="M140,64 Q148,62 158,72 L162,95 Q152,90 142,85 Z" fill="#444" onclick="showMuscleDetail('三角筋前部')"/>
+          <!-- Side Deltoid -->
+          <path class="muscle-group" id="m-delt-side-l" data-muscle="三角筋側部"
+            d="M42,72 L34,88 L38,95 Z" fill="#444" onclick="showMuscleDetail('三角筋側部')"/>
+          <path class="muscle-group" id="m-delt-side-r" data-muscle="三角筋側部"
+            d="M158,72 L166,88 L162,95 Z" fill="#444" onclick="showMuscleDetail('三角筋側部')"/>
+
+          <!-- === CHEST (大胸筋) Upper + Lower === -->
+          <path class="muscle-group" id="m-chest-upper-l" data-muscle="大胸筋上部"
+            d="M60,64 L98,62 L97,90 Q78,95 58,85 Z" fill="#444" onclick="showMuscleDetail('大胸筋上部')"/>
+          <path class="muscle-group" id="m-chest-upper-r" data-muscle="大胸筋上部"
+            d="M140,64 L102,62 L103,90 Q122,95 142,85 Z" fill="#444" onclick="showMuscleDetail('大胸筋上部')"/>
+          <path class="muscle-group" id="m-chest-lower-l" data-muscle="大胸筋下部"
+            d="M58,85 Q78,95 97,90 L96,115 Q78,120 62,112 Z" fill="#444" onclick="showMuscleDetail('大胸筋下部')"/>
+          <path class="muscle-group" id="m-chest-lower-r" data-muscle="大胸筋下部"
+            d="M142,85 Q122,95 103,90 L104,115 Q122,120 138,112 Z" fill="#444" onclick="showMuscleDetail('大胸筋下部')"/>
+
+          <!-- === BICEPS (上腕二頭筋) === -->
+          <path class="muscle-group" id="m-bicep-l" data-muscle="上腕二頭筋"
+            d="M38,95 Q32,105 30,125 L28,148 Q34,150 40,148 L42,120 Q42,108 38,95 Z" fill="#444" onclick="showMuscleDetail('上腕二頭筋')"/>
+          <path class="muscle-group" id="m-bicep-r" data-muscle="上腕二頭筋"
+            d="M162,95 Q168,105 170,125 L172,148 Q166,150 160,148 L158,120 Q158,108 162,95 Z" fill="#444" onclick="showMuscleDetail('上腕二頭筋')"/>
+
+          <!-- === FOREARMS (前腕) === -->
+          <path class="muscle-group" id="m-forearm-l" data-muscle="前腕"
+            d="M28,148 L24,195 Q30,198 34,195 L40,148 Z" fill="#444" onclick="showMuscleDetail('前腕')"/>
+          <path class="muscle-group" id="m-forearm-r" data-muscle="前腕"
+            d="M172,148 L176,195 Q170,198 166,195 L160,148 Z" fill="#444" onclick="showMuscleDetail('前腕')"/>
+
+          <!-- === ABS (腹直筋) Upper === -->
+          <path class="muscle-group" id="m-abs-upper" data-muscle="腹直筋上部"
+            d="M78,115 L96,115 L104,115 L122,115 L120,155 Q100,158 80,155 Z" fill="#444" onclick="showMuscleDetail('腹直筋上部')"/>
+          <!-- ABS Lower -->
+          <path class="muscle-group" id="m-abs-lower" data-muscle="腹直筋下部"
+            d="M80,155 Q100,158 120,155 L118,200 Q100,206 82,200 Z" fill="#444" onclick="showMuscleDetail('腹直筋下部')"/>
+
+          <!-- === OBLIQUES (腹斜筋) === -->
+          <path class="muscle-group" id="m-oblique-l" data-muscle="腹斜筋"
+            d="M62,112 L78,115 L80,155 L82,200 Q72,195 65,185 L60,140 Z" fill="#444" onclick="showMuscleDetail('腹斜筋')"/>
+          <path class="muscle-group" id="m-oblique-r" data-muscle="腹斜筋"
+            d="M138,112 L122,115 L120,155 L118,200 Q128,195 135,185 L140,140 Z" fill="#444" onclick="showMuscleDetail('腹斜筋')"/>
+
+          <!-- === HIP FLEXORS (腸腰筋) === -->
+          <path class="muscle-group" id="m-hipflex-l" data-muscle="腸腰筋"
+            d="M65,185 L82,200 L80,218 L62,210 Z" fill="#444" onclick="showMuscleDetail('腸腰筋')"/>
+          <path class="muscle-group" id="m-hipflex-r" data-muscle="腸腰筋"
+            d="M135,185 L118,200 L120,218 L138,210 Z" fill="#444" onclick="showMuscleDetail('腸腰筋')"/>
+
+          <!-- === QUADRICEPS (大腿四頭筋) === -->
+          <path class="muscle-group" id="m-quad-l" data-muscle="大腿四頭筋"
+            d="M62,210 L80,218 Q82,260 84,300 L80,330 L60,330 Q58,290 62,250 Z" fill="#444" onclick="showMuscleDetail('大腿四頭筋')"/>
+          <path class="muscle-group" id="m-quad-r" data-muscle="大腿四頭筋"
+            d="M138,210 L120,218 Q118,260 116,300 L120,330 L140,330 Q142,290 138,250 Z" fill="#444" onclick="showMuscleDetail('大腿四頭筋')"/>
+
+          <!-- Inner thigh / Adductors -->
+          <path class="muscle-group" id="m-adduct-l" data-muscle="内転筋"
+            d="M80,218 L98,208 L96,280 L84,300 Z" fill="#444" onclick="showMuscleDetail('内転筋')"/>
+          <path class="muscle-group" id="m-adduct-r" data-muscle="内転筋"
+            d="M120,218 L102,208 L104,280 L116,300 Z" fill="#444" onclick="showMuscleDetail('内転筋')"/>
+
+          <!-- === CALVES Front (前脛骨筋) === -->
+          <path class="muscle-group" id="m-calf-front-l" data-muscle="腓腹筋"
+            d="M60,330 L80,330 L78,380 L62,380 Z" fill="#444" onclick="showMuscleDetail('腓腹筋')"/>
+          <path class="muscle-group" id="m-calf-front-r" data-muscle="腓腹筋"
+            d="M140,330 L120,330 L122,380 L138,380 Z" fill="#444" onclick="showMuscleDetail('腓腹筋')"/>
+
+          <!-- Feet -->
+          <ellipse cx="70" cy="392" rx="14" ry="7" fill="#333"/>
+          <ellipse cx="130" cy="392" rx="14" ry="7" fill="#333"/>
+          <!-- Hands -->
+          <ellipse cx="27" cy="202" rx="6" ry="8" fill="#4a4a4a"/>
+          <ellipse cx="173" cy="202" rx="6" ry="8" fill="#4a4a4a"/>
+        </svg>
+      </div>
+      <!-- ===== BACK ===== -->
+      <div class="body-model">
+        <div class="body-model__label">背面</div>
+        <svg viewBox="0 0 200 420" id="body-svg-back">
+          <!-- Head -->
+          <ellipse cx="100" cy="28" rx="18" ry="22" fill="#555" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+          <!-- Neck -->
+          <rect x="92" y="50" width="16" height="14" rx="3" fill="#4a4a4a"/>
+
+          <!-- === TRAPS (僧帽筋) === -->
+          <path class="muscle-group" id="m-traps" data-muscle="僧帽筋"
+            d="M72,62 L92,54 L108,54 L128,62 L132,82 Q100,90 68,82 Z" fill="#444" onclick="showMuscleDetail('僧帽筋')"/>
+
+          <!-- === REAR DELTOID (三角筋後部) === -->
+          <path class="muscle-group" id="m-delt-rear-l" data-muscle="三角筋後部"
+            d="M68,62 L56,65 L38,80 L34,96 Q42,92 50,90 L68,82 Z" fill="#444" onclick="showMuscleDetail('三角筋後部')"/>
+          <path class="muscle-group" id="m-delt-rear-r" data-muscle="三角筋後部"
+            d="M132,62 L144,65 L162,80 L166,96 Q158,92 150,90 L132,82 Z" fill="#444" onclick="showMuscleDetail('三角筋後部')"/>
+
+          <!-- === LATS (広背筋) === -->
+          <path class="muscle-group" id="m-lat-l" data-muscle="広背筋"
+            d="M68,82 L50,90 Q48,115 50,140 L56,170 Q68,175 80,168 L82,110 Q82,95 68,82 Z" fill="#444" onclick="showMuscleDetail('広背筋')"/>
+          <path class="muscle-group" id="m-lat-r" data-muscle="広背筋"
+            d="M132,82 L150,90 Q152,115 150,140 L144,170 Q132,175 120,168 L118,110 Q118,95 132,82 Z" fill="#444" onclick="showMuscleDetail('広背筋')"/>
+
+          <!-- === ERECTOR SPINAE (脊柱起立筋) === -->
+          <path class="muscle-group" id="m-erector" data-muscle="脊柱起立筋"
+            d="M88,82 Q100,88 112,82 L114,170 Q100,175 86,170 Z" fill="#444" onclick="showMuscleDetail('脊柱起立筋')"/>
+
+          <!-- === TRICEPS (上腕三頭筋) === -->
+          <path class="muscle-group" id="m-tricep-l" data-muscle="上腕三頭筋"
+            d="M34,96 Q30,105 28,125 L26,150 Q32,152 38,150 L40,120 Q40,108 42,96 Z" fill="#444" onclick="showMuscleDetail('上腕三頭筋')"/>
+          <path class="muscle-group" id="m-tricep-r" data-muscle="上腕三頭筋"
+            d="M166,96 Q170,105 172,125 L174,150 Q168,152 162,150 L160,120 Q160,108 158,96 Z" fill="#444" onclick="showMuscleDetail('上腕三頭筋')"/>
+
+          <!-- === FOREARMS BACK (前腕) === -->
+          <path class="muscle-group" id="m-forearm-back-l" data-muscle="前腕"
+            d="M26,150 L22,195 Q28,198 32,195 L38,150 Z" fill="#444" onclick="showMuscleDetail('前腕')"/>
+          <path class="muscle-group" id="m-forearm-back-r" data-muscle="前腕"
+            d="M174,150 L178,195 Q172,198 168,195 L162,150 Z" fill="#444" onclick="showMuscleDetail('前腕')"/>
+
+          <!-- === LOWER BACK (腰部) === -->
+          <path class="muscle-group" id="m-lower-back" data-muscle="脊柱起立筋"
+            d="M80,168 L86,170 Q100,175 114,170 L120,168 L122,200 Q100,208 78,200 Z" fill="#444" onclick="showMuscleDetail('脊柱起立筋')"/>
+
+          <!-- === GLUTES (臀筋) === -->
+          <path class="muscle-group" id="m-glute-l" data-muscle="臀筋"
+            d="M56,170 L80,168 L78,200 L76,218 L58,215 Q52,200 56,185 Z" fill="#444" onclick="showMuscleDetail('臀筋')"/>
+          <path class="muscle-group" id="m-glute-r" data-muscle="臀筋"
+            d="M144,170 L120,168 L122,200 L124,218 L142,215 Q148,200 144,185 Z" fill="#444" onclick="showMuscleDetail('臀筋')"/>
+
+          <!-- === HAMSTRINGS (ハムストリング) === -->
+          <path class="muscle-group" id="m-ham-l" data-muscle="ハムストリング"
+            d="M58,215 L76,218 Q80,260 82,300 L78,330 L58,330 Q56,290 58,250 Z" fill="#444" onclick="showMuscleDetail('ハムストリング')"/>
+          <path class="muscle-group" id="m-ham-r" data-muscle="ハムストリング"
+            d="M142,215 L124,218 Q120,260 118,300 L122,330 L142,330 Q144,290 142,250 Z" fill="#444" onclick="showMuscleDetail('ハムストリング')"/>
+
+          <!-- Inner ham -->
+          <path class="muscle-group" id="m-ham-inner-l" data-muscle="ハムストリング"
+            d="M76,218 L96,210 L94,280 L82,300 Z" fill="#444" onclick="showMuscleDetail('ハムストリング')"/>
+          <path class="muscle-group" id="m-ham-inner-r" data-muscle="ハムストリング"
+            d="M124,218 L104,210 L106,280 L118,300 Z" fill="#444" onclick="showMuscleDetail('ハムストリング')"/>
+
+          <!-- === CALVES (腓腹筋) back === -->
+          <path class="muscle-group" id="m-calf-back-l" data-muscle="腓腹筋"
+            d="M58,330 L78,330 Q76,350 74,365 L72,380 L60,380 Q58,365 58,350 Z" fill="#444" onclick="showMuscleDetail('腓腹筋')"/>
+          <path class="muscle-group" id="m-calf-back-r" data-muscle="腓腹筋"
+            d="M142,330 L122,330 Q124,350 126,365 L128,380 L140,380 Q142,365 142,350 Z" fill="#444" onclick="showMuscleDetail('腓腹筋')"/>
+
+          <!-- Feet -->
+          <ellipse cx="66" cy="392" rx="14" ry="7" fill="#333"/>
+          <ellipse cx="134" cy="392" rx="14" ry="7" fill="#333"/>
+          <!-- Hands -->
+          <ellipse cx="25" cy="202" rx="6" ry="8" fill="#4a4a4a"/>
+          <ellipse cx="175" cy="202" rx="6" ry="8" fill="#4a4a4a"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Recovery Legend -->
+    <div class="recovery-legend">
+      <div class="recovery-legend__item"><div class="recovery-legend__dot" style="background: var(--recovery-red);"></div>疲労</div>
+      <div class="recovery-legend__item"><div class="recovery-legend__dot" style="background: var(--recovery-orange);"></div>回復中</div>
+      <div class="recovery-legend__item"><div class="recovery-legend__dot" style="background: var(--recovery-yellow);"></div>ほぼ回復</div>
+      <div class="recovery-legend__item"><div class="recovery-legend__dot" style="background: var(--recovery-green);"></div>完全回復</div>
+    </div>
+
+    <!-- Recovery Detail List -->
+    <div class="recovery-list" id="recovery-list"></div>
+  </div>
+
+  <!-- =============================================
+       SECTION 5: STOPWATCH & TIMER
+       ============================================= -->
+  <div class="section" id="sec-timer" data-title="タイマー">
+    <div class="section-header"><span class="section-header__title">ストップウォッチ & タイマー</span></div>
+
+    <!-- Tab toggle -->
+    <div style="display: flex; gap: 6px; margin-bottom: 16px;">
+      <button class="chip active" id="sw-tab" onclick="switchTimerTab('stopwatch')">ストップウォッチ</button>
+      <button class="chip" id="tm-tab" onclick="switchTimerTab('timer')">カウントダウン</button>
+    </div>
+
+    <!-- Stopwatch -->
+    <div class="card" id="stopwatch-panel">
+      <div class="timer-display" id="stopwatch-display">00:00.00</div>
+      <div class="timer-controls">
+        <button class="btn btn--secondary btn--circle" id="sw-reset" onclick="resetStopwatch()">↺</button>
+        <button class="btn btn--primary btn--circle" id="sw-start" onclick="toggleStopwatch()">▶</button>
+        <button class="btn btn--secondary btn--circle" id="sw-lap" onclick="stopwatchLap()">🏁</button>
+      </div>
+      <div class="card" id="lap-card" style="display: none; margin-top: 8px;">
+        <div class="card__title"><span class="card__title-icon">🏁</span>ラップ</div>
+        <ul class="lap-list" id="lap-list"></ul>
+      </div>
+    </div>
+
+    <!-- Timer -->
+    <div class="card" id="timer-panel" style="display: none;">
+      <div class="timer-display" id="timer-display">00:00</div>
+      <div class="timer-controls">
+        <button class="btn btn--secondary btn--circle" id="tm-reset" onclick="resetTimer()">↺</button>
+        <button class="btn btn--primary btn--circle" id="tm-start" onclick="toggleTimer()">▶</button>
+      </div>
+      <div class="preset-timers">
+        <div class="preset-btn" onclick="setTimerPreset(30)">0:30</div>
+        <div class="preset-btn" onclick="setTimerPreset(60)">1:00</div>
+        <div class="preset-btn" onclick="setTimerPreset(90)">1:30</div>
+        <div class="preset-btn" onclick="setTimerPreset(120)">2:00</div>
+      </div>
+      <div class="form-group" style="margin-top: 12px;">
+        <label class="form-label">カスタム (秒)</label>
+        <input class="form-input" type="number" id="timer-custom" placeholder="秒数を入力" inputmode="numeric">
+        <button class="btn btn--secondary btn--full" onclick="setTimerPreset(parseInt(document.getElementById('timer-custom').value)||60)" style="margin-top: 6px;">セット</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================
+       SECTION 6: ANALYSIS
+       ============================================= -->
+  <div class="section" id="sec-analysis" data-title="分析">
+    <div class="section-header"><span class="section-header__title">📊 分析ダッシュボード</span></div>
+
+    <div class="card">
+      <div class="card__title"><span class="card__title-icon">⚖️</span>体重推移</div>
+      <div class="chart-container"><canvas id="chart-weight"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card__title"><span class="card__title-icon">🔥</span>カロリーギャップ推移</div>
+      <div class="chart-container"><canvas id="chart-gap"></canvas></div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-box__value" id="analysis-avg-weight">--</div><div class="stat-box__label">平均体重 kg</div></div>
+      <div class="stat-box"><div class="stat-box__value" id="analysis-avg-intake">--</div><div class="stat-box__label">平均摂取 kcal</div></div>
+      <div class="stat-box"><div class="stat-box__value" id="analysis-train-days">--</div><div class="stat-box__label">トレーニング日数</div></div>
+      <div class="stat-box"><div class="stat-box__value" id="analysis-deficit-days">--</div><div class="stat-box__label">赤字達成日</div></div>
+    </div>
+
+    <div class="card" style="margin-top: 8px;">
+      <div class="card__title"><span class="card__title-icon">📥</span>データ管理</div>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn--secondary" style="flex:1;" onclick="exportData()">エクスポート</button>
+        <button class="btn btn--secondary" style="flex:1; color: var(--danger);" onclick="clearAllData()">全データ削除</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ======== TABBAR (6 tabs) ======== -->
+<nav class="tabbar">
+  <button class="tabbar__item active" data-section="sec-home" onclick="switchSection('sec-home')">
+    <span class="tabbar__icon">🏠</span>ホーム
+  </button>
+  <button class="tabbar__item" data-section="sec-body" onclick="switchSection('sec-body')">
+    <span class="tabbar__icon">📐</span>体系管理
+  </button>
+  <button class="tabbar__item" data-section="sec-training" onclick="switchSection('sec-training')">
+    <span class="tabbar__icon">💪</span>トレーニング
+  </button>
+  <button class="tabbar__item" data-section="sec-recovery" onclick="switchSection('sec-recovery')">
+    <span class="tabbar__icon">🫀</span>回復
+  </button>
+  <button class="tabbar__item" data-section="sec-timer" onclick="switchSection('sec-timer')">
+    <span class="tabbar__icon">⏱</span>タイマー
+  </button>
+  <button class="tabbar__item" data-section="sec-analysis" onclick="switchSection('sec-analysis')">
+    <span class="tabbar__icon">📊</span>分析
+  </button>
+</nav>
+
+<!-- ======== MODALS ======== -->
+
+<!-- GAS URL Modal -->
+<div class="modal-overlay" id="gas-modal">
+  <div class="modal">
+    <div class="modal__header">
+      <span class="modal__title">⚙️ GAS URL設定</span>
+      <button class="modal__close" onclick="closeModal('gas-modal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">WebアプリのURL</label>
+      <input class="form-input" type="url" id="gas-url-input" placeholder="https://script.google.com/macros/s/...">
+    </div>
+    <button class="btn btn--primary btn--full" onclick="saveGasUrl()">保存</button>
+  </div>
+</div>
+
+<!-- Add Custom Exercise Modal -->
+<div class="modal-overlay" id="add-exercise-modal">
+  <div class="modal">
+    <div class="modal__header">
+      <span class="modal__title">🆕 トレーニング追加</span>
+      <button class="modal__close" onclick="closeModal('add-exercise-modal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">種目名</label>
+      <input class="form-input" type="text" id="new-exercise-name" placeholder="例: ダンベルカール">
+    </div>
+    <div class="form-group">
+      <label class="form-label">部位</label>
+      <select class="form-select" id="new-exercise-category">
+        <option value="脚">🦵 脚</option>
+        <option value="胸">🏋️ 胸</option>
+        <option value="背筋">🔙 背筋</option>
+        <option value="肩">🤾 肩</option>
+        <option value="腕">💪 腕</option>
+        <option value="腹筋">🎯 腹筋</option>
+        <option value="カーディオ">🏃 カーディオ</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">アイコン</label>
+      <div class="emoji-picker" id="emoji-picker"></div>
+    </div>
+    <button class="btn btn--primary btn--full" onclick="addCustomExercise()">追加する</button>
+  </div>
+</div>
+<!-- Weight Settings Modal -->
+<div class="modal-overlay" id="weight-settings-modal">
+  <div class="modal" style="max-height: 80vh; overflow-y: auto;">
+    <div class="modal__header">
+      <span class="modal__title">⚙️ 重量スライダー設定</span>
+      <button class="modal__close" onclick="closeModal('weight-settings-modal')">✕</button>
+    </div>
+    <p style="font-size: 11px; color: #888; margin-bottom: 12px;">各種目のスライダー最大重量を設定してください。</p>
+    <div id="weight-settings-list"></div>
+    <button class="btn btn--primary btn--full" onclick="saveWeightSettings()" style="margin-top: 12px;">💾 保存する</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
