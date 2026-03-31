@@ -31,6 +31,52 @@
        SECTION 1: HOME (CALENDAR)
        ============================================= -->
   <div class="section active" id="sec-home" data-title="ホーム">
+
+    <!-- 🎯 目標減量進捗ゲージ (最上部) -->
+    <div class="card calorie-hero-card" id="calorie-tracker-card">
+      <!-- ヘッダー -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;">
+        <div>
+          <div style="font-size:12px;color:#888;margin-bottom:2px;">🎯 目標減量進捗</div>
+          <div style="font-size:22px;font-weight:900;color:var(--bulls-red);font-family:var(--font-display);" id="ct-target-weight">-- kg</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:12px;color:#666;">1日赤字目標</div>
+          <div style="font-size:16px;font-weight:800;color:var(--victory-gold);" id="ct-daily-deficit-info">-- kcal</div>
+          <div style="font-size:11px;color:#555;margin-top:2px;" id="ct-days-needed">達成まで -- 日</div>
+        </div>
+      </div>
+      <!-- 必要赤字総量 -->
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#888;margin-bottom:5px;">
+        <span id="calorie-accumulated">0 kcal 減少済</span>
+        <span id="calorie-goal-label">全体の -- %</span>
+      </div>
+      <!-- バー -->
+      <div style="background:rgba(255,255,255,0.08);border-radius:100px;height:18px;overflow:hidden;position:relative;">
+        <div id="calorie-progress-bar" style="height:100%;border-radius:100px;background:linear-gradient(90deg,#CE1141 0%,#FF6B6B 80%,#FFD700 100%);transition:width 1s cubic-bezier(0.4,0,0.2,1);width:0%;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:#555;margin-top:3px;">
+        <span>スタート</span>
+        <span id="calorie-remaining">残り -- kcal</span>
+      </div>
+      <!-- スタッティ -->
+      <div class="stat-grid stat-grid--3" style="margin-top:10px;">
+        <div class="stat-box">
+          <div class="stat-box__value stat-box__value--red" id="ct-today-gap" style="font-size:14px;">--</div>
+          <div class="stat-box__label">今日差引</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box__value stat-box__value--gold" id="ct-streak" style="font-size:14px;">🔥 0</div>
+          <div class="stat-box__label">連続日数</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box__value stat-box__value--green" id="ct-percent" style="font-size:14px;">0%</div>
+          <div class="stat-box__label">達成率</div>
+        </div>
+      </div>
+      <div id="calorie-tracker-empty" style="color:#555;font-size:12px;text-align:center;padding:6px 0;display:none;">日次データを入力すると進捗が表示されます</div>
+    </div>
+
     <!-- Calendar -->
     <div class="card calendar" id="calendar-card">
       <div class="calendar__header">
@@ -104,47 +150,6 @@
         </div>
       </div>
       <button class="btn btn--gold btn--full" onclick="submitHomeDaily()">📤 日次データを記録</button>
-    </div>
-
-    <!-- GAS Config Banner -->
-    <div class="config-banner" id="gas-config-banner" style="display: none;">
-      ⚙️ GAS URLが未設定です。<a href="#" onclick="switchSection('sec-settings'); return false;" style="color: var(--victory-gold); text-decoration: underline;">設定する</a>
-    </div>
-
-    <!-- アンダーカロリー 累積冲撃ゲージ -->
-    <div class="card" id="calorie-tracker-card">
-      <div class="card__title"><span class="card__title-icon">🎯</span>目標減量進捗<span id="calorie-days-count" style="font-size:11px;color:#888;margin-left:auto;"></span></div>
-      <div id="calorie-tracker-empty" style="color:#555;font-size:13px;text-align:center;padding:8px 0;display:none;">体重・カロリーを入力すると進捗が表示されます</div>
-      <div id="calorie-tracker-content">
-        <!-- 射程 バー -->
-        <div style="margin-bottom:8px;">
-          <div style="display:flex;justify-content:space-between;font-size:11px;color:#888;margin-bottom:4px;">
-            <span>発火</span><span id="calorie-goal-label">目標: -- kcal</span>
-          </div>
-          <div style="background:rgba(255,255,255,0.08);border-radius:100px;height:14px;overflow:hidden;">
-            <div id="calorie-progress-bar" style="height:100%;border-radius:100px;background:linear-gradient(90deg,#CE1141,#FF6B6B);transition:width 0.8s ease;width:0%;"></div>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:10px;color:#555;margin-top:2px;">
-            <span id="calorie-accumulated">0 kcal 削減済</span>
-            <span id="calorie-remaining">残り -- kcal</span>
-          </div>
-        </div>
-        <!-- スタッツ -->
-        <div class="stat-grid stat-grid--3">
-          <div class="stat-box">
-            <div class="stat-box__value stat-box__value--red" id="ct-today-gap">0</div>
-            <div class="stat-box__label">今日ギャップ</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-box__value stat-box__value--gold" id="ct-streak">🔥 0</div>
-            <div class="stat-box__label">赤字連続</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-box__value stat-box__value--green" id="ct-percent">0%</div>
-            <div class="stat-box__label">達成率</div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 

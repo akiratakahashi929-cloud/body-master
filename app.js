@@ -170,62 +170,145 @@ function unlockAudioCtx() {
   } catch(e) {}
 }
 
-// スポーティーなカウントダウンBeep（5,4,3,2,1）
+// 音量ヘルパー
+function getSoundVolume() {
+  return Math.max(0.05, APP.soundSettings?.volume ?? 0.7);
+}
+
+// カウントダウンBeep — 3種類のサウンドタイプ対応
 function playCountdownBeep(count) {
+  if (!APP.soundSettings?.countdownEnabled) return;
   try {
     const ctx = getAudioCtx();
     if (ctx.state === 'suspended') ctx.resume();
     const now = ctx.currentTime;
-    // 各カウントで周波数が上がるスポーティーな音
-    const freqMap = { 5: 440, 4: 494, 3: 587, 2: 659, 1: 880 };
-    const freq = freqMap[count] || 440;
-    const isOne = count === 1;
-    const dur = isOne ? 0.22 : 0.1;
+    const vol = getSoundVolume();
+    const type = APP.soundSettings?.soundType || 'sporty';
 
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = isOne ? 'sawtooth' : 'square';
-    osc.frequency.setValueAtTime(freq, now);
-    if (isOne) osc.frequency.linearRampToValueAtTime(freq * 1.15, now + dur);
+    if (type === 'sporty') {
+      // スポーティー: square/sawtooth, 上升高難
+      const freqMap = { 5: 440, 4: 494, 3: 587, 2: 659, 1: 880 };
+      const freq = freqMap[count] || 440;
+      const isOne = count === 1;
+      const dur = isOne ? 0.22 : 0.1;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = isOne ? 'sawtooth' : 'square';
+      osc.frequency.setValueAtTime(freq, now);
+      if (isOne) osc.frequency.linearRampToValueAtTime(freq * 1.15, now + dur);
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(vol * 0.85, now + 0.01);
+      gain.gain.setValueAtTime(vol * 0.85, now + dur * 0.6);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + dur + 0.05);
+      osc.start(now); osc.stop(now + dur + 0.06);
 
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.5, now + 0.01);
-    gain.gain.setValueAtTime(0.5, now + dur * 0.6);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + dur + 0.05);
-    osc.start(now);
-    osc.stop(now + dur + 0.06);
+    } else if (type === 'soft') {
+      // 時報（NHK風）: クリーンなサイン波 pip、単音で扰やかに上昇
+      const freqMap = { 5: 440, 4: 523, 3: 587, 2: 659, 1: 880 };
+      const freq = freqMap[count] || 440;
+      const isLast = count === 1;
+      const dur = isLast ? 0.35 : 0.18;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(vol * 0.9, now + 0.02);
+      gain.gain.setValueAtTime(vol * 0.9, now + dur * 0.75);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+      osc.start(now); osc.stop(now + dur + 0.02);
+
+    } else {  // RPG (8ビット JRPG風)
+      // ディスコントックな2音ブリップ、スクエア波
+      const f1Map = { 5: 262, 4: 330, 3: 392, 2: 523, 1: 784 };
+      const f2Map = { 5: 330, 4: 392, 3: 523, 2: 659, 1: 1047 };
+      const f1 = f1Map[count] || 262, f2 = f2Map[count] || 330;
+      [[f1, 0], [f2, 0.1]].forEach(([freq, offset]) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(freq, now + offset);
+        gain.gain.setValueAtTime(vol * 0.45, now + offset);
+        gain.gain.setValueAtTime(vol * 0.45, now + offset + 0.07);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.1);
+        osc.start(now + offset); osc.stop(now + offset + 0.12);
+      });
+    }
   } catch(e) { console.warn('Beep error:', e); }
 }
 
-// スポーティーな完了ファンファーレ
+// 完了音 — 3種類対応ファンファーレ
 function playTimerEndSound() {
   try {
     const ctx = getAudioCtx();
     if (ctx.state === 'suspended') ctx.resume();
     const now = ctx.currentTime;
-    // 上昇する4音ファンファーレ: C→E→G→C (メジャーコード)
-    const notes = [
-      { freq: 523,  start: 0,    dur: 0.12, type: 'square',   vol: 0.5 },
-      { freq: 659,  start: 0.13, dur: 0.12, type: 'square',   vol: 0.5 },
-      { freq: 784,  start: 0.26, dur: 0.12, type: 'sawtooth', vol: 0.5 },
-      { freq: 1047, start: 0.38, dur: 0.5,  type: 'sine',     vol: 0.6 },
-    ];
-    notes.forEach(({ freq, start, dur, type, vol }) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, now + start);
-      gain.gain.setValueAtTime(0, now + start);
-      gain.gain.linearRampToValueAtTime(vol, now + start + 0.02);
-      gain.gain.setValueAtTime(vol, now + start + dur * 0.65);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + start + dur + 0.06);
-      osc.start(now + start);
-      osc.stop(now + start + dur + 0.08);
-    });
+    const vol = getSoundVolume();
+    const type = APP.soundSettings?.soundType || 'sporty';
+
+    if (type === 'sporty') {
+      // スポーティー: C→E→G→high C メジャーディミニッシュングファンファーレ
+      [
+        { freq: 523,  start: 0,    dur: 0.12, wt: 'square',   v: 0.75 },
+        { freq: 659,  start: 0.13, dur: 0.12, wt: 'square',   v: 0.75 },
+        { freq: 784,  start: 0.26, dur: 0.12, wt: 'sawtooth', v: 0.75 },
+        { freq: 1047, start: 0.38, dur: 0.50, wt: 'sine',     v: 0.85 },
+      ].forEach(({ freq, start, dur, wt, v }) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = wt;
+        osc.frequency.setValueAtTime(freq, now + start);
+        gain.gain.setValueAtTime(0, now + start);
+        gain.gain.linearRampToValueAtTime(vol * v, now + start + 0.02);
+        gain.gain.setValueAtTime(vol * v, now + start + dur * 0.65);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + start + dur + 0.06);
+        osc.start(now + start); osc.stop(now + start + dur + 0.08);
+      });
+
+    } else if (type === 'soft') {
+      // NHK時報風: 短3音 (440Hz 0.2s) + 長先1音 (880Hz 0.7s)
+      [
+        { freq: 440, start: 0,   dur: 0.2 },
+        { freq: 440, start: 0.4, dur: 0.2 },
+        { freq: 440, start: 0.8, dur: 0.2 },
+        { freq: 880, start: 1.3, dur: 0.7 },
+      ].forEach(({ freq, start, dur }) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + start);
+        gain.gain.setValueAtTime(0, now + start);
+        gain.gain.linearRampToValueAtTime(vol * 0.9, now + start + 0.02);
+        gain.gain.setValueAtTime(vol * 0.9, now + start + dur * 0.8);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
+        osc.start(now + start); osc.stop(now + start + dur + 0.04);
+      });
+
+    } else { // RPG — JRPG風アスケールファンファーレ (ドラクエ風)
+      [
+        { freq: 523.25, start: 0,    dur: 0.09, wt: 'square', v: 0.6 },
+        { freq: 659.25, start: 0.1,  dur: 0.09, wt: 'square', v: 0.6 },
+        { freq: 783.99, start: 0.2,  dur: 0.09, wt: 'square', v: 0.6 },
+        { freq: 1046.5, start: 0.3,  dur: 0.09, wt: 'square', v: 0.65 },
+        { freq: 1318.5, start: 0.40, dur: 0.28, wt: 'square', v: 0.65 },
+        { freq: 1046.5, start: 0.42, dur: 0.50, wt: 'sine',   v: 0.35 },
+      ].forEach(({ freq, start, dur, wt, v }) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = wt;
+        osc.frequency.setValueAtTime(freq, now + start);
+        gain.gain.setValueAtTime(vol * v, now + start);
+        gain.gain.setValueAtTime(vol * v, now + start + dur * 0.7);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
+        osc.start(now + start); osc.stop(now + start + dur + 0.05);
+      });
+    }
   } catch(e) { console.warn('Sound error:', e); }
 }
 
@@ -751,13 +834,62 @@ function renderExercisePicker(checkedNames) {
   const picker = document.getElementById('routine-exercise-picker');
   if (!picker) return;
   const allEx = getAllExercises();
-  picker.innerHTML = allEx.map(ex => `
-    <label class="routine-ex-item">
-      <input type="checkbox" value="${ex.name}" ${checkedNames.includes(ex.name) ? 'checked' : ''}>
-      <span class="routine-ex-item__name">${ex.icon || ''} ${ex.name}</span>
-      <span class="routine-ex-item__cat">${ex.category}</span>
-    </label>
-  `).join('');
+
+  // カテゴリー別にグループ化
+  const CAT_ICONS = { '脚': '🦵', '胸': '🏋️', '背筋': '🔙', '肩': '🤾', '腕': '💪', '腹筋': '🎯', 'カーディオ': '🏃' };
+  const byCategory = {};
+  allEx.forEach(ex => {
+    if (!byCategory[ex.category]) byCategory[ex.category] = [];
+    byCategory[ex.category].push(ex);
+  });
+
+  picker.innerHTML = Object.entries(byCategory).map(([cat, exercises]) => {
+    const checkedInCat = exercises.filter(e => checkedNames.includes(e.name)).length;
+    return `
+      <div class="routine-cat-group">
+        <div class="routine-cat-toggle" onclick="toggleRoutineCat('${cat}', this)">
+          <span>${CAT_ICONS[cat] || '💪'} ${cat}</span>
+          <span class="routine-cat-count" id="rcc-${cat}">${checkedInCat > 0 ? `${checkedInCat}選択中` : ''}</span>
+          <span class="routine-cat-arrow">▶</span>
+        </div>
+        <div class="routine-cat-exercises" id="rcex-${cat}" style="display:none;">
+          ${exercises.map(ex => `
+            <label class="routine-ex-item">
+              <input type="checkbox" value="${ex.name}" ${checkedNames.includes(ex.name) ? 'checked' : ''} onchange="updateRoutineCatCount('${cat}')">
+              <span class="routine-ex-item__name">${ex.icon || ''} ${ex.name}</span>
+            </label>
+          `).join('')}
+        </div>
+      </div>`;
+  }).join('');
+
+  // 選択済カテゴリを自動展開
+  Object.keys(byCategory).forEach(cat => {
+    const hasChecked = byCategory[cat].some(e => checkedNames.includes(e.name));
+    if (hasChecked) {
+      const group = document.getElementById(`rcex-${cat}`);
+      const toggle = group?.previousElementSibling?.querySelector('.routine-cat-arrow');
+      if (group) group.style.display = 'block';
+      if (toggle) toggle.textContent = '▼';
+    }
+  });
+}
+
+function toggleRoutineCat(cat, el) {
+  const exercises = document.getElementById(`rcex-${cat}`);
+  const arrow = el.querySelector('.routine-cat-arrow');
+  if (!exercises) return;
+  const isOpen = exercises.style.display !== 'none';
+  exercises.style.display = isOpen ? 'none' : 'block';
+  if (arrow) arrow.textContent = isOpen ? '▶' : '▼';
+}
+
+function updateRoutineCatCount(cat) {
+  const container = document.getElementById(`rcex-${cat}`);
+  if (!container) return;
+  const checked = container.querySelectorAll('input:checked').length;
+  const countEl = document.getElementById(`rcc-${cat}`);
+  if (countEl) countEl.textContent = checked > 0 ? `${checked}選択中` : '';
 }
 
 function saveRoutine() {
@@ -835,10 +967,14 @@ function loadRoutineToMenu(routineId) {
 // ==================== CALORIE DEFICIT TRACKER ====================
 function updateCalorieTracker() {
   const logs = getDeduplicatedDailyLogs();
-  const targetLoss = APP.profile.targetLoss || 10;
+  const profile = APP.profile;
+  const targetLoss = profile.targetLoss || 10;
+  const dailyDeficit = profile.deficit || 500;
   // 1kg脂肪 ≈ 7200 kcal
   const totalGoalKcal = targetLoss * 7200;
-  // アンダーカロリーの日だけ累積（gap < 0 === 赤字）
+  const daysNeeded = Math.ceil(totalGoalKcal / dailyDeficit);
+
+  // アンダーカロリー日のみ累積
   const accumulated = logs.reduce((sum, l) => {
     const g = l.gap || 0;
     return g < 0 ? sum + Math.abs(g) : sum;
@@ -846,56 +982,47 @@ function updateCalorieTracker() {
   const percent = Math.min(100, (accumulated / totalGoalKcal) * 100);
   const remaining = Math.max(0, totalGoalKcal - accumulated);
 
-  // 連続赤字日数計算
+  // 連続赤字日数
   let streak = 0;
   for (let i = logs.length - 1; i >= 0; i--) {
     if ((logs[i].gap || 0) < 0) streak++;
     else break;
   }
 
-  // 今日
+  // 今日の差引
   const today = new Date().toISOString().split('T')[0];
   const todayLog = logs.find(l => l.date === today);
   const todayGap = todayLog ? (todayLog.gap || 0) : null;
 
-  // 表示
+  // === 表示更新 ===
+  const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+  setEl('ct-target-weight', `-${targetLoss} kg`);
+  setEl('ct-daily-deficit-info', `-${dailyDeficit.toLocaleString()} kcal`);
+  setEl('ct-days-needed', `達成まで約 ${daysNeeded}日`);
+  setEl('calorie-goal-label', `全体の ${percent.toFixed(1)}%`);
+  setEl('calorie-accumulated', `${Math.round(accumulated).toLocaleString()} kcal 減少済`);
+  setEl('calorie-remaining', `残り ${Math.round(remaining).toLocaleString()} kcal`);
+  setEl('ct-percent', percent.toFixed(1) + '%');
+  setEl('ct-streak', `🔥 ${streak}`);
+
   const bar = document.getElementById('calorie-progress-bar');
   if (bar) bar.style.width = percent.toFixed(1) + '%';
-
-  const lbl = document.getElementById('calorie-goal-label');
-  if (lbl) lbl.textContent = `目標: ${Math.round(totalGoalKcal / 1000)}万 kcal`;
-
-  const acc = document.getElementById('calorie-accumulated');
-  if (acc) acc.textContent = `${Math.round(accumulated).toLocaleString()} kcal 削減済`;
-
-  const rem = document.getElementById('calorie-remaining');
-  if (rem) rem.textContent = `残り ${Math.round(remaining).toLocaleString()} kcal`;
-
-  const pct = document.getElementById('ct-percent');
-  if (pct) pct.textContent = percent.toFixed(1) + '%';
-
-  const stk = document.getElementById('ct-streak');
-  if (stk) stk.textContent = `🔥 ${streak}`;
 
   const tg = document.getElementById('ct-today-gap');
   if (tg) {
     if (todayGap === null) {
-      tg.textContent = '--';
-      tg.style.color = '';
+      tg.textContent = '--'; tg.style.color = '';
     } else {
       tg.textContent = (todayGap >= 0 ? '+' : '') + Math.round(todayGap).toLocaleString();
       tg.style.color = todayGap < 0 ? 'var(--success)' : 'var(--danger)';
     }
   }
 
-  const daysEl = document.getElementById('calorie-days-count');
-  if (daysEl) daysEl.textContent = `${logs.length}日間`;
-
   const empty = document.getElementById('calorie-tracker-empty');
-  const content = document.getElementById('calorie-tracker-content');
-  const hasData = logs.length > 0;
-  if (empty) empty.style.display = hasData ? 'none' : '';
-  if (content) content.style.display = hasData ? '' : 'none';
+  // プロファイルが設定されているまではエンプティメッセージ表示
+  const hasProfile = profile.height > 0 && profile.weight > 0;
+  if (empty) empty.style.display = (!hasProfile || logs.length === 0) ? '' : 'none';
 }
 
 // ==================== DAILY DATA ====================
