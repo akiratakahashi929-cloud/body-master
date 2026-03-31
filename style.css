@@ -161,6 +161,7 @@ input, textarea, [contenteditable] {
 }
 .section.active { display: block; }
 @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
 /* Sub-pages within a section */
 .sub-page { display: none; animation: fadeSlideIn 0.3s ease forwards; }

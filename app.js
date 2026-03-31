@@ -326,13 +326,202 @@ document.addEventListener('DOMContentLoaded', () => {
   renderRestPresets();
   setupRippleEffect();
   setupMobileScrollFix();
+
   // 日付フィールドを今日にセット
   const today = new Date().toISOString().split('T')[0];
   const dailyDate = document.getElementById('daily-date');
   if (dailyDate) dailyDate.value = today;
   const hDailyDate = document.getElementById('h-daily-date');
   if (hDailyDate) hDailyDate.value = today;
+
+  // ==================== セッション復元 ====================
+  restoreSession();
+
+  // ==================== フォームドラフト復元 ====================
+  restoreFormDraft();
+
+  // ==================== 自動保存（5秒ごと） ====================
+  setInterval(autoSaveSession, 5000);
+
+  // ==================== ページ離脱前に保存 ====================
+  window.addEventListener('beforeunload', () => {
+    autoSaveSession();
+    saveFormDraft();
+  });
+
+  // ==================== フォーム入力の自動保存（リアルタイム） ====================
+  setupFormAutoSave();
 });
+
+// ==================== 自動保存 / 復元 システム ====================
+
+const SESSION_KEY = 'bm_session_draft';
+const FORM_KEY = 'bm_form_draft';
+
+/**
+ * トレーニングセッション（今日のメニュー + セットデータ）を保存
+ */
+function autoSaveSession() {
+  if (!APP.todayExercises || APP.todayExercises.length === 0) return;
+  const sessionData = {
+    savedAt: new Date().toISOString(),
+    date: new Date().toISOString().split('T')[0],
+    todayExercises: JSON.parse(JSON.stringify(APP.todayExercises)),
+    trainingElapsed: document.getElementById('training-elapsed')?.textContent || '00:00:00',
+  };
+  try {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
+    // バッジ表示
+    showSessionSavedBadge();
+  } catch(e) { console.warn('セッション保存エラー:', e); }
+}
+
+/**
+ * 起動時にセッション復元を確認・実行
+ */
+function restoreSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (!data.todayExercises || data.todayExercises.length === 0) return;
+
+    // 今日のセッションかどうか確認
+    const today = new Date().toISOString().split('T')[0];
+    if (data.date !== today) {
+      // 昨日以前のデータは自動削除
+      localStorage.removeItem(SESSION_KEY);
+      return;
+    }
+
+    // セッションが既にある（提出済み）場合はスキップ
+    const hasRecorded = data.todayExercises.some(e => e.recorded);
+    const savedAt = new Date(data.savedAt);
+    const minutesAgo = Math.round((Date.now() - savedAt.getTime()) / 60000);
+
+    // 通知バナーを表示
+    showSessionRestoreBanner(data.todayExercises.length, minutesAgo, () => {
+      APP.todayExercises = data.todayExercises;
+      renderTodayMenu();
+      switchSection('sec-training');
+      showToast(`📦 ${data.todayExercises.length}種目のセッションを復元しました！`, 'success');
+    });
+  } catch(e) { console.warn('セッション復元エラー:', e); }
+}
+
+function showSessionRestoreBanner(exerciseCount, minutesAgo, onRestore) {
+  const banner = document.createElement('div');
+  banner.id = 'session-restore-banner';
+  banner.style.cssText = `
+    position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+    background: linear-gradient(135deg, #1A1A1A, #2D2D2D);
+    border-bottom: 2px solid var(--victory-gold);
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    animation: slideDown 0.3s ease;
+  `;
+  banner.innerHTML = `
+    <div style="font-size:24px;">📦</div>
+    <div style="flex:1;">
+      <div style="font-size:13px;font-weight:700;color:#fff;">前回のトレーニングセッションが見つかりました</div>
+      <div style="font-size:11px;color:#888;">${exerciseCount}種目 · ${minutesAgo}分前に自動保存</div>
+    </div>
+    <button onclick="restoreSessionNow()" style="
+      background:var(--victory-gold);color:#000;border:none;
+      padding:8px 14px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;">
+      復元する
+    </button>
+    <button onclick="dismissSessionBanner()" style="
+      background:rgba(255,255,255,0.1);color:#888;border:none;
+      padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer;">
+      ✕
+    </button>
+  `;
+  document.body.appendChild(banner);
+
+  // onRestoreをグローバルに登録
+  window._sessionRestoreCallback = onRestore;
+
+  // 10秒後に自動消去
+  setTimeout(() => { if (banner.isConnected) banner.remove(); }, 12000);
+}
+
+function restoreSessionNow() {
+  if (window._sessionRestoreCallback) window._sessionRestoreCallback();
+  document.getElementById('session-restore-banner')?.remove();
+}
+
+function dismissSessionBanner() {
+  document.getElementById('session-restore-banner')?.remove();
+  localStorage.removeItem(SESSION_KEY);
+}
+
+function showSessionSavedBadge() {
+  const badge = document.getElementById('session-saved-badge');
+  if (!badge) return;
+  badge.style.opacity = '1';
+  clearTimeout(badge._timer);
+  badge._timer = setTimeout(() => { badge.style.opacity = '0'; }, 2000);
+}
+
+/**
+ * フォーム入力値をdraftとして保存
+ */
+function saveFormDraft() {
+  const draft = {};
+  const ids = ['h-daily-date', 'h-daily-weight', 'h-daily-waist', 'h-daily-app-kcal', 'h-daily-extra-kcal'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.value) draft[id] = el.value;
+  });
+  if (Object.keys(draft).length > 0) {
+    localStorage.setItem(FORM_KEY, JSON.stringify(draft));
+  }
+}
+
+/**
+ * フォームドラフトを復元
+ */
+function restoreFormDraft() {
+  try {
+    const raw = localStorage.getItem(FORM_KEY);
+    if (!raw) return;
+    const draft = JSON.parse(raw);
+    let restored = 0;
+    Object.entries(draft).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el && !el.value && val) {
+        // 日付フィールドは今日の日付と一致する場合のみ復元
+        if (id.includes('date')) {
+          const today = new Date().toISOString().split('T')[0];
+          if (val === today) { el.value = val; restored++; }
+        } else {
+          el.value = val;
+          restored++;
+        }
+      }
+    });
+    if (restored > 0) updateHomeCalc();
+  } catch(e) {}
+}
+
+/**
+ * フォーム入力のリアルタイム自動保存（debounce）
+ */
+let _formDraftTimer = null;
+function setupFormAutoSave() {
+  const ids = ['h-daily-weight', 'h-daily-waist', 'h-daily-app-kcal', 'h-daily-extra-kcal'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      clearTimeout(_formDraftTimer);
+      _formDraftTimer = setTimeout(saveFormDraft, 800);
+    });
+  });
+}
+
 
 // ==================== MOBILE SCROLL FIX ====================
 function setupMobileScrollFix() {
@@ -1242,6 +1431,8 @@ function submitHomeDaily() {
   // 日付を今日にリセット
   document.getElementById('h-daily-date').value = new Date().toISOString().split('T')[0];
   updateCalorieTracker();
+  // フォームドラフトをクリア（送信完了）
+  localStorage.removeItem(FORM_KEY);
   showToast(`${date} の日次データを記録しました！`, 'success');
 }
 
@@ -1819,7 +2010,9 @@ function submitTrainingData() {
   sendToGas('training', data);
   updateRecoveryView();
   renderCalendar();
-  showToast('トレーニングデータを記録しました！', 'success');
+  // セッションドラフトをクリア（送信完了）
+  localStorage.removeItem(SESSION_KEY);
+  showToast('トレーニングデータを記録しました！✅', 'success');
 }
 
 // ==================== TRAINING TIMER (Start/Pause/Stop) ====================

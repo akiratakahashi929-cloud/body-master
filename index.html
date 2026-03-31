@@ -987,5 +987,19 @@
 </div>
 
 <script src="app.js"></script>
+
+<!-- 自動保存バッジ（トレーニング中に表示） -->
+<div id="session-saved-badge" style="
+  position: fixed; bottom: 80px; left: 16px;
+  background: rgba(26,26,26,0.92);
+  border: 1px solid rgba(255,215,0,0.4);
+  color: var(--victory-gold);
+  font-size: 11px; font-weight: 600;
+  padding: 5px 10px; border-radius: 20px;
+  opacity: 0; transition: opacity 0.4s ease;
+  pointer-events: none; z-index: 1000;
+  backdrop-filter: blur(8px);
+">💾 自動保存済み</div>
+
 </body>
 </html>
