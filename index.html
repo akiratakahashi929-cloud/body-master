@@ -69,20 +69,41 @@
       </div>
     </div>
 
-    <!-- Quick Input -->
-    <div class="card card--red">
-      <div class="card__title"><span class="card__title-icon">⚡</span>クイック入力</div>
+    <!-- Daily Data Input (ホーム画面) -->
+    <div class="card card--gold">
+      <div class="card__title"><span class="card__title-icon">📊</span>日次データ入力</div>
+      <div class="form-group">
+        <label class="form-label">日付</label>
+        <input class="form-input" type="date" id="h-daily-date">
+      </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">体重 (kg)</label>
-          <input class="form-input" type="number" id="quick-weight" step="0.1" inputmode="decimal" placeholder="82.5">
+          <input class="form-input" type="number" id="h-daily-weight" step="0.1" inputmode="decimal">
         </div>
         <div class="form-group">
-          <label class="form-label">摂取kcal</label>
-          <input class="form-input" type="number" id="quick-calories" inputmode="numeric" placeholder="2400">
+          <label class="form-label">腹囲 (cm)</label>
+          <input class="form-input" type="number" id="h-daily-waist" step="0.1" inputmode="decimal">
         </div>
       </div>
-      <button class="btn btn--primary btn--full" onclick="submitQuickInput()">📊 記録する</button>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">アプリ摂取kcal</label>
+          <input class="form-input" type="number" id="h-daily-app-kcal" inputmode="numeric">
+        </div>
+        <div class="form-group">
+          <label class="form-label">追加kcal</label>
+          <input class="form-input" type="number" id="h-daily-extra-kcal" inputmode="numeric" placeholder="0">
+        </div>
+      </div>
+      <div id="h-daily-calc" style="display:none; margin-bottom:12px;">
+        <div class="stat-grid stat-grid--3">
+          <div class="stat-box"><div class="stat-box__value" id="h-daily-total">0</div><div class="stat-box__label">合計 kcal</div></div>
+          <div class="stat-box"><div class="stat-box__value" id="h-daily-maint">--</div><div class="stat-box__label">メンテ</div></div>
+          <div class="stat-box"><div class="stat-box__value" id="h-daily-gap">0</div><div class="stat-box__label">ギャップ</div></div>
+        </div>
+      </div>
+      <button class="btn btn--gold btn--full" onclick="submitHomeDaily()">📤 日次データを記録</button>
     </div>
 
     <!-- GAS Config Banner -->

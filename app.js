@@ -135,6 +135,93 @@ const RECOVERY_BASE = {
 const SLEEP_BASELINE = 7.5;
 
 // ==================== INITIALIZATION ====================
+// ==================== AUDIO SYSTEM (Global) ====================
+let _audioCtx = null;
+let _restCountdownBeeped = new Set();
+let _timerCountdownBeeped = new Set();
+
+function getAudioCtx() {
+  if (!_audioCtx) {
+    _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  return _audioCtx;
+}
+
+function unlockAudioCtx() {
+  try {
+    const ctx = getAudioCtx();
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(() => {
+        // iOSアンロック: サイレントバッファを再生
+        const buf = ctx.createBuffer(1, 1, ctx.sampleRate);
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.connect(ctx.destination);
+        src.start(0);
+      });
+    }
+  } catch(e) {}
+}
+
+// スポーティーなカウントダウンBeep（5,4,3,2,1）
+function playCountdownBeep(count) {
+  try {
+    const ctx = getAudioCtx();
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+    // 各カウントで周波数が上がるスポーティーな音
+    const freqMap = { 5: 440, 4: 494, 3: 587, 2: 659, 1: 880 };
+    const freq = freqMap[count] || 440;
+    const isOne = count === 1;
+    const dur = isOne ? 0.22 : 0.1;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = isOne ? 'sawtooth' : 'square';
+    osc.frequency.setValueAtTime(freq, now);
+    if (isOne) osc.frequency.linearRampToValueAtTime(freq * 1.15, now + dur);
+
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.5, now + 0.01);
+    gain.gain.setValueAtTime(0.5, now + dur * 0.6);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + dur + 0.05);
+    osc.start(now);
+    osc.stop(now + dur + 0.06);
+  } catch(e) { console.warn('Beep error:', e); }
+}
+
+// スポーティーな完了ファンファーレ
+function playTimerEndSound() {
+  try {
+    const ctx = getAudioCtx();
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+    // 上昇する4音ファンファーレ: C→E→G→C (メジャーコード)
+    const notes = [
+      { freq: 523,  start: 0,    dur: 0.12, type: 'square',   vol: 0.5 },
+      { freq: 659,  start: 0.13, dur: 0.12, type: 'square',   vol: 0.5 },
+      { freq: 784,  start: 0.26, dur: 0.12, type: 'sawtooth', vol: 0.5 },
+      { freq: 1047, start: 0.38, dur: 0.5,  type: 'sine',     vol: 0.6 },
+    ];
+    notes.forEach(({ freq, start, dur, type, vol }) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, now + start);
+      gain.gain.setValueAtTime(0, now + start);
+      gain.gain.linearRampToValueAtTime(vol, now + start + 0.02);
+      gain.gain.setValueAtTime(vol, now + start + dur * 0.65);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + start + dur + 0.06);
+      osc.start(now + start);
+      osc.stop(now + start + dur + 0.08);
+    });
+  } catch(e) { console.warn('Sound error:', e); }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initParticles();
   loadProfile();
@@ -148,18 +235,24 @@ document.addEventListener('DOMContentLoaded', () => {
   renderRestPresets();
   setupRippleEffect();
   setupMobileScrollFix();
-  // Set daily date
+  // 日付フィールドを今日にセット
+  const today = new Date().toISOString().split('T')[0];
   const dailyDate = document.getElementById('daily-date');
-  if (dailyDate) dailyDate.value = new Date().toISOString().split('T')[0];
+  if (dailyDate) dailyDate.value = today;
+  const hDailyDate = document.getElementById('h-daily-date');
+  if (hDailyDate) hDailyDate.value = today;
 });
 
 // ==================== MOBILE SCROLL FIX ====================
 function setupMobileScrollFix() {
+  // タッチ操作で音声コンテキストをアンロック（iOS対応）
+  document.addEventListener('touchstart', unlockAudioCtx, { passive: true, once: false });
+  document.addEventListener('click', unlockAudioCtx, { passive: true, once: false });
+
   // スライダーのタッチ操作がスクロールに干渉しないよう制御
   document.addEventListener('touchstart', e => {
     const slider = e.target.closest('input[type="range"]');
     if (slider) {
-      // スライダーを操作中はtouchイベントをそのまま通す（スクロールを止める）
       e.stopPropagation();
     }
   }, { passive: true });
@@ -470,6 +563,71 @@ function initDailyListeners() {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', updateDailyCalc);
   });
+  // ホーム画面の日次フォーム
+  ['h-daily-app-kcal', 'h-daily-extra-kcal', 'h-daily-weight'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', updateHomeCalc);
+  });
+}
+
+function updateHomeCalc() {
+  const appKcal = parseFloat(document.getElementById('h-daily-app-kcal').value) || 0;
+  const extraKcal = parseFloat(document.getElementById('h-daily-extra-kcal').value) || 0;
+  const weight = parseFloat(document.getElementById('h-daily-weight').value) || APP.profile.weight;
+  if (!appKcal && !extraKcal) {
+    document.getElementById('h-daily-calc').style.display = 'none'; return;
+  }
+  const totalKcal = appKcal + extraKcal;
+  const bmr = calcBMR(weight);
+  const maintenance = bmr * APP.profile.activity;
+  const gap = totalKcal - (maintenance - APP.profile.deficit);
+  document.getElementById('h-daily-total').textContent = totalKcal;
+  document.getElementById('h-daily-maint').textContent = maintenance.toFixed(0);
+  const gapEl = document.getElementById('h-daily-gap');
+  gapEl.textContent = (gap >= 0 ? '+' : '') + gap.toFixed(0);
+  gapEl.style.color = gap >= 0 ? 'var(--danger)' : 'var(--success)';
+  document.getElementById('h-daily-calc').style.display = 'block';
+}
+
+function submitHomeDaily() {
+  const date = document.getElementById('h-daily-date').value || new Date().toISOString().split('T')[0];
+  const weight = parseFloat(document.getElementById('h-daily-weight').value);
+  const waist = parseFloat(document.getElementById('h-daily-waist').value) || 0;
+  const appKcal = parseFloat(document.getElementById('h-daily-app-kcal').value) || 0;
+  const extraKcal = parseFloat(document.getElementById('h-daily-extra-kcal').value) || 0;
+  if (!weight) { showToast('体重を入力してください', 'error'); return; }
+
+  const bmr = calcBMR(weight);
+  const maintenance = bmr * APP.profile.activity;
+  const targetKcal = maintenance - APP.profile.deficit;
+  const totalKcal = appKcal + extraKcal;
+  const gap = totalKcal > 0 ? totalKcal - targetKcal : 0;
+
+  // プロフィール最新体重を更新
+  APP.profile.weight = weight;
+  if (waist) APP.profile.waist = waist;
+  localStorage.setItem('profile', JSON.stringify(APP.profile));
+
+  const logEntry = { date, weight, waist, appKcal, totalKcal, gap, bmr, maintenance, targetKcal, timestamp: new Date().toISOString() };
+  // 同日データをupsert（重複を防ぐ）
+  const existingIdx = APP.dailyLogs.findIndex(l => l.date === date);
+  if (existingIdx >= 0) {
+    APP.dailyLogs[existingIdx] = logEntry;
+  } else {
+    APP.dailyLogs.push(logEntry);
+  }
+  localStorage.setItem('dailyLogs', JSON.stringify(APP.dailyLogs));
+  sendToGas('daily', logEntry);
+  updateHomeStats(); updateAnalysis(); renderCalendar();
+  // フォームリセット
+  document.getElementById('h-daily-weight').value = '';
+  document.getElementById('h-daily-waist').value = '';
+  document.getElementById('h-daily-app-kcal').value = '';
+  document.getElementById('h-daily-extra-kcal').value = '';
+  document.getElementById('h-daily-calc').style.display = 'none';
+  // 日付を今日にリセット
+  document.getElementById('h-daily-date').value = new Date().toISOString().split('T')[0];
+  showToast(`${date} の日次データを記録しました！`, 'success');
 }
 
 function calcBMR(weight) {
@@ -542,10 +700,16 @@ function submitDailyData() {
   localStorage.setItem('profile', JSON.stringify(APP.profile));
 
   const logEntry = { date, weight, waist, appKcal, totalKcal, gap, bmr, maintenance, targetKcal, timestamp: new Date().toISOString() };
-  APP.dailyLogs.push(logEntry);
+  // 同日データをupsert（重複防止・最新値で上書き）
+  const existingIdx = APP.dailyLogs.findIndex(l => l.date === date);
+  if (existingIdx >= 0) {
+    APP.dailyLogs[existingIdx] = logEntry;
+  } else {
+    APP.dailyLogs.push(logEntry);
+  }
   localStorage.setItem('dailyLogs', JSON.stringify(APP.dailyLogs));
   sendToGas('daily', logEntry);
-  updateHomeStats(); updateAnalysis();
+  updateHomeStats(); updateAnalysis(); renderCalendar();
   showToast('日次データを記録しました！', 'success');
 }
 
@@ -867,7 +1031,7 @@ function addSetCard(initWeight, initReps) {
         <span class="slider-label">重量</span>
         <span class="slider-value"><span class="sv-weight">${initWeight}</span><span class="slider-unit"> kg</span></span>
       </div>
-      <input type="range" min="0" max="${maxW}" step="2.5" value="${initWeight}" oninput="this.closest('.set-card').querySelector('.sv-weight').textContent=this.value">
+      <input type="range" min="0" max="${maxW}" step="1" value="${Math.round(initWeight)}" oninput="this.closest('.set-card').querySelector('.sv-weight').textContent=this.value">
     </div>
     <div class="slider-group">
       <div class="slider-header">
@@ -1091,6 +1255,7 @@ function toggleRestTimer() {
     restTimerStartTime = Date.now();
     restTimerRunning = true;
     btn.textContent = '⏸';
+    _restCountdownBeeped.clear();
     restTimerInterval = setInterval(() => {
       const elapsed = (Date.now() - restTimerStartTime) / 1000;
       restTimerRemaining = restTimerDuration - elapsed;
@@ -1099,10 +1264,16 @@ function toggleRestTimer() {
         clearInterval(restTimerInterval);
         restTimerRunning = false;
         btn.textContent = '▶';
-        // Alert
         if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
         playTimerEndSound();
         showToast('⏱ レスト終了！', 'success');
+      } else {
+        // 5秒前カウントダウンBeep
+        const s = Math.ceil(restTimerRemaining);
+        if (s <= 5 && s > 0 && !_restCountdownBeeped.has(s)) {
+          _restCountdownBeeped.add(s);
+          playCountdownBeep(s);
+        }
       }
       updateRestTimerDisplay();
       document.getElementById('rest-timer-progress').style.width = `${(restTimerRemaining / restTimerDuration) * 100}%`;
@@ -1386,6 +1557,7 @@ function toggleTimer() {
     tmRunning = true;
     document.getElementById('tm-start').textContent = '⏸';
     document.getElementById('tm-start').classList.add('pulse');
+    _timerCountdownBeeped.clear();
     const startTime = Date.now();
     const startRemaining = tmRemaining;
     tmInterval = setInterval(() => {
@@ -1397,6 +1569,13 @@ function toggleTimer() {
         if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
         playTimerEndSound();
         showToast('⏱ タイマー終了！', 'success');
+      } else {
+        // 5秒前カウントダウンBeep
+        const s = Math.ceil(tmRemaining);
+        if (s <= 5 && s > 0 && !_timerCountdownBeeped.has(s)) {
+          _timerCountdownBeeped.add(s);
+          playCountdownBeep(s);
+        }
       }
       updateTimerDisplay();
     }, 100);
@@ -1420,11 +1599,31 @@ function updateTimerDisplay() {
 // ==================== ANALYSIS ====================
 let chartWeight = null, chartGap = null;
 
+// 同日に複数入力がある場合、最も完全な（重量+カロリー両方ある）最新エントリを採用
+function getDeduplicatedDailyLogs() {
+  const byDate = {};
+  APP.dailyLogs.forEach(log => {
+    const existing = byDate[log.date];
+    if (!existing) {
+      byDate[log.date] = log;
+    } else {
+      // 完全度スコア: 体重あり(2点) + カロリーあり(1点)
+      const score = l => (l.weight > 0 ? 2 : 0) + (l.totalKcal > 0 ? 1 : 0);
+      if (score(log) > score(existing)) {
+        byDate[log.date] = log;
+      } else if (score(log) === score(existing)) {
+        // 同スコアなら最新タイムスタンプを採用
+        if ((log.timestamp || '') > (existing.timestamp || '')) byDate[log.date] = log;
+      }
+    }
+  });
+  return Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date));
+}
+
 function updateAnalysis() {
-  const logs = APP.dailyLogs;
+  const logs = getDeduplicatedDailyLogs(); // 重複排除済みログを使用
   if (logs.length === 0) return;
 
-  // Weight chart
   const ctx1 = document.getElementById('chart-weight');
   const ctx2 = document.getElementById('chart-gap');
   if (!ctx1 || !ctx2) return;
@@ -1448,7 +1647,6 @@ function updateAnalysis() {
     options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#666', font: { size: 9 } } }, y: { ticks: { color: '#888' } } } }
   });
 
-  // Stats
   const avgW = weights.reduce((a, b) => a + b, 0) / weights.length;
   const intakes = logs.filter(l => l.totalKcal > 0);
   const avgIntake = intakes.length > 0 ? intakes.reduce((a, b) => a + b.totalKcal, 0) / intakes.length : 0;
@@ -1524,34 +1722,7 @@ function clearAllData() {
   showToast('全データを削除しました', 'success');
 }
 
-// ==================== TIMER END SOUND (Web Audio API) ====================
-function playTimerEndSound() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    // 3音のビープ音を鳴らす
-    const beeps = [
-      { freq: 880, start: 0,    dur: 0.15 },
-      { freq: 880, start: 0.2,  dur: 0.15 },
-      { freq: 1320, start: 0.4, dur: 0.4  },
-    ];
-    beeps.forEach(({ freq, start, dur }) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
-      gain.gain.setValueAtTime(0.6, ctx.currentTime + start);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
-      osc.start(ctx.currentTime + start);
-      osc.stop(ctx.currentTime + start + dur + 0.05);
-    });
-    // コンテキストを一定時間後に閉じる
-    setTimeout(() => ctx.close(), 1500);
-  } catch (e) {
-    console.warn('音の再生に失敗:', e);
-  }
-}
+// playTimerEndSound と playCountdownBeep はファイル先頭のAUDIO SYSTEMセクションで定義済み
 
 // ==================== DAY EDIT MODAL ====================
 let editingDate = null;
