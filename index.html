@@ -2,7 +2,10 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>BODY MASTER — 体系管理 & 筋トレ DX</title>
   <meta name="description" content="体系管理・筋力トレーニング記録・疲労回復管理の統合ツール">
   <link rel="stylesheet" href="style.css">
@@ -697,6 +700,64 @@
     <p style="font-size: 11px; color: #888; margin-bottom: 12px;">各種目のスライダー最大重量を設定してください。</p>
     <div id="weight-settings-list"></div>
     <button class="btn btn--primary btn--full" onclick="saveWeightSettings()" style="margin-top: 12px;">💾 保存する</button>
+  </div>
+</div>
+
+<!-- ======== DAY DETAIL / EDIT MODAL ======== -->
+<div class="modal-overlay" id="day-edit-modal">
+  <div class="modal" style="max-height: 88vh; overflow-y: auto;">
+    <div class="modal__header">
+      <span class="modal__title" id="day-edit-title">📅 日付の記録</span>
+      <button class="modal__close" onclick="closeModal('day-edit-modal')">✕</button>
+    </div>
+
+    <!-- Tab bar -->
+    <div style="display:flex;gap:6px;margin-bottom:14px;">
+      <button class="chip active" id="day-tab-daily" onclick="switchDayTab('daily')">📊 日次</button>
+      <button class="chip" id="day-tab-training" onclick="switchDayTab('training')">💪 トレーニング</button>
+    </div>
+
+    <!-- Daily data panel -->
+    <div id="day-panel-daily">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">体重 (kg)</label>
+          <input class="form-input" type="number" id="edit-weight" step="0.1" inputmode="decimal" placeholder="82.5">
+        </div>
+        <div class="form-group">
+          <label class="form-label">腹囲 (cm)</label>
+          <input class="form-input" type="number" id="edit-waist" step="0.1" inputmode="decimal" placeholder="85">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">アプリ摂取kcal</label>
+          <input class="form-input" type="number" id="edit-app-kcal" inputmode="numeric" placeholder="2200">
+        </div>
+        <div class="form-group">
+          <label class="form-label">追加kcal</label>
+          <input class="form-input" type="number" id="edit-extra-kcal" inputmode="numeric" placeholder="0">
+        </div>
+      </div>
+      <div id="edit-daily-calc" style="display:none;margin-bottom:10px;">
+        <div class="stat-grid stat-grid--3">
+          <div class="stat-box"><div class="stat-box__value" id="edit-total-kcal">0</div><div class="stat-box__label">合計kcal</div></div>
+          <div class="stat-box"><div class="stat-box__value" id="edit-maintenance">--</div><div class="stat-box__label">メンテ</div></div>
+          <div class="stat-box"><div class="stat-box__value" id="edit-gap">0</div><div class="stat-box__label">ギャップ</div></div>
+        </div>
+      </div>
+      <button class="btn btn--gold btn--full" onclick="saveDayEdit()">💾 保存する</button>
+      <button class="btn btn--secondary btn--full" id="edit-delete-daily-btn" onclick="deleteDayLog()" style="margin-top:6px;color:var(--danger);display:none;">🗑 日次データを削除</button>
+    </div>
+
+    <!-- Training panel -->
+    <div id="day-panel-training" style="display:none;">
+      <div id="edit-training-summary" style="margin-bottom:12px;"></div>
+      <div id="edit-exercise-list" style="margin-bottom:12px;"></div>
+      <div style="font-size:11px;color:#666;text-align:center;margin-bottom:8px;">※ トレーニング内容の詳細編集はカレンダーから日付をタップ→トレーニングセクションで行えます</div>
+      <button class="btn btn--secondary btn--full" id="edit-goto-training-btn" onclick="gotoTrainingEdit()">✏️ トレーニングを編集する</button>
+      <button class="btn btn--secondary btn--full" id="edit-delete-training-btn" onclick="deleteTrainingLog()" style="margin-top:6px;color:var(--danger);display:none;">🗑 トレーニングデータを削除</button>
+    </div>
   </div>
 </div>
 

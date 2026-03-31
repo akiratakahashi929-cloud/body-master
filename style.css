@@ -57,6 +57,22 @@ body {
   min-height: 100vh; min-height: 100dvh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  /* スマホ: スクロール中のズームと選択を防止 */
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+/* テキスト入力フィールドのみ選択を許可 */
+input, textarea, [contenteditable] {
+  -webkit-user-select: auto;
+  user-select: auto;
+  /* スマホキーボード表示時のズームを防止 */
+  font-size: 16px !important;
+}
+.form-input, .form-select {
+  font-size: 16px !important;
 }
 
 /* --- Particle Background --- */
@@ -74,6 +90,10 @@ body {
   border-bottom: 2px solid var(--bulls-red);
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 16px; z-index: 1000;
+  /* スマホ: ナビバー固定のちらつき防止 */
+  -webkit-transform: translate3d(0,0,0);
+  transform: translate3d(0,0,0);
+  will-change: transform;
 }
 .navbar__logo { display: flex; align-items: center; gap: 8px; }
 .navbar__logo-icon {
@@ -104,6 +124,10 @@ body {
   border-top: 1px solid var(--charcoal);
   display: flex; align-items: stretch; justify-content: space-around;
   z-index: 1000;
+  /* スマホ: タブバー固定のちらつき防止 */
+  -webkit-transform: translate3d(0,0,0);
+  transform: translate3d(0,0,0);
+  will-change: transform;
 }
 .tabbar__item {
   flex: 1; display: flex; flex-direction: column;
@@ -131,7 +155,10 @@ body {
   padding-bottom: calc(var(--tab-height) + var(--safe-area-bottom) + 12px);
   min-height: 100vh;
 }
-.section { display: none; padding: 8px 16px; animation: fadeSlideIn 0.35s ease forwards; }
+.section { display: none; padding: 8px 16px; animation: fadeSlideIn 0.35s ease forwards;
+  /* スマホ: スクロール中のコンテンツブレを防止 */
+  -webkit-overflow-scrolling: touch;
+}
 .section.active { display: block; }
 @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -285,7 +312,10 @@ body {
 }
 .calendar__weekday:first-child { color: var(--bulls-red-light); }
 .calendar__weekday:last-child { color: var(--info); }
-.calendar__days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.calendar__days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+  /* タッチ操作安定化 */
+  touch-action: pan-y;
+}
 .calendar__day {
   aspect-ratio: 1; display: flex; flex-direction: column;
   align-items: flex-start; justify-content: flex-start;
@@ -474,6 +504,10 @@ input[type="range"] {
   width: 100%; height: 8px;
   background: rgba(255,255,255,0.1); border-radius: var(--radius-full);
   outline: none; cursor: pointer;
+  /* スマホ: スライダー操作中の縦スクロール干渉を防止 */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none; appearance: none;

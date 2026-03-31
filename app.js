@@ -147,10 +147,44 @@ document.addEventListener('DOMContentLoaded', () => {
   initEmojiPicker();
   renderRestPresets();
   setupRippleEffect();
+  setupMobileScrollFix();
   // Set daily date
   const dailyDate = document.getElementById('daily-date');
   if (dailyDate) dailyDate.value = new Date().toISOString().split('T')[0];
 });
+
+// ==================== MOBILE SCROLL FIX ====================
+function setupMobileScrollFix() {
+  // スライダーのタッチ操作がスクロールに干渉しないよう制御
+  document.addEventListener('touchstart', e => {
+    const slider = e.target.closest('input[type="range"]');
+    if (slider) {
+      // スライダーを操作中はtouchイベントをそのまま通す（スクロールを止める）
+      e.stopPropagation();
+    }
+  }, { passive: true });
+
+  // モーダル内スクロールが背景に伝播しないよう防止
+  document.querySelectorAll('.modal').forEach(modal => {
+    modal.addEventListener('touchmove', e => {
+      e.stopPropagation();
+    }, { passive: true });
+  });
+
+  // ダブルタップズームを防止（300ms以内の2回タップ）
+  let lastTouchTime = 0;
+  document.addEventListener('touchend', e => {
+    const now = Date.now();
+    if (now - lastTouchTime < 300) {
+      // ダブルタップを検出 - input系以外ならpreventDefault
+      const tag = e.target.tagName.toLowerCase();
+      if (tag !== 'input' && tag !== 'textarea' && tag !== 'select') {
+        e.preventDefault();
+      }
+    }
+    lastTouchTime = now;
+  }, { passive: false });
+}
 
 // ==================== PARTICLE BACKGROUND ====================
 function initParticles() {
@@ -317,14 +351,15 @@ function createCalendarDay(day, isOtherMonth, isToday = false, dateStr = '') {
       el.innerHTML = `<span class="cal-day-num">${day}</span>`;
     }
 
+    // 日次データがあるかチェックしてドットを追加
+    const dailyLog = APP.dailyLogs.find(l => l.date === dateStr);
+    if (dailyLog && logs.length === 0) {
+      el.innerHTML = `<span class="cal-day-num">${day}</span><div class="cal-day-info"><span style="font-size:6px;color:var(--victory-gold);">⚖</span></div>`;
+    }
+
     el.onclick = () => {
       APP.selectedDate = dateStr;
-      APP.todayExercises = [];
-      const existingLog = APP.trainingLogs.find(l => l.date === dateStr);
-      if (existingLog) APP.todayExercises = [...existingLog.exercises];
-      renderTodayMenu();
-      switchSection('sec-training');
-      showSubPage('training-home');
+      openDayEditModal(dateStr);
     };
   } else {
     el.innerHTML = `<span class="cal-day-num">${day}</span>`;
@@ -1066,7 +1101,7 @@ function toggleRestTimer() {
         btn.textContent = '▶';
         // Alert
         if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
-        try { new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgkKeslmk2LWaYtLqWZT06bqS6u5diQUJ3qby6lV5ESXmtu7mTW0hLe668uJNbSE5+sLy3kVpIT3+wvLeRWkhPf7C8t5Fa').play(); } catch(e) {}
+        playTimerEndSound();
         showToast('⏱ レスト終了！', 'success');
       }
       updateRestTimerDisplay();
@@ -1360,6 +1395,7 @@ function toggleTimer() {
         document.getElementById('tm-start').textContent = '▶';
         document.getElementById('tm-start').classList.remove('pulse');
         if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
+        playTimerEndSound();
         showToast('⏱ タイマー終了！', 'success');
       }
       updateTimerDisplay();
@@ -1486,4 +1522,206 @@ function clearAllData() {
   APP.todayExercises = [];
   renderCalendar(); updateRecoveryView(); updateAnalysis();
   showToast('全データを削除しました', 'success');
+}
+
+// ==================== TIMER END SOUND (Web Audio API) ====================
+function playTimerEndSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    // 3音のビープ音を鳴らす
+    const beeps = [
+      { freq: 880, start: 0,    dur: 0.15 },
+      { freq: 880, start: 0.2,  dur: 0.15 },
+      { freq: 1320, start: 0.4, dur: 0.4  },
+    ];
+    beeps.forEach(({ freq, start, dur }) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+      gain.gain.setValueAtTime(0.6, ctx.currentTime + start);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
+      osc.start(ctx.currentTime + start);
+      osc.stop(ctx.currentTime + start + dur + 0.05);
+    });
+    // コンテキストを一定時間後に閉じる
+    setTimeout(() => ctx.close(), 1500);
+  } catch (e) {
+    console.warn('音の再生に失敗:', e);
+  }
+}
+
+// ==================== DAY EDIT MODAL ====================
+let editingDate = null;
+let editDailyListeners = false;
+
+function openDayEditModal(dateStr) {
+  editingDate = dateStr;
+  // タイトル設定
+  const [y, m, d] = dateStr.split('-');
+  document.getElementById('day-edit-title').textContent = `📅 ${y}年${m}月${d}日`;
+
+  // 既存の日次データを読み込む
+  const daily = APP.dailyLogs.find(l => l.date === dateStr);
+  document.getElementById('edit-weight').value = daily ? (daily.weight || '') : '';
+  document.getElementById('edit-waist').value = daily ? (daily.waist || '') : '';
+  document.getElementById('edit-app-kcal').value = daily ? (daily.appKcal || '') : '';
+  document.getElementById('edit-extra-kcal').value = daily ? (Math.round((daily.totalKcal || 0) - (daily.appKcal || 0)) || '') : '';
+
+  // 削除ボタンの表示制御
+  document.getElementById('edit-delete-daily-btn').style.display = daily ? '' : 'none';
+
+  // カロリー計算リスナー（重複防止）
+  if (!editDailyListeners) {
+    ['edit-weight', 'edit-app-kcal', 'edit-extra-kcal'].forEach(id => {
+      document.getElementById(id).addEventListener('input', updateEditCalcDisplay);
+    });
+    editDailyListeners = true;
+  }
+
+  // トレーニングデータを表示
+  renderEditTrainingSummary(dateStr);
+
+  // 最初は日次タブを表示
+  switchDayTab('daily');
+  openModal('day-edit-modal');
+  updateEditCalcDisplay();
+}
+
+function updateEditCalcDisplay() {
+  const appKcal = parseFloat(document.getElementById('edit-app-kcal').value) || 0;
+  const extraKcal = parseFloat(document.getElementById('edit-extra-kcal').value) || 0;
+  const weight = parseFloat(document.getElementById('edit-weight').value) || APP.profile.weight;
+  if (!appKcal && !extraKcal) {
+    document.getElementById('edit-daily-calc').style.display = 'none';
+    return;
+  }
+  const totalKcal = appKcal + extraKcal;
+  const bmr = calcBMR(weight);
+  const maintenance = bmr * APP.profile.activity;
+  const targetKcal = maintenance - APP.profile.deficit;
+  const gap = totalKcal - targetKcal;
+
+  document.getElementById('edit-total-kcal').textContent = totalKcal;
+  document.getElementById('edit-maintenance').textContent = maintenance.toFixed(0);
+  const gapEl = document.getElementById('edit-gap');
+  gapEl.textContent = (gap >= 0 ? '+' : '') + gap.toFixed(0);
+  gapEl.style.color = gap >= 0 ? 'var(--danger)' : 'var(--success)';
+  document.getElementById('edit-daily-calc').style.display = 'block';
+}
+
+function renderEditTrainingSummary(dateStr) {
+  const log = APP.trainingLogs.find(l => l.date === dateStr);
+  const summaryEl = document.getElementById('edit-training-summary');
+  const listEl = document.getElementById('edit-exercise-list');
+  const deleteBtn = document.getElementById('edit-delete-training-btn');
+
+  if (log) {
+    deleteBtn.style.display = '';
+    summaryEl.innerHTML = `
+      <div class="stat-grid stat-grid--3" style="margin-bottom:8px;">
+        <div class="stat-box"><div class="stat-box__value stat-box__value--red">${log.totalSets || 0}</div><div class="stat-box__label">セット</div></div>
+        <div class="stat-box"><div class="stat-box__value stat-box__value--gold">${(log.totalVolume || 0).toLocaleString()}</div><div class="stat-box__label">ボリューム kg</div></div>
+        <div class="stat-box"><div class="stat-box__value stat-box__value--green">${log.duration || 0}</div><div class="stat-box__label">時間 (分)</div></div>
+      </div>`;
+    listEl.innerHTML = log.exercises.map(ex => `
+      <div style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:4px;">
+        <span style="font-size:20px;">${ex.icon}</span>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;">${ex.name}</div>
+          <div style="font-size:10px;color:#888;">${ex.category} | ${ex.totalSets}set / ${ex.totalVolume.toLocaleString()}kg</div>
+        </div>
+      </div>`).join('');
+  } else {
+    deleteBtn.style.display = 'none';
+    summaryEl.innerHTML = '<p style="color:#555;text-align:center;padding:16px 0;font-size:13px;">トレーニング記録なし</p>';
+    listEl.innerHTML = '';
+  }
+}
+
+function switchDayTab(tab) {
+  document.getElementById('day-panel-daily').style.display = tab === 'daily' ? '' : 'none';
+  document.getElementById('day-panel-training').style.display = tab === 'training' ? '' : 'none';
+  document.getElementById('day-tab-daily').classList.toggle('active', tab === 'daily');
+  document.getElementById('day-tab-training').classList.toggle('active', tab === 'training');
+}
+
+function saveDayEdit() {
+  if (!editingDate) return;
+  const weight = parseFloat(document.getElementById('edit-weight').value);
+  const waist = parseFloat(document.getElementById('edit-waist').value) || 0;
+  const appKcal = parseFloat(document.getElementById('edit-app-kcal').value) || 0;
+  const extraKcal = parseFloat(document.getElementById('edit-extra-kcal').value) || 0;
+
+  if (!weight) { showToast('体重を入力してください', 'error'); return; }
+
+  const bmr = calcBMR(weight);
+  const maintenance = bmr * APP.profile.activity;
+  const targetKcal = maintenance - APP.profile.deficit;
+  const totalKcal = appKcal + extraKcal;
+  const gap = totalKcal > 0 ? totalKcal - targetKcal : 0;
+
+  const newEntry = {
+    date: editingDate, weight, waist, appKcal, totalKcal, gap,
+    bmr, maintenance, targetKcal, timestamp: new Date().toISOString()
+  };
+
+  // 既存の同日データを上書き or 追加
+  const existingIdx = APP.dailyLogs.findIndex(l => l.date === editingDate);
+  if (existingIdx >= 0) {
+    APP.dailyLogs[existingIdx] = newEntry;
+  } else {
+    APP.dailyLogs.push(newEntry);
+    APP.dailyLogs.sort((a, b) => a.date.localeCompare(b.date));
+  }
+  localStorage.setItem('dailyLogs', JSON.stringify(APP.dailyLogs));
+  sendToGas('daily', newEntry);
+
+  // プロフィールの最新体重を更新
+  if (editingDate === new Date().toISOString().split('T')[0]) {
+    APP.profile.weight = weight;
+    if (waist) APP.profile.waist = waist;
+    localStorage.setItem('profile', JSON.stringify(APP.profile));
+  }
+
+  renderCalendar();
+  updateAnalysis();
+  closeModal('day-edit-modal');
+  showToast(`${editingDate} のデータを保存しました！`, 'success');
+}
+
+function deleteDayLog() {
+  if (!editingDate) return;
+  if (!confirm(`${editingDate} の日次データを削除しますか？`)) return;
+  APP.dailyLogs = APP.dailyLogs.filter(l => l.date !== editingDate);
+  localStorage.setItem('dailyLogs', JSON.stringify(APP.dailyLogs));
+  renderCalendar();
+  updateAnalysis();
+  closeModal('day-edit-modal');
+  showToast('日次データを削除しました', 'success');
+}
+
+function deleteTrainingLog() {
+  if (!editingDate) return;
+  if (!confirm(`${editingDate} のトレーニングデータを削除しますか？`)) return;
+  APP.trainingLogs = APP.trainingLogs.filter(l => l.date !== editingDate);
+  localStorage.setItem('trainingLogs', JSON.stringify(APP.trainingLogs));
+  renderCalendar();
+  updateRecoveryView();
+  closeModal('day-edit-modal');
+  showToast('トレーニングデータを削除しました', 'success');
+}
+
+function gotoTrainingEdit() {
+  // モーダルを閉じてトレーニングセクションへ遷移
+  closeModal('day-edit-modal');
+  APP.todayExercises = [];
+  const existingLog = APP.trainingLogs.find(l => l.date === editingDate);
+  if (existingLog) APP.todayExercises = [...existingLog.exercises];
+  renderTodayMenu();
+  switchSection('sec-training');
+  showSubPage('training-home');
+  showToast(`${editingDate} のトレーニングを編集中`, 'success');
 }
