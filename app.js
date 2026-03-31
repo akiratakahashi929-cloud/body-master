@@ -627,7 +627,9 @@ function calculateBody() {
 
   document.getElementById('body-results').style.display = 'block';
   document.getElementById('body-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  showToast('計算完了！', 'success');
+  showToast('計算完了！プロファールを登録しました！', 'success');
+  // 計算後に自動ロック
+  setTimeout(() => lockProfile(), 1800);
 }
 
 function loadProfile() {
@@ -649,9 +651,8 @@ function submitBodyData() {
 }
 
 // ==================== DAILY DATA ====================
-// ==================== SETTINGS TABS ====================
 function switchSettingsTab(tab) {
-  ['profile','timer','sound','routines','system'].forEach(t => {
+  ['profile','timer','sound','exercises','routines','system'].forEach(t => {
     const btn = document.getElementById(`stab-${t}`);
     const panel = document.getElementById(`spanel-${t}`);
     if (btn) btn.classList.toggle('active', t === tab);
@@ -659,10 +660,11 @@ function switchSettingsTab(tab) {
   });
   if (tab === 'routines') renderRoutinesList();
   if (tab === 'sound') loadSoundSettingsUI();
+  if (tab === 'exercises') renderExerciseManageList('all');
+  if (tab === 'profile') renderProfileLockState();
 }
 
 function loadSettingsUI() {
-  // プロフィール値をフォームに反映
   const p = APP.profile;
   const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
   setVal('body-height', p.height);
@@ -673,9 +675,153 @@ function loadSettingsUI() {
   setVal('body-activity', p.activity);
   setVal('body-deficit', p.deficit);
   setVal('body-target-loss', p.targetLoss);
-  // GAS URL
   const gasInput = document.getElementById('settings-gas-url');
   if (gasInput) gasInput.value = APP.gasUrl || '';
+  renderProfileLockState();
+}
+
+// ==================== PROFILE LOCK ====================
+function renderProfileLockState() {
+  const p = APP.profile;
+  const isLocked = !!localStorage.getItem('profileLocked');
+  const banner = document.getElementById('profile-locked-banner');
+  const formArea = document.getElementById('profile-form-area');
+  if (!banner || !formArea) return;
+
+  if (isLocked && p.height > 0) {
+    banner.style.display = 'block';
+    formArea.style.display = 'none';
+    // サマリー表示
+    const summary = document.getElementById('profile-locked-summary');
+    if (summary) {
+      const items = [
+        ['身長', `${p.height} cm`],
+        ['体重', `${p.weight} kg`],
+        ['1日赤字目標', `${p.deficit} kcal`],
+        ['減量目標', `${p.targetLoss} kg`],
+        ['達成まで', `約 ${Math.ceil(p.targetLoss * 7200 / p.deficit)} 日`],
+        ['活動量', p.activity],
+      ];
+      summary.innerHTML = items.map(([k,v]) =>
+        `<div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:8px 10px;">
+          <div style="font-size:10px;color:#666;">${k}</div>
+          <div style="font-size:13px;font-weight:700;color:#eee;margin-top:2px;">${v}</div>
+        </div>`
+      ).join('');
+    }
+  } else {
+    banner.style.display = 'none';
+    formArea.style.display = 'block';
+  }
+}
+
+function lockProfile() {
+  if (APP.profile.height <= 0) return;
+  localStorage.setItem('profileLocked', '1');
+  renderProfileLockState();
+  updateCalorieTracker();
+}
+
+function unlockProfile() {
+  if (!confirm('プロファールを編集モードにしますか？\n計算後に再度固定されます。')) return;
+  localStorage.removeItem('profileLocked');
+  renderProfileLockState();
+}
+
+// ==================== EXERCISE MANAGEMENT ====================
+let _exManageFilter = 'all';
+let _editingExerciseId = null;
+
+function getAllExercisesForManage() {
+  // デフォルト種目 + カスタム種目をマージ
+  const base = getAllExercises();
+  const custom = APP.customExercises || [];
+  // customはすでにAPP.customExercisesに入っているのでbaseに含まれているはず
+  return base;
+}
+
+function renderExerciseManageList(filter) {
+  _exManageFilter = filter;
+  const list = document.getElementById('exercise-manage-list');
+  if (!list) return;
+  const allEx = getAllExercises();
+  const filtered = filter === 'all' ? allEx : allEx.filter(e => e.category === filter);
+
+  list.innerHTML = filtered.map(ex => `
+    <div class="routine-card" onclick="openEditExerciseManageModal('${ex.id || ex.name}')" style="margin-bottom:6px;">
+      <div style="font-size:22px;width:36px;text-align:center;">${ex.icon || '🏋️'}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:14px;font-weight:700;color:#eee;">${ex.name}</div>
+        <div style="font-size:11px;color:#666;">${ex.category}</div>
+      </div>
+      <span style="font-size:12px;color:${ex.isCustom ? 'var(--victory-gold)' : '#444'};">${ex.isCustom ? 'カスタム' : 'デフォルト'}</span>
+    </div>
+  `).join('');
+
+  if (filtered.length === 0) list.innerHTML = '<p style="color:#555;text-align:center;font-size:13px;padding:16px;">種目がまだありません</p>';
+}
+
+function filterExerciseManage(cat, el) {
+  document.querySelectorAll('#exercise-manage-filter .chip').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderExerciseManageList(cat);
+}
+
+function openAddExerciseManageModal() {
+  _editingExerciseId = null;
+  document.getElementById('exercise-manage-modal-title').textContent = '➕ 種目を追加';
+  document.getElementById('em-name').value = '';
+  document.getElementById('em-icon').value = '';
+  document.getElementById('em-category').value = '胸';
+  document.getElementById('em-delete-btn').style.display = 'none';
+  openModal('exercise-manage-modal');
+}
+
+function openEditExerciseManageModal(idOrName) {
+  const allEx = getAllExercises();
+  const ex = allEx.find(e => e.id === idOrName || e.name === idOrName);
+  if (!ex) return;
+  _editingExerciseId = ex.id || ex.name;
+  document.getElementById('exercise-manage-modal-title').textContent = '✏️ 種目を編集';
+  document.getElementById('em-name').value = ex.name;
+  document.getElementById('em-icon').value = ex.icon || '';
+  document.getElementById('em-category').value = ex.category;
+  document.getElementById('em-delete-btn').style.display = ex.isCustom ? '' : 'none';
+  openModal('exercise-manage-modal');
+}
+
+function saveExerciseManage() {
+  const name = document.getElementById('em-name').value.trim();
+  const icon = document.getElementById('em-icon').value.trim() || '🏋️';
+  const category = document.getElementById('em-category').value;
+  if (!name) { showToast('種目名を入力してください', 'error'); return; }
+
+  if (_editingExerciseId) {
+    // 查定済み支 ID又は名前で編集
+    const idx = APP.customExercises.findIndex(e => e.id === _editingExerciseId || e.name === _editingExerciseId);
+    if (idx >= 0) {
+      APP.customExercises[idx] = { ...APP.customExercises[idx], name, icon, category };
+    } else {
+      // デフォルト種目は、カスタム層にオーバーライドとして登録
+      APP.customExercises.push({ id: `custom_${Date.now()}`, name, icon, category, isCustom: true });
+    }
+  } else {
+    APP.customExercises.push({ id: `custom_${Date.now()}`, name, icon, category, isCustom: true });
+  }
+  localStorage.setItem('customExercises', JSON.stringify(APP.customExercises));
+  closeModal('exercise-manage-modal');
+  renderExerciseManageList(_exManageFilter);
+  showToast(`「${name}」を保存しました`, 'success');
+}
+
+function deleteExerciseManage() {
+  if (!_editingExerciseId) return;
+  if (!confirm('この種目を削除しますか？')) return;
+  APP.customExercises = APP.customExercises.filter(e => e.id !== _editingExerciseId && e.name !== _editingExerciseId);
+  localStorage.setItem('customExercises', JSON.stringify(APP.customExercises));
+  closeModal('exercise-manage-modal');
+  renderExerciseManageList(_exManageFilter);
+  showToast('種目を削除しました', 'success');
 }
 
 // ==================== SOUND SETTINGS ====================

@@ -160,17 +160,36 @@
 
     <!-- Settings Internal Nav -->
     <div class="settings-nav" id="settings-nav">
-      <button class="settings-nav__item active" id="stab-profile" onclick="switchSettingsTab('profile')">👤 プロフィール</button>
+      <button class="settings-nav__item active" id="stab-profile" onclick="switchSettingsTab('profile')">👤 プロファール</button>
       <button class="settings-nav__item" id="stab-timer" onclick="switchSettingsTab('timer')">⏱ タイマー</button>
       <button class="settings-nav__item" id="stab-sound" onclick="switchSettingsTab('sound')">🔔 サウンド</button>
+      <button class="settings-nav__item" id="stab-exercises" onclick="switchSettingsTab('exercises')">🏋️ トレーニング設定</button>
       <button class="settings-nav__item" id="stab-routines" onclick="switchSettingsTab('routines')">📋 ルーティーン</button>
       <button class="settings-nav__item" id="stab-system" onclick="switchSettingsTab('system')">⚙️ システム</button>
     </div>
 
     <!-- PANEL: Profile -->
     <div class="settings-panel" id="spanel-profile">
+      <!-- ロック状態バナー -->
+      <div id="profile-locked-banner" style="display:none;">
+        <div class="card" style="background:linear-gradient(135deg,rgba(206,17,65,0.15),rgba(26,26,26,0.9));border:1px solid rgba(206,17,65,0.4);margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="font-size:32px;">🔒</div>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:700;color:#eee;">プロファール登録済</div>
+              <div style="font-size:11px;color:#888;margin-top:2px;">進捗追跡中—内容は固定されています</div>
+            </div>
+            <button class="btn btn--secondary" style="font-size:12px;padding:6px 12px;" onclick="unlockProfile()">✏️ 編集</button>
+          </div>
+          <div id="profile-locked-summary" style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px;"></div>
+        </div>
+      </div>
+      <!-- 入力フォームエリア -->
+      <div id="profile-form-area">
       <div class="card card--red">
-        <div class="card__title"><span class="card__title-icon">📐</span>プロフィール設定</div>
+        <div class="card__title"><span class="card__title-icon">📐</span>プロファール設定
+          <span style="font-size:11px;color:#888;margin-left:auto;">(一度登録すると固定)</span>
+        </div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">身長 (cm)</label>
@@ -218,7 +237,7 @@
           <label class="form-label">減量目標 (kg)</label>
           <input class="form-input" type="number" id="body-target-loss" value="10" step="0.5" inputmode="decimal">
         </div>
-        <button class="btn btn--primary btn--full" onclick="calculateBody()">📊 計算する</button>
+        <button class="btn btn--primary btn--full" onclick="calculateBody()">✨ 計算して登録する</button>
       </div>
       <div id="body-results" style="display: none;">
         <div class="stat-grid">
@@ -237,6 +256,7 @@
         </div>
         <button class="btn btn--gold btn--full" onclick="submitBodyData()" style="margin-top: 8px;">📤 スプレッドシートに保存</button>
       </div>
+      </div><!-- /profile-form-area -->
     </div>
 
     <!-- PANEL: Timer -->
@@ -321,6 +341,26 @@
       </div>
     </div>
 
+    <!-- PANEL: Exercise Management -->
+    <div class="settings-panel" id="spanel-exercises" style="display:none;">
+      <div class="card">
+        <div class="card__title"><span class="card__title-icon">🏋️</span>トレーニング種目管理</div>
+        <p style="font-size:12px;color:#666;margin-bottom:12px;">ここで登録・編集した種目がトレーニングとルーティーンに反映されます。</p>
+        <div class="chip-group" id="exercise-manage-filter" style="margin-bottom:12px;overflow-x:auto;flex-wrap:nowrap;">
+          <div class="chip active" onclick="filterExerciseManage('all', this)">全部</div>
+          <div class="chip" onclick="filterExerciseManage('脚', this)">🦵 脚</div>
+          <div class="chip" onclick="filterExerciseManage('胸', this)">🏋️ 胸</div>
+          <div class="chip" onclick="filterExerciseManage('背筋', this)">🔙 背筋</div>
+          <div class="chip" onclick="filterExerciseManage('肩', this)">🤾 肩</div>
+          <div class="chip" onclick="filterExerciseManage('腕', this)">💪 腕</div>
+          <div class="chip" onclick="filterExerciseManage('腹筋', this)">🎯 腹筋</div>
+          <div class="chip" onclick="filterExerciseManage('カーディオ', this)">🏃 カーディオ</div>
+        </div>
+        <div id="exercise-manage-list"></div>
+        <button class="btn btn--secondary btn--full" onclick="openAddExerciseManageModal()" style="margin-top:12px;">➕ 種目を追加</button>
+      </div>
+    </div>
+
     <!-- PANEL: Routines -->
     <div class="settings-panel" id="spanel-routines" style="display:none;">
       <div class="card">
@@ -353,6 +393,8 @@
         <p style="font-size:12px;color:#555;line-height:1.6;">BODY MASTER v2<br>Sport Training &amp; Body Management DX<br>データ保存: localStorage + Google Sheets</p>
       </div>
     </div>
+
+  </div><!-- /sec-settings -->
 
   <!-- =============================================
        SECTION 3: TRAINING
@@ -870,6 +912,41 @@
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
+
+<!-- ======== EXERCISE MANAGE MODAL ======== -->
+<div class="modal-overlay" id="exercise-manage-modal">
+  <div class="modal" style="max-height:88vh;overflow-y:auto;">
+    <div class="modal__header">
+      <span class="modal__title" id="exercise-manage-modal-title">➕ 種目を追加</span>
+      <button class="modal__close" onclick="closeModal('exercise-manage-modal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">種目名</label>
+      <input class="form-input" type="text" id="em-name" placeholder="例: ダンベルカール">
+    </div>
+    <div class="form-group">
+      <label class="form-label">アイコン (絵文字)</label>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input class="form-input" type="text" id="em-icon" placeholder="🏋️" style="max-width:80px;font-size:24px;text-align:center;">
+        <div class="emoji-picker" id="em-emoji-picker" style="flex:1;"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">部位</label>
+      <select class="form-select" id="em-category">
+        <option value="脚">🦵 脚</option>
+        <option value="胸">🏋️ 胸</option>
+        <option value="背筋">🔙 背筋</option>
+        <option value="肩">🤾 肩</option>
+        <option value="腕">💪 腕</option>
+        <option value="腹筋">🎯 腹筋</option>
+        <option value="カーディオ">🏃 カーディオ</option>
+      </select>
+    </div>
+    <button class="btn btn--gold btn--full" onclick="saveExerciseManage()">💾 保存する</button>
+    <button class="btn btn--secondary btn--full" id="em-delete-btn" onclick="deleteExerciseManage()" style="margin-top:6px;color:var(--danger);display:none;">🗑 削除する</button>
+  </div>
+</div>
 
 <!-- ======== ROUTINE MODALS ======== -->
 <!-- Add / Edit Routine Modal -->
