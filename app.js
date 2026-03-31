@@ -1352,6 +1352,12 @@ function getExerciseMaxWeight(exerciseName, category) {
   return CATEGORY_DEFAULT_MAX_WEIGHT[category] || APP.settings.maxWeight;
 }
 
+// アシスト系種目判定（補助重量でマイナス方向のスライダーを使う）
+function isAssistExercise(name) {
+  if (!name) return false;
+  return name.includes('アシスト');
+}
+
 function renderExerciseList() {
   const all = getAllExercises();
   const filtered = currentFilter === 'all' ? all : all.filter(e => e.category === currentFilter);
@@ -1634,28 +1640,67 @@ function addSetCard(initWeight, initReps) {
   }
   const maxR = APP.settings.maxReps;
 
+  // アシスト種目判定（返し側で使うため取り出し）
+  const isAssist = currentSetExerciseIdx >= 0
+    ? isAssistExercise(APP.todayExercises[currentSetExerciseIdx].name)
+    : false;
+  // アシスト種目の初期値はマイナスに変換
+  if (isAssist && initWeight > 0) initWeight = -initWeight;
+  if (isAssist && initWeight === 0) initWeight = 0;
+
   const card = document.createElement('div');
   card.className = 'set-card';
-  card.innerHTML = `
-    <div class="set-card__header">
-      <span class="set-card__number">Set ${num}</span>
-      <button class="set-card__delete" onclick="deleteSetCard(this)">✕</button>
-    </div>
-    <div class="slider-group">
-      <div class="slider-header">
-        <span class="slider-label">重量</span>
-        <span class="slider-value"><span class="sv-weight">${initWeight}</span><span class="slider-unit"> kg</span></span>
+
+  if (isAssist) {
+    // アシスト種目: スライダーは -100～0kg（右に右を向くほど载が大きい = より载を援助）
+    const sliderVal = Math.min(0, Math.max(-100, Math.round(initWeight)));
+    card.innerHTML = `
+      <div class="set-card__header">
+        <span class="set-card__number">Set ${num}</span>
+        <button class="set-card__delete" onclick="deleteSetCard(this)">✕</button>
       </div>
-      <input type="range" min="0" max="${maxW}" step="1" value="${Math.round(initWeight)}" oninput="this.closest('.set-card').querySelector('.sv-weight').textContent=this.value">
-    </div>
-    <div class="slider-group">
-      <div class="slider-header">
-        <span class="slider-label">回数</span>
-        <span class="slider-value"><span class="sv-reps">${initReps}</span><span class="slider-unit"> 回</span></span>
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="slider-label">補助重量 <span style="font-size:10px;color:var(--victory-gold);">← 大きいほど軽くなる</span></span>
+          <span class="slider-value"><span class="sv-weight">${sliderVal}</span><span class="slider-unit"> kg</span></span>
+        </div>
+        <input type="range" min="-100" max="0" step="1" value="${sliderVal}"
+          data-assist="true"
+          oninput="this.closest('.set-card').querySelector('.sv-weight').textContent=this.value">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:#555;margin-top:3px;">
+          <span>-100kg（最大補助）</span><span>0kg（補助なし）</span>
+        </div>
       </div>
-      <input type="range" min="0" max="${maxR}" step="1" value="${initReps}" oninput="this.closest('.set-card').querySelector('.sv-reps').textContent=this.value">
-    </div>
-  `;
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="slider-label">回数</span>
+          <span class="slider-value"><span class="sv-reps">${initReps}</span><span class="slider-unit"> 回</span></span>
+        </div>
+        <input type="range" min="0" max="${maxR}" step="1" value="${initReps}" oninput="this.closest('.set-card').querySelector('.sv-reps').textContent=this.value">
+      </div>
+    `;
+  } else {
+    card.innerHTML = `
+      <div class="set-card__header">
+        <span class="set-card__number">Set ${num}</span>
+        <button class="set-card__delete" onclick="deleteSetCard(this)">✕</button>
+      </div>
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="slider-label">重量</span>
+          <span class="slider-value"><span class="sv-weight">${initWeight}</span><span class="slider-unit"> kg</span></span>
+        </div>
+        <input type="range" min="0" max="${maxW}" step="1" value="${Math.round(initWeight)}" oninput="this.closest('.set-card').querySelector('.sv-weight').textContent=this.value">
+      </div>
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="slider-label">回数</span>
+          <span class="slider-value"><span class="sv-reps">${initReps}</span><span class="slider-unit"> 回</span></span>
+        </div>
+        <input type="range" min="0" max="${maxR}" step="1" value="${initReps}" oninput="this.closest('.set-card').querySelector('.sv-reps').textContent=this.value">
+      </div>
+    `;
+  }
   container.appendChild(card);
 }
 
@@ -1698,15 +1743,17 @@ function saveExercise() {
     cards.forEach(card => {
       const weight = parseFloat(card.querySelector('input[type="range"]').value) || 0;
       const reps = parseInt(card.querySelectorAll('input[type="range"]')[1].value) || 0;
-      if (weight > 0 || reps > 0) sets.push({ weight, reps });
+      if (weight !== 0 || reps > 0) sets.push({ weight, reps });
     });
 
     if (sets.length === 0) { showToast('セットデータを入力してください', 'error'); return; }
 
-    const totalVolume = sets.reduce((sum, s) => sum + s.weight * s.reps, 0);
+    // アシスト種目はabs値でvolume計算（記録はマイナスのまま）
+    const isAssistEx = isAssistExercise(ex.name);
+    const totalVolume = sets.reduce((sum, s) => sum + Math.abs(s.weight) * s.reps, 0);
     ex.sets = sets;
     ex.totalSets = sets.length;
-    ex.totalVolume = totalVolume;
+    ex.totalVolume = isAssistEx ? 0 : totalVolume;
     ex.notes = notes;
     ex.recorded = true;
 
