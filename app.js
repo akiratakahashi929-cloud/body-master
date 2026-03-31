@@ -21,6 +21,13 @@ const APP = {
   calendarDate: new Date(),
   selectedDate: null,
   restPresets: JSON.parse(localStorage.getItem('restPresets') || '[60, 90, 120, 180]'),
+  routines: JSON.parse(localStorage.getItem('routines') || '[]'),
+  soundSettings: JSON.parse(localStorage.getItem('soundSettings') || 'null') || {
+    volume: 0.7,
+    soundType: 'sporty',
+    countdownEnabled: true,
+    restDefaultTime: 90
+  },
 };
 
 // ==================== EXERCISE DATABASE ====================
@@ -227,6 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadProfile();
   renderCalendar();
   updateHomeStats();
+  updateCalorieTracker();
   updateGasConfigBanner();
   updateAnalysis();
   updateRecoveryView();
@@ -363,10 +371,10 @@ function switchSection(sectionId) {
   document.querySelectorAll('.tabbar__item').forEach(t => {
     t.classList.toggle('active', t.dataset.section === sectionId);
   });
-  // Refresh views
-  if (sectionId === 'sec-home') renderCalendar();
+  if (sectionId === 'sec-home') { renderCalendar(); updateCalorieTracker(); }
   if (sectionId === 'sec-recovery') updateRecoveryView();
   if (sectionId === 'sec-analysis') updateAnalysis();
+  if (sectionId === 'sec-settings') loadSettingsUI();
 }
 
 // Sub-page navigation within training section
@@ -558,6 +566,339 @@ function submitBodyData() {
 }
 
 // ==================== DAILY DATA ====================
+// ==================== SETTINGS TABS ====================
+function switchSettingsTab(tab) {
+  ['profile','timer','sound','routines','system'].forEach(t => {
+    const btn = document.getElementById(`stab-${t}`);
+    const panel = document.getElementById(`spanel-${t}`);
+    if (btn) btn.classList.toggle('active', t === tab);
+    if (panel) panel.style.display = t === tab ? '' : 'none';
+  });
+  if (tab === 'routines') renderRoutinesList();
+  if (tab === 'sound') loadSoundSettingsUI();
+}
+
+function loadSettingsUI() {
+  // プロフィール値をフォームに反映
+  const p = APP.profile;
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  setVal('body-height', p.height);
+  setVal('body-weight', p.weight);
+  setVal('body-age', p.age);
+  setVal('body-gender', p.gender);
+  setVal('body-waist', p.waist || '');
+  setVal('body-activity', p.activity);
+  setVal('body-deficit', p.deficit);
+  setVal('body-target-loss', p.targetLoss);
+  // GAS URL
+  const gasInput = document.getElementById('settings-gas-url');
+  if (gasInput) gasInput.value = APP.gasUrl || '';
+}
+
+// ==================== SOUND SETTINGS ====================
+const ROUTINE_COLORS = [
+  { hex: '#CE1141', label: 'A' },
+  { hex: '#FF6B35', label: 'B' },
+  { hex: '#FFD700', label: 'C' },
+  { hex: '#00C853', label: 'D' },
+  { hex: '#00BCD4', label: 'E' },
+  { hex: '#2979FF', label: 'F' },
+  { hex: '#AA00FF', label: 'G' },
+  { hex: '#FF4081', label: 'H' },
+];
+
+function loadSoundSettingsUI() {
+  const s = APP.soundSettings;
+  const volEl = document.getElementById('sound-volume');
+  const valEl = document.getElementById('volume-val');
+  if (volEl) { volEl.value = Math.round(s.volume * 100); }
+  if (valEl) valEl.textContent = Math.round(s.volume * 100) + '%';
+  const cbEl = document.getElementById('countdown-enabled');
+  if (cbEl) cbEl.checked = s.countdownEnabled;
+  const rdEl = document.getElementById('rest-default-time');
+  const rdVal = document.getElementById('rest-default-val');
+  if (rdEl) rdEl.value = s.restDefaultTime || 90;
+  if (rdVal) updateRestDefaultLabel();
+  // Sound type chips
+  document.querySelectorAll('#sound-type-group .chip').forEach(c => {
+    c.classList.toggle('active', c.textContent.includes(soundTypeLabel(s.soundType)));
+  });
+}
+
+function soundTypeLabel(type) {
+  return { sporty: 'スポーティー', soft: 'ソフト', classic: 'クラシック' }[type] || '';
+}
+
+function updateSoundSettings() {
+  const vol = parseInt(document.getElementById('sound-volume')?.value || 70) / 100;
+  const countdown = document.getElementById('countdown-enabled')?.checked !== false;
+  const restTime = parseInt(document.getElementById('rest-default-time')?.value || 90);
+  document.getElementById('volume-val').textContent = Math.round(vol * 100) + '%';
+  updateRestDefaultLabel();
+  APP.soundSettings = { ...APP.soundSettings, volume: vol, countdownEnabled: countdown, restDefaultTime: restTime };
+  localStorage.setItem('soundSettings', JSON.stringify(APP.soundSettings));
+  // レストタイマーのデフォルト値も更新
+  restTimerDuration = restTime;
+  restTimerRemaining = restTime;
+  updateRestTimerDisplay();
+  const bar = document.getElementById('rest-timer-progress');
+  if (bar) bar.style.width = '100%';
+}
+
+function updateRestDefaultLabel() {
+  const v = parseInt(document.getElementById('rest-default-time')?.value || 90);
+  const lbl = document.getElementById('rest-default-val');
+  if (!lbl) return;
+  lbl.textContent = v >= 60 ? `${Math.floor(v/60)}分${v%60 ? v%60+'秒' : ''}` : `${v}秒`;
+}
+
+function setSoundType(type, el) {
+  APP.soundSettings.soundType = type;
+  localStorage.setItem('soundSettings', JSON.stringify(APP.soundSettings));
+  document.querySelectorAll('#sound-type-group .chip').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+function testTimerSound() {
+  unlockAudioCtx();
+  playCountdownBeep(3);
+  setTimeout(() => playCountdownBeep(2), 500);
+  setTimeout(() => playCountdownBeep(1), 1000);
+  setTimeout(() => playTimerEndSound(), 1300);
+}
+
+function saveGasUrlFromSettings() {
+  const url = document.getElementById('settings-gas-url')?.value.trim();
+  if (url) {
+    APP.gasUrl = url;
+    localStorage.setItem('gasUrl', url);
+    updateGasConfigBanner();
+    showToast('GAS URLを保存しました！', 'success');
+  }
+}
+
+// ==================== ROUTINE MANAGEMENT ====================
+let editingRoutineId = null;
+let selectedRoutineColor = ROUTINE_COLORS[0].hex;
+
+function renderRoutinesList() {
+  const list = document.getElementById('routines-list');
+  if (!list) return;
+  if (APP.routines.length === 0) {
+    list.innerHTML = '<p style="color:#555;text-align:center;font-size:13px;padding:16px 0;">まだルーティーンがありません！<br>➕ボタンから追加してください</p>';
+    return;
+  }
+  list.innerHTML = APP.routines.map(r => {
+    const exList = r.exercises.slice(0,3).join(', ') + (r.exercises.length > 3 ? ` 他${r.exercises.length-3}種` : '');
+    return `
+      <div class="routine-card" onclick="openEditRoutineModal('${r.id}')">
+        <div class="routine-card__dot" style="background:${r.color};color:${getContrastColor(r.color)};">${r.label}</div>
+        <div class="routine-card__info">
+          <div class="routine-card__name">${r.name}</div>
+          <div class="routine-card__exercises">${exList || '種目未登録'}</div>
+        </div>
+        <span class="routine-card__edit">✏️</span>
+      </div>`;
+  }).join('');
+}
+
+function getContrastColor(hex) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return (r*299 + g*587 + b*114) / 1000 > 128 ? '#000' : '#fff';
+}
+
+function openAddRoutineModal() {
+  editingRoutineId = null;
+  selectedRoutineColor = ROUTINE_COLORS[0].hex;
+  document.getElementById('routine-modal-title').textContent = '📋 ルーティーン追加';
+  document.getElementById('routine-name-input').value = '';
+  document.getElementById('routine-delete-btn').style.display = 'none';
+  renderColorPicker(null);
+  renderExercisePicker([]);
+  openModal('routine-edit-modal');
+}
+
+function openEditRoutineModal(id) {
+  const r = APP.routines.find(x => x.id === id);
+  if (!r) return;
+  editingRoutineId = id;
+  selectedRoutineColor = r.color;
+  document.getElementById('routine-modal-title').textContent = '✏️ ルーティーン編集';
+  document.getElementById('routine-name-input').value = r.name;
+  document.getElementById('routine-delete-btn').style.display = '';
+  renderColorPicker(r.color);
+  renderExercisePicker(r.exercises);
+  openModal('routine-edit-modal');
+}
+
+function renderColorPicker(selectedColor) {
+  const picker = document.getElementById('routine-color-picker');
+  if (!picker) return;
+  picker.innerHTML = ROUTINE_COLORS.map(c => `
+    <div class="routine-color-swatch${(selectedColor || ROUTINE_COLORS[0].hex) === c.hex ? ' selected' : ''}"
+      style="background:${c.hex};"
+      onclick="selectRoutineColor('${c.hex}', this)">${c.label}</div>
+  `).join('');
+}
+
+function selectRoutineColor(hex, el) {
+  selectedRoutineColor = hex;
+  document.querySelectorAll('.routine-color-swatch').forEach(s => s.classList.remove('selected'));
+  if (el) el.classList.add('selected');
+}
+
+function renderExercisePicker(checkedNames) {
+  const picker = document.getElementById('routine-exercise-picker');
+  if (!picker) return;
+  const allEx = getAllExercises();
+  picker.innerHTML = allEx.map(ex => `
+    <label class="routine-ex-item">
+      <input type="checkbox" value="${ex.name}" ${checkedNames.includes(ex.name) ? 'checked' : ''}>
+      <span class="routine-ex-item__name">${ex.icon || ''} ${ex.name}</span>
+      <span class="routine-ex-item__cat">${ex.category}</span>
+    </label>
+  `).join('');
+}
+
+function saveRoutine() {
+  const name = document.getElementById('routine-name-input').value.trim();
+  if (!name) { showToast('名前を入力してください', 'error'); return; }
+  const exercises = Array.from(document.querySelectorAll('#routine-exercise-picker input:checked')).map(i => i.value);
+  const colorObj = ROUTINE_COLORS.find(c => c.hex === selectedRoutineColor) || ROUTINE_COLORS[0];
+  if (editingRoutineId) {
+    const idx = APP.routines.findIndex(r => r.id === editingRoutineId);
+    if (idx >= 0) APP.routines[idx] = { ...APP.routines[idx], name, color: colorObj.hex, label: colorObj.label, exercises };
+  } else {
+    APP.routines.push({ id: `r_${Date.now()}`, name, color: colorObj.hex, label: colorObj.label, exercises });
+  }
+  localStorage.setItem('routines', JSON.stringify(APP.routines));
+  closeModal('routine-edit-modal');
+  renderRoutinesList();
+  showToast(`「${name}」を保存しました`, 'success');
+}
+
+function deleteRoutine() {
+  if (!editingRoutineId) return;
+  if (!confirm('このルーティーンを削除しますか？')) return;
+  APP.routines = APP.routines.filter(r => r.id !== editingRoutineId);
+  localStorage.setItem('routines', JSON.stringify(APP.routines));
+  closeModal('routine-edit-modal');
+  renderRoutinesList();
+  showToast('ルーティーンを削除しました', 'success');
+}
+
+// トレーニング画面からルーティーンを呼び出す
+function openRoutineSheet() {
+  const list = document.getElementById('routine-sheet-list');
+  if (!list) return;
+  if (APP.routines.length === 0) {
+    list.innerHTML = '<p style="color:#555;text-align:center;font-size:13px;padding:16px;">ルーティーンがありません。設定から追加してください。</p>';
+  } else {
+    list.innerHTML = APP.routines.map(r => {
+      const exList = r.exercises.slice(0,4).join(' / ');
+      return `
+        <div class="routine-sheet-card" onclick="loadRoutineToMenu('${r.id}')">
+          <div class="routine-sheet-dot" style="background:${r.color};color:${getContrastColor(r.color)};">${r.label}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:15px;font-weight:700;color:#eee;">${r.name}</div>
+            <div style="font-size:11px;color:#666;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${exList || '種目未登録'}</div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+  openModal('routine-sheet');
+}
+
+function loadRoutineToMenu(routineId) {
+  const r = APP.routines.find(x => x.id === routineId);
+  if (!r) return;
+  const allEx = getAllExercises();
+  // ルーティーンの種目を今日のメニューにセット
+  APP.todayExercises = r.exercises.map(name => {
+    const found = allEx.find(e => e.name === name);
+    return found ? { ...found, sets: [], totalSets: 0, totalVolume: 0, recorded: false } : null;
+  }).filter(Boolean);
+  renderTodayMenu();
+  closeModal('routine-sheet');
+  // 読み込みバッジ表示
+  const badge = document.getElementById('active-routine-badge');
+  const chip = document.getElementById('active-routine-chip');
+  if (badge && chip) {
+    badge.style.display = 'block';
+    chip.textContent = `${r.label} ${r.name}`;
+    chip.style.background = r.color;
+    chip.style.color = getContrastColor(r.color);
+  }
+  showToast(`「${r.name}」を読み込みました！`, 'success');
+}
+
+// ==================== CALORIE DEFICIT TRACKER ====================
+function updateCalorieTracker() {
+  const logs = getDeduplicatedDailyLogs();
+  const targetLoss = APP.profile.targetLoss || 10;
+  // 1kg脂肪 ≈ 7200 kcal
+  const totalGoalKcal = targetLoss * 7200;
+  // アンダーカロリーの日だけ累積（gap < 0 === 赤字）
+  const accumulated = logs.reduce((sum, l) => {
+    const g = l.gap || 0;
+    return g < 0 ? sum + Math.abs(g) : sum;
+  }, 0);
+  const percent = Math.min(100, (accumulated / totalGoalKcal) * 100);
+  const remaining = Math.max(0, totalGoalKcal - accumulated);
+
+  // 連続赤字日数計算
+  let streak = 0;
+  for (let i = logs.length - 1; i >= 0; i--) {
+    if ((logs[i].gap || 0) < 0) streak++;
+    else break;
+  }
+
+  // 今日
+  const today = new Date().toISOString().split('T')[0];
+  const todayLog = logs.find(l => l.date === today);
+  const todayGap = todayLog ? (todayLog.gap || 0) : null;
+
+  // 表示
+  const bar = document.getElementById('calorie-progress-bar');
+  if (bar) bar.style.width = percent.toFixed(1) + '%';
+
+  const lbl = document.getElementById('calorie-goal-label');
+  if (lbl) lbl.textContent = `目標: ${Math.round(totalGoalKcal / 1000)}万 kcal`;
+
+  const acc = document.getElementById('calorie-accumulated');
+  if (acc) acc.textContent = `${Math.round(accumulated).toLocaleString()} kcal 削減済`;
+
+  const rem = document.getElementById('calorie-remaining');
+  if (rem) rem.textContent = `残り ${Math.round(remaining).toLocaleString()} kcal`;
+
+  const pct = document.getElementById('ct-percent');
+  if (pct) pct.textContent = percent.toFixed(1) + '%';
+
+  const stk = document.getElementById('ct-streak');
+  if (stk) stk.textContent = `🔥 ${streak}`;
+
+  const tg = document.getElementById('ct-today-gap');
+  if (tg) {
+    if (todayGap === null) {
+      tg.textContent = '--';
+      tg.style.color = '';
+    } else {
+      tg.textContent = (todayGap >= 0 ? '+' : '') + Math.round(todayGap).toLocaleString();
+      tg.style.color = todayGap < 0 ? 'var(--success)' : 'var(--danger)';
+    }
+  }
+
+  const daysEl = document.getElementById('calorie-days-count');
+  if (daysEl) daysEl.textContent = `${logs.length}日間`;
+
+  const empty = document.getElementById('calorie-tracker-empty');
+  const content = document.getElementById('calorie-tracker-content');
+  const hasData = logs.length > 0;
+  if (empty) empty.style.display = hasData ? 'none' : '';
+  if (content) content.style.display = hasData ? '' : 'none';
+}
+
+// ==================== DAILY DATA ====================
 function initDailyListeners() {
   ['daily-app-kcal', 'daily-extra-kcal', 'daily-weight'].forEach(id => {
     const el = document.getElementById(id);
@@ -627,6 +968,7 @@ function submitHomeDaily() {
   document.getElementById('h-daily-calc').style.display = 'none';
   // 日付を今日にリセット
   document.getElementById('h-daily-date').value = new Date().toISOString().split('T')[0];
+  updateCalorieTracker();
   showToast(`${date} の日次データを記録しました！`, 'success');
 }
 
@@ -709,7 +1051,7 @@ function submitDailyData() {
   }
   localStorage.setItem('dailyLogs', JSON.stringify(APP.dailyLogs));
   sendToGas('daily', logEntry);
-  updateHomeStats(); updateAnalysis(); renderCalendar();
+  updateHomeStats(); updateAnalysis(); renderCalendar(); updateCalorieTracker();
   showToast('日次データを記録しました！', 'success');
 }
 

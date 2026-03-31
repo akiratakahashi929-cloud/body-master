@@ -108,122 +108,246 @@
 
     <!-- GAS Config Banner -->
     <div class="config-banner" id="gas-config-banner" style="display: none;">
-      ⚙️ GAS URLが未設定です。<a href="#" onclick="openModal('gas-modal'); return false;" style="color: var(--victory-gold); text-decoration: underline;">設定する</a>
+      ⚙️ GAS URLが未設定です。<a href="#" onclick="switchSection('sec-settings'); return false;" style="color: var(--victory-gold); text-decoration: underline;">設定する</a>
+    </div>
+
+    <!-- アンダーカロリー 累積冲撃ゲージ -->
+    <div class="card" id="calorie-tracker-card">
+      <div class="card__title"><span class="card__title-icon">🎯</span>目標減量進捗<span id="calorie-days-count" style="font-size:11px;color:#888;margin-left:auto;"></span></div>
+      <div id="calorie-tracker-empty" style="color:#555;font-size:13px;text-align:center;padding:8px 0;display:none;">体重・カロリーを入力すると進捗が表示されます</div>
+      <div id="calorie-tracker-content">
+        <!-- 射程 バー -->
+        <div style="margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:#888;margin-bottom:4px;">
+            <span>発火</span><span id="calorie-goal-label">目標: -- kcal</span>
+          </div>
+          <div style="background:rgba(255,255,255,0.08);border-radius:100px;height:14px;overflow:hidden;">
+            <div id="calorie-progress-bar" style="height:100%;border-radius:100px;background:linear-gradient(90deg,#CE1141,#FF6B6B);transition:width 0.8s ease;width:0%;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#555;margin-top:2px;">
+            <span id="calorie-accumulated">0 kcal 削減済</span>
+            <span id="calorie-remaining">残り -- kcal</span>
+          </div>
+        </div>
+        <!-- スタッツ -->
+        <div class="stat-grid stat-grid--3">
+          <div class="stat-box">
+            <div class="stat-box__value stat-box__value--red" id="ct-today-gap">0</div>
+            <div class="stat-box__label">今日ギャップ</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box__value stat-box__value--gold" id="ct-streak">🔥 0</div>
+            <div class="stat-box__label">赤字連続</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box__value stat-box__value--green" id="ct-percent">0%</div>
+            <div class="stat-box__label">達成率</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- =============================================
-       SECTION 2: BODY MANAGEMENT
+       SECTION 2: SETTINGS
        ============================================= -->
-  <div class="section" id="sec-body" data-title="体系管理">
-    <div class="card card--red">
-      <div class="card__title"><span class="card__title-icon">📐</span>プロフィール設定</div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">身長 (cm)</label>
-          <input class="form-input" type="number" id="body-height" step="0.1" inputmode="decimal">
-        </div>
-        <div class="form-group">
-          <label class="form-label">体重 (kg)</label>
-          <input class="form-input" type="number" id="body-weight" step="0.1" inputmode="decimal">
-        </div>
-      </div>
-      <div class="form-row--3" style="display: grid; gap: 10px;">
-        <div class="form-group">
-          <label class="form-label">年齢</label>
-          <input class="form-input" type="number" id="body-age" inputmode="numeric">
-        </div>
-        <div class="form-group">
-          <label class="form-label">性別</label>
-          <select class="form-select" id="body-gender">
-            <option value="male">男性</option>
-            <option value="female">女性</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">腹囲 (cm)</label>
-          <input class="form-input" type="number" id="body-waist" step="0.1" inputmode="decimal">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">活動量</label>
-          <select class="form-select" id="body-activity">
-            <option value="1.2">座りがち</option>
-            <option value="1.375" selected>軽い運動</option>
-            <option value="1.55">中程度</option>
-            <option value="1.725">活発</option>
-            <option value="1.9">非常に活発</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">1日赤字目標 (kcal)</label>
-          <input class="form-input" type="number" id="body-deficit" value="500" inputmode="numeric">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">減量目標 (kg)</label>
-        <input class="form-input" type="number" id="body-target-loss" value="10" step="0.5" inputmode="decimal">
-      </div>
-      <button class="btn btn--primary btn--full" onclick="calculateBody()">📊 計算する</button>
+  <div class="section" id="sec-settings" data-title="設定">
+
+    <!-- Settings Internal Nav -->
+    <div class="settings-nav" id="settings-nav">
+      <button class="settings-nav__item active" id="stab-profile" onclick="switchSettingsTab('profile')">👤 プロフィール</button>
+      <button class="settings-nav__item" id="stab-timer" onclick="switchSettingsTab('timer')">⏱ タイマー</button>
+      <button class="settings-nav__item" id="stab-sound" onclick="switchSettingsTab('sound')">🔔 サウンド</button>
+      <button class="settings-nav__item" id="stab-routines" onclick="switchSettingsTab('routines')">📋 ルーティーン</button>
+      <button class="settings-nav__item" id="stab-system" onclick="switchSettingsTab('system')">⚙️ システム</button>
     </div>
 
-    <!-- Results -->
-    <div id="body-results" style="display: none;">
-      <div class="stat-grid">
-        <div class="stat-box"><div class="stat-box__value stat-box__value--red" id="result-bmr">--</div><div class="stat-box__label">基礎代謝 kcal</div></div>
-        <div class="stat-box"><div class="stat-box__value stat-box__value--gold" id="result-maintenance">--</div><div class="stat-box__label">メンテナンス kcal</div></div>
-        <div class="stat-box"><div class="stat-box__value stat-box__value--green" id="result-target">--</div><div class="stat-box__label">必要摂取 kcal</div></div>
-        <div class="stat-box"><div class="stat-box__value" id="result-bmi">--</div><div class="stat-box__label">BMI</div></div>
+    <!-- PANEL: Profile -->
+    <div class="settings-panel" id="spanel-profile">
+      <div class="card card--red">
+        <div class="card__title"><span class="card__title-icon">📐</span>プロフィール設定</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">身長 (cm)</label>
+            <input class="form-input" type="number" id="body-height" step="0.1" inputmode="decimal">
+          </div>
+          <div class="form-group">
+            <label class="form-label">体重 (kg)</label>
+            <input class="form-input" type="number" id="body-weight" step="0.1" inputmode="decimal">
+          </div>
+        </div>
+        <div class="form-row--3" style="display: grid; gap: 10px;">
+          <div class="form-group">
+            <label class="form-label">年齢</label>
+            <input class="form-input" type="number" id="body-age" inputmode="numeric">
+          </div>
+          <div class="form-group">
+            <label class="form-label">性別</label>
+            <select class="form-select" id="body-gender">
+              <option value="male">男性</option>
+              <option value="female">女性</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">腹囲 (cm)</label>
+            <input class="form-input" type="number" id="body-waist" step="0.1" inputmode="decimal">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">活動量</label>
+            <select class="form-select" id="body-activity">
+              <option value="1.2">座りがち</option>
+              <option value="1.375" selected>軽い運動</option>
+              <option value="1.55">中程度</option>
+              <option value="1.725">活発</option>
+              <option value="1.9">非常に活発</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">1日赤字目標 (kcal)</label>
+            <input class="form-input" type="number" id="body-deficit" value="500" inputmode="numeric">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">減量目標 (kg)</label>
+          <input class="form-input" type="number" id="body-target-loss" value="10" step="0.5" inputmode="decimal">
+        </div>
+        <button class="btn btn--primary btn--full" onclick="calculateBody()">📊 計算する</button>
       </div>
-      <div class="result-banner">
-        <div class="result-banner__title">🎯 減量達成まで</div>
-        <div class="result-banner__value" id="result-days">--</div>
+      <div id="body-results" style="display: none;">
+        <div class="stat-grid">
+          <div class="stat-box"><div class="stat-box__value stat-box__value--red" id="result-bmr">--</div><div class="stat-box__label">基礎代謝 kcal</div></div>
+          <div class="stat-box"><div class="stat-box__value stat-box__value--gold" id="result-maintenance">--</div><div class="stat-box__label">メンテナンス kcal</div></div>
+          <div class="stat-box"><div class="stat-box__value stat-box__value--green" id="result-target">--</div><div class="stat-box__label">必要摄取 kcal</div></div>
+          <div class="stat-box"><div class="stat-box__value" id="result-bmi">--</div><div class="stat-box__label">BMI</div></div>
+        </div>
+        <div class="result-banner">
+          <div class="result-banner__title">🎯 減量達成まで</div>
+          <div class="result-banner__value" id="result-days">--</div>
+        </div>
+        <div class="card" style="margin-top: 12px;">
+          <div class="card__title"><span class="card__title-icon">💡</span>分析サマリー</div>
+          <div id="body-analysis-text" style="font-size: 13px; line-height: 1.6; color: #ccc;"></div>
+        </div>
+        <button class="btn btn--gold btn--full" onclick="submitBodyData()" style="margin-top: 8px;">📤 スプレッドシートに保存</button>
       </div>
-      <div class="card" style="margin-top: 12px;">
-        <div class="card__title"><span class="card__title-icon">💡</span>分析サマリー</div>
-        <div id="body-analysis-text" style="font-size: 13px; line-height: 1.6; color: #ccc;"></div>
-      </div>
-      <button class="btn btn--gold btn--full" onclick="submitBodyData()" style="margin-top: 8px;">📤 プロフィールをスプレッドシートに保存</button>
     </div>
 
-    <!-- Daily Data Input -->
-    <div class="card card--gold" style="margin-top: 12px;">
-      <div class="card__title"><span class="card__title-icon">📊</span>日次データ入力</div>
-      <div class="form-group">
-        <label class="form-label">日付</label>
-        <input class="form-input" type="date" id="daily-date">
+    <!-- PANEL: Timer -->
+    <div class="settings-panel" id="spanel-timer" style="display:none;">
+      <!-- Stopwatch / Countdown Tabs -->
+      <div class="chip-group" style="margin-bottom:16px;">
+        <div class="chip active" id="sw-tab" onclick="switchTimerTab('stopwatch')">⏱ ストップウォッチ</div>
+        <div class="chip" id="tm-tab" onclick="switchTimerTab('timer')">⏳ カウントダウン</div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">体重 (kg)</label>
-          <input class="form-input" type="number" id="daily-weight" step="0.1" inputmode="decimal">
+      <!-- Stopwatch Panel -->
+      <div id="stopwatch-panel">
+        <div class="card">
+          <div class="timer-display" id="stopwatch-display">00:00.00</div>
+          <div style="display: flex; gap: 8px; justify-content: center; margin-top: 12px;">
+            <button class="btn btn--secondary btn--circle" style="width:52px;height:52px;font-size:20px;" onclick="resetStopwatch()">↺</button>
+            <button class="btn btn--primary btn--circle" style="width:68px;height:68px;font-size:26px;" id="sw-start" onclick="toggleStopwatch()">▶</button>
+            <button class="btn btn--secondary btn--circle" style="width:52px;height:52px;font-size:18px;" onclick="stopwatchLap()">🏁</button>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">腹囲 (cm)</label>
-          <input class="form-input" type="number" id="daily-waist" step="0.1" inputmode="decimal">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">アプリ摂取kcal</label>
-          <input class="form-input" type="number" id="daily-app-kcal" inputmode="numeric">
-        </div>
-        <div class="form-group">
-          <label class="form-label">追加kcal</label>
-          <input class="form-input" type="number" id="daily-extra-kcal" inputmode="numeric" placeholder="0">
+        <div class="card" id="lap-card" style="display: none; margin-top: 8px;">
+          <div class="card__title"><span class="card__title-icon">🏁</span>LAPタイム</div>
+          <ul class="lap-list" id="lap-list"></ul>
         </div>
       </div>
-      <div id="daily-calc-result" style="display: none; margin-bottom: 12px;">
-        <div class="stat-grid stat-grid--3">
-          <div class="stat-box"><div class="stat-box__value" id="daily-total-kcal">0</div><div class="stat-box__label">合計 kcal</div></div>
-          <div class="stat-box"><div class="stat-box__value" id="daily-maintenance-display">--</div><div class="stat-box__label">メンテ</div></div>
-          <div class="stat-box"><div class="stat-box__value" id="daily-gap">0</div><div class="stat-box__label">ギャップ</div></div>
+      <!-- Countdown Panel -->
+      <div id="timer-panel" style="display:none;">
+        <div class="card">
+          <div class="timer-display" id="timer-display">00:00</div>
+          <div class="chip-group" style="margin: 12px 0;">
+            <div class="chip" onclick="setTimerPreset(60)">1:00</div>
+            <div class="chip" onclick="setTimerPreset(120)">2:00</div>
+            <div class="chip" onclick="setTimerPreset(180)">3:00</div>
+            <div class="chip" onclick="setTimerPreset(300)">5:00</div>
+            <div class="chip" onclick="setTimerPreset(600)">10:00</div>
+          </div>
+          <div style="display: flex; gap: 8px; justify-content: center;">
+            <button class="btn btn--secondary btn--circle" style="width:52px;height:52px;font-size:20px;" onclick="resetTimer()">↺</button>
+            <button class="btn btn--primary btn--circle" style="width:68px;height:68px;font-size:26px;" id="tm-start" onclick="toggleTimer()">▶</button>
+          </div>
         </div>
       </div>
-      <button class="btn btn--gold btn--full" onclick="submitDailyData()">📤 日次データを記録</button>
     </div>
-  </div>
+
+    <!-- PANEL: Sound -->
+    <div class="settings-panel" id="spanel-sound" style="display:none;">
+      <div class="card">
+        <div class="card__title"><span class="card__title-icon">🔔</span>サウンド設定</div>
+
+        <div class="form-group" style="margin-bottom:18px;">
+          <label class="form-label">🔊 音量 <span id="volume-val" style="color:var(--victory-gold);float:right;">70%</span></label>
+          <input type="range" min="0" max="100" step="5" value="70" id="sound-volume" oninput="updateSoundSettings()" style="touch-action:none;">
+        </div>
+
+        <div class="form-group" style="margin-bottom:18px;">
+          <label class="form-label">🎵 カウントダウン音</label>
+          <div class="chip-group" id="sound-type-group">
+            <div class="chip active" onclick="setSoundType('sporty', this)">⚡ スポーティー</div>
+            <div class="chip" onclick="setSoundType('soft', this)">🎙 ソフト</div>
+            <div class="chip" onclick="setSoundType('classic', this)">🔔 クラシック</div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:18px;">
+          <label class="form-label" style="display:flex;align-items:center;gap:8px;">
+            5秒前カウントダウン
+            <span style="margin-left:auto;">
+              <input type="checkbox" id="countdown-enabled" onchange="updateSoundSettings()" checked style="width:20px;height:20px;accent-color:var(--bulls-red);">
+            </span>
+          </label>
+          <p style="font-size:11px;color:#666;margin-top:4px;">5,4,3,2,1秒前にビープ音を鳴らす</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">レストタイマー デフォルト時間
+            <span style="color:var(--victory-gold);float:right;" id="rest-default-val">90秒</span>
+          </label>
+          <input type="range" min="30" max="300" step="15" value="90" id="rest-default-time" oninput="updateSoundSettings()" style="touch-action:none;">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#555;margin-top:4px;"><span>30秒</span><span>5分</span></div>
+        </div>
+
+        <button class="btn btn--primary btn--full" onclick="testTimerSound()" style="margin-top:16px;">🔊 テスト再生</button>
+      </div>
+    </div>
+
+    <!-- PANEL: Routines -->
+    <div class="settings-panel" id="spanel-routines" style="display:none;">
+      <div class="card">
+        <div class="card__title"><span class="card__title-icon">📋</span>ルーティーン管理</div>
+        <p style="font-size:12px;color:#666;margin-bottom:12px;">カラーフォルダでトレーニングメニューを事前登録。トレーニング画面から呼び出せます。</p>
+        <div id="routines-list"></div>
+        <button class="btn btn--secondary btn--full" onclick="openAddRoutineModal()" style="margin-top:12px;">➕ ルーティーンを追加</button>
+      </div>
+    </div>
+
+    <!-- PANEL: System -->
+    <div class="settings-panel" id="spanel-system" style="display:none;">
+      <div class="card card--red">
+        <div class="card__title"><span class="card__title-icon">⚙️</span>GAS URL 設定</div>
+        <div class="form-group">
+          <label class="form-label">WebアプリのURL</label>
+          <input class="form-input" type="url" id="settings-gas-url" placeholder="https://script.google.com/macros/s/...">
+        </div>
+        <button class="btn btn--primary btn--full" onclick="saveGasUrlFromSettings()">💾 保存</button>
+      </div>
+      <div class="card" style="margin-top:8px;">
+        <div class="card__title"><span class="card__title-icon">📥</span>データ管理</div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn--secondary" style="flex:1;" onclick="exportData()">エクスポート</button>
+          <button class="btn btn--secondary" style="flex:1; color: var(--danger);" onclick="clearAllData()">全データ削除</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top:8px;">
+        <div class="card__title"><span class="card__title-icon">ℹ️</span>アプリ情報</div>
+        <p style="font-size:12px;color:#555;line-height:1.6;">BODY MASTER v2<br>Sport Training &amp; Body Management DX<br>データ保存: localStorage + Google Sheets</p>
+      </div>
+    </div>
 
   <!-- =============================================
        SECTION 3: TRAINING
@@ -285,10 +409,17 @@
       <!-- Today's Menu -->
       <div class="card">
         <div class="card__title"><span class="card__title-icon">📋</span>今日のメニュー<span id="today-menu-count" style="font-size: 11px; color: #888; margin-left: auto;">0種目</span></div>
+        <!-- Routine chips (visible when loaded) -->
+        <div id="active-routine-badge" style="display:none; margin-bottom:8px;">
+          <span class="routine-badge" id="active-routine-chip"></span>
+        </div>
         <div id="today-menu-list">
           <p style="color: #555; text-align: center; padding: 16px 0; font-size: 13px;">メニューを追加してください</p>
         </div>
-        <button class="btn btn--secondary btn--full" onclick="showSubPage('training-menu-select')" style="margin-top: 8px;">➕ メニューを追加</button>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <button class="btn btn--secondary" style="flex:1;" onclick="openRoutineSheet()">📋 ルーティーン</button>
+          <button class="btn btn--secondary" style="flex:2;" onclick="showSubPage('training-menu-select')">➕ メニュー追加</button>
+        </div>
       </div>
 
       <!-- Submit Training -->
@@ -562,54 +693,7 @@
   </div>
 
   <!-- =============================================
-       SECTION 5: STOPWATCH & TIMER
-       ============================================= -->
-  <div class="section" id="sec-timer" data-title="タイマー">
-    <div class="section-header"><span class="section-header__title">ストップウォッチ & タイマー</span></div>
-
-    <!-- Tab toggle -->
-    <div style="display: flex; gap: 6px; margin-bottom: 16px;">
-      <button class="chip active" id="sw-tab" onclick="switchTimerTab('stopwatch')">ストップウォッチ</button>
-      <button class="chip" id="tm-tab" onclick="switchTimerTab('timer')">カウントダウン</button>
-    </div>
-
-    <!-- Stopwatch -->
-    <div class="card" id="stopwatch-panel">
-      <div class="timer-display" id="stopwatch-display">00:00.00</div>
-      <div class="timer-controls">
-        <button class="btn btn--secondary btn--circle" id="sw-reset" onclick="resetStopwatch()">↺</button>
-        <button class="btn btn--primary btn--circle" id="sw-start" onclick="toggleStopwatch()">▶</button>
-        <button class="btn btn--secondary btn--circle" id="sw-lap" onclick="stopwatchLap()">🏁</button>
-      </div>
-      <div class="card" id="lap-card" style="display: none; margin-top: 8px;">
-        <div class="card__title"><span class="card__title-icon">🏁</span>ラップ</div>
-        <ul class="lap-list" id="lap-list"></ul>
-      </div>
-    </div>
-
-    <!-- Timer -->
-    <div class="card" id="timer-panel" style="display: none;">
-      <div class="timer-display" id="timer-display">00:00</div>
-      <div class="timer-controls">
-        <button class="btn btn--secondary btn--circle" id="tm-reset" onclick="resetTimer()">↺</button>
-        <button class="btn btn--primary btn--circle" id="tm-start" onclick="toggleTimer()">▶</button>
-      </div>
-      <div class="preset-timers">
-        <div class="preset-btn" onclick="setTimerPreset(30)">0:30</div>
-        <div class="preset-btn" onclick="setTimerPreset(60)">1:00</div>
-        <div class="preset-btn" onclick="setTimerPreset(90)">1:30</div>
-        <div class="preset-btn" onclick="setTimerPreset(120)">2:00</div>
-      </div>
-      <div class="form-group" style="margin-top: 12px;">
-        <label class="form-label">カスタム (秒)</label>
-        <input class="form-input" type="number" id="timer-custom" placeholder="秒数を入力" inputmode="numeric">
-        <button class="btn btn--secondary btn--full" onclick="setTimerPreset(parseInt(document.getElementById('timer-custom').value)||60)" style="margin-top: 6px;">セット</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- =============================================
-       SECTION 6: ANALYSIS
+       SECTION 5: ANALYSIS
        ============================================= -->
   <div class="section" id="sec-analysis" data-title="分析">
     <div class="section-header"><span class="section-header__title">📊 分析ダッシュボード</span></div>
@@ -642,13 +726,10 @@
 
 </div>
 
-<!-- ======== TABBAR (6 tabs) ======== -->
+<!-- ======== TABBAR (5 tabs) ======== -->
 <nav class="tabbar">
   <button class="tabbar__item active" data-section="sec-home" onclick="switchSection('sec-home')">
     <span class="tabbar__icon">🏠</span>ホーム
-  </button>
-  <button class="tabbar__item" data-section="sec-body" onclick="switchSection('sec-body')">
-    <span class="tabbar__icon">📐</span>体系管理
   </button>
   <button class="tabbar__item" data-section="sec-training" onclick="switchSection('sec-training')">
     <span class="tabbar__icon">💪</span>トレーニング
@@ -656,11 +737,11 @@
   <button class="tabbar__item" data-section="sec-recovery" onclick="switchSection('sec-recovery')">
     <span class="tabbar__icon">🫀</span>回復
   </button>
-  <button class="tabbar__item" data-section="sec-timer" onclick="switchSection('sec-timer')">
-    <span class="tabbar__icon">⏱</span>タイマー
-  </button>
   <button class="tabbar__item" data-section="sec-analysis" onclick="switchSection('sec-analysis')">
     <span class="tabbar__icon">📊</span>分析
+  </button>
+  <button class="tabbar__item" data-section="sec-settings" onclick="switchSection('sec-settings')">
+    <span class="tabbar__icon">⚙️</span>設定
   </button>
 </nav>
 
@@ -784,6 +865,44 @@
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
+
+<!-- ======== ROUTINE MODALS ======== -->
+<!-- Add / Edit Routine Modal -->
+<div class="modal-overlay" id="routine-edit-modal">
+  <div class="modal" style="max-height:88vh;overflow-y:auto;">
+    <div class="modal__header">
+      <span class="modal__title" id="routine-modal-title">📋 ルーティーン追加</span>
+      <button class="modal__close" onclick="closeModal('routine-edit-modal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">ルーティーン名</label>
+      <input class="form-input" type="text" id="routine-name-input" placeholder="例: 胸・三頭筋 Day A">
+    </div>
+    <div class="form-group">
+      <label class="form-label">カラー</label>
+      <div class="routine-color-picker" id="routine-color-picker"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">種目を選択</label>
+      <div id="routine-exercise-picker" style="max-height:220px;overflow-y:auto;"></div>
+    </div>
+    <button class="btn btn--gold btn--full" onclick="saveRoutine()">💾 保存する</button>
+    <button class="btn btn--secondary btn--full" id="routine-delete-btn" onclick="deleteRoutine()" style="margin-top:6px;color:var(--danger);display:none;">🗑 削除する</button>
+  </div>
+</div>
+
+<!-- Routine Sheet (from training screen) -->
+<div class="modal-overlay" id="routine-sheet">
+  <div class="modal" style="max-height:80vh;overflow-y:auto;">
+    <div class="modal__header">
+      <span class="modal__title">📋 ルーティーンを読み込む</span>
+      <button class="modal__close" onclick="closeModal('routine-sheet')">✕</button>
+    </div>
+    <p style="font-size:12px;color:#666;margin-bottom:12px;">選択すると今日のメニューにセットされます</p>
+    <div id="routine-sheet-list"></div>
+    <button class="btn btn--secondary btn--full" onclick="closeModal('routine-sheet');switchSection('sec-settings');switchSettingsTab('routines');" style="margin-top:12px;">⚙️ ルーティーンを管理する</button>
+  </div>
+</div>
 
 <script src="app.js"></script>
 </body>

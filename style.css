@@ -854,3 +854,167 @@ input[type="date"] { color-scheme: dark; }
   .tabbar__item { font-size: 8px; }
   .tabbar__icon { font-size: 18px; }
 }
+
+/* ==================== SETTINGS NAV ==================== */
+.settings-nav {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  margin-bottom: 14px;
+}
+.settings-nav::-webkit-scrollbar { display: none; }
+.settings-nav__item {
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #888;
+  border-radius: var(--radius-full);
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.settings-nav__item.active {
+  background: var(--bulls-red);
+  border-color: var(--bulls-red);
+  color: #fff;
+  box-shadow: 0 0 14px rgba(206,17,65,0.4);
+}
+
+/* ==================== ROUTINE CARDS ==================== */
+.routine-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255,255,255,0.05);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255,255,255,0.08);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.routine-card:active { transform: scale(0.98); }
+.routine-card__dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+.routine-card__info { flex: 1; min-width: 0; }
+.routine-card__name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #eee;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.routine-card__exercises {
+  font-size: 11px;
+  color: #666;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.routine-card__edit {
+  font-size: 18px;
+  color: #555;
+  padding: 6px;
+}
+
+/* ==================== ROUTINE BADGE (training) ==================== */
+.routine-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 700;
+  color: #000;
+}
+
+/* ==================== ROUTINE COLOR PICKER ==================== */
+.routine-color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px 0;
+}
+.routine-color-swatch {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+.routine-color-swatch.selected {
+  border-color: #fff;
+  transform: scale(1.15);
+}
+
+/* ==================== ROUTINE EXERCISE PICKER ==================== */
+.routine-ex-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.routine-ex-item:active { background: rgba(255,255,255,0.08); }
+.routine-ex-item input[type="checkbox"] {
+  width: 18px; height: 18px;
+  accent-color: var(--bulls-red);
+  flex-shrink: 0;
+}
+.routine-ex-item__name { font-size: 13px; color: #ccc; }
+.routine-ex-item__cat { font-size: 10px; color: #666; margin-left: auto; }
+
+/* ==================== ROUTINE SHEET LIST ==================== */
+.routine-sheet-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: rgba(255,255,255,0.06);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.25s;
+  touch-action: manipulation;
+}
+.routine-sheet-card:active {
+  transform: scale(0.97);
+  background: rgba(255,255,255,0.12);
+}
+.routine-sheet-dot {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
