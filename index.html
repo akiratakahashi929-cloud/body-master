@@ -18,7 +18,7 @@
 <!-- ======== NAVBAR ======== -->
 <nav class="navbar">
   <div class="navbar__logo">
-    <div class="navbar__logo-icon">🔥</div>
+    <div class="navbar__logo-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></div>
     <span class="navbar__logo-text">BODY MASTER</span>
   </div>
   <span class="navbar__section-title" id="section-title">ホーム</span>
@@ -32,12 +32,12 @@
        ============================================= -->
   <div class="section active" id="sec-home" data-title="ホーム">
 
-    <!-- 🎯 目標減量進捗ゲージ (最上部) -->
+    <!-- <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 目標減量進捗ゲージ (最上部) -->
     <div class="card calorie-hero-card" id="calorie-tracker-card">
       <!-- ヘッダー -->
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;">
         <div>
-          <div style="font-size:12px;color:#888;margin-bottom:2px;">🎯 目標減量進捗</div>
+          <div style="font-size:12px;color:#888;margin-bottom:2px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 目標減量進捗</div>
           <div style="font-size:22px;font-weight:900;color:var(--bulls-red);font-family:var(--font-display);" id="ct-target-weight">-- kg</div>
         </div>
         <div style="text-align:right;">
@@ -66,7 +66,7 @@
           <div class="stat-box__label">今日差引</div>
         </div>
         <div class="stat-box">
-          <div class="stat-box__value stat-box__value--gold" id="ct-streak" style="font-size:14px;">🔥 0</div>
+          <div class="stat-box__value stat-box__value--gold" id="ct-streak" style="font-size:14px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg> 0</div>
           <div class="stat-box__label">連続日数</div>
         </div>
         <div class="stat-box">
@@ -82,9 +82,9 @@
       <div class="calendar__header">
         <span class="calendar__month" id="calendar-month"></span>
         <div class="calendar__nav">
-          <button class="calendar__nav-btn" onclick="changeMonth(-1)">◀</button>
+          <button class="calendar__nav-btn" onclick="changeMonth(-1)"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="19 3 5 12 19 21 19 3"/></svg></button>
           <button class="calendar__nav-btn" onclick="changeMonth(0)">●</button>
-          <button class="calendar__nav-btn" onclick="changeMonth(1)">▶</button>
+          <button class="calendar__nav-btn" onclick="changeMonth(1)"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
         </div>
       </div>
       <div class="calendar__weekdays">
@@ -117,7 +117,7 @@
 
     <!-- Daily Data Input (ホーム画面) -->
     <div class="card card--gold">
-      <div class="card__title"><span class="card__title-icon">📊</span>日次データ入力</div>
+      <div class="card__title"><span class="card__title-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>日次データ入力</div>
       <div class="form-group">
         <label class="form-label">日付</label>
         <input class="form-input" type="date" id="h-daily-date">
@@ -149,7 +149,7 @@
           <div class="stat-box"><div class="stat-box__value" id="h-daily-gap">0</div><div class="stat-box__label">ギャップ</div></div>
         </div>
       </div>
-      <button class="btn btn--gold btn--full" onclick="submitHomeDaily()">📤 日次データを記録</button>
+      <button class="btn btn--gold btn--full" onclick="submitHomeDaily()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> 日次データを記録</button>
     </div>
   </div>
 
@@ -254,7 +254,10 @@
           <label class="form-label">減量目標 (kg)</label>
           <input class="form-input" type="number" id="body-target-loss" value="10" step="0.5" inputmode="decimal">
         </div>
-        <button class="btn btn--primary btn--full" onclick="calculateBody()">✨ 計算して登録する</button>
+        <button class="btn btn--primary btn--full" onclick="calculateBody()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;margin-right:4px"><polyline points="20 6 9 17 4 12"/></svg>
+          計算して登録する
+        </button>
       </div>
       <div id="body-results" style="display: none;">
         <div class="stat-grid">
@@ -264,14 +267,14 @@
           <div class="stat-box"><div class="stat-box__value" id="result-bmi">--</div><div class="stat-box__label">BMI</div></div>
         </div>
         <div class="result-banner">
-          <div class="result-banner__title">🎯 減量達成まで</div>
+          <div class="result-banner__title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 減量達成まで</div>
           <div class="result-banner__value" id="result-days">--</div>
         </div>
         <div class="card" style="margin-top: 12px;">
-          <div class="card__title"><span class="card__title-icon">💡</span>分析サマリー</div>
+          <div class="card__title"><span class="card__title-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg></span>分析サマリー</div>
           <div id="body-analysis-text" style="font-size: 13px; line-height: 1.6; color: #ccc;"></div>
         </div>
-        <button class="btn btn--gold btn--full" onclick="submitBodyData()" style="margin-top: 8px;">📤 スプレッドシートに保存</button>
+        <button class="btn btn--gold btn--full" onclick="submitBodyData()" style="margin-top: 8px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> スプレッドシートに保存</button>
       </div>
       </div><!-- /profile-form-area -->
     </div>
@@ -289,12 +292,12 @@
           <div class="timer-display" id="stopwatch-display">00:00.00</div>
           <div style="display: flex; gap: 8px; justify-content: center; margin-top: 12px;">
             <button class="btn btn--secondary btn--circle" style="width:52px;height:52px;font-size:20px;" onclick="resetStopwatch()">↺</button>
-            <button class="btn btn--primary btn--circle" style="width:68px;height:68px;font-size:26px;" id="sw-start" onclick="toggleStopwatch()">▶</button>
-            <button class="btn btn--secondary btn--circle" style="width:52px;height:52px;font-size:18px;" onclick="stopwatchLap()">🏁</button>
+            <button class="btn btn--primary btn--circle" style="width:68px;height:68px;font-size:26px;" id="sw-start" onclick="toggleStopwatch()"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+            <button class="btn btn--secondary btn--circle" style="width:52px;height:52px;font-size:18px;" onclick="stopwatchLap()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></button>
           </div>
         </div>
         <div class="card" id="lap-card" style="display: none; margin-top: 8px;">
-          <div class="card__title"><span class="card__title-icon">🏁</span>LAPタイム</div>
+          <div class="card__title"><span class="card__title-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></span>LAPタイム</div>
           <ul class="lap-list" id="lap-list"></ul>
         </div>
       </div>
@@ -311,7 +314,7 @@
           </div>
           <div style="display: flex; gap: 8px; justify-content: center;">
             <button class="btn btn--secondary btn--circle" style="width:52px;height:52px;font-size:20px;" onclick="resetTimer()">↺</button>
-            <button class="btn btn--primary btn--circle" style="width:68px;height:68px;font-size:26px;" id="tm-start" onclick="toggleTimer()">▶</button>
+            <button class="btn btn--primary btn--circle" style="width:68px;height:68px;font-size:26px;" id="tm-start" onclick="toggleTimer()"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
           </div>
         </div>
       </div>
@@ -320,19 +323,19 @@
     <!-- PANEL: Sound -->
     <div class="settings-panel" id="spanel-sound" style="display:none;">
       <div class="card">
-        <div class="card__title"><span class="card__title-icon">🔔</span>サウンド設定</div>
+        <div class="card__title"><span class="card__title-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>サウンド設定</div>
 
         <div class="form-group" style="margin-bottom:18px;">
-          <label class="form-label">🔊 音量 <span id="volume-val" style="color:var(--victory-gold);float:right;">70%</span></label>
+          <label class="form-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> 音量 <span id="volume-val" style="color:var(--victory-gold);float:right;">70%</span></label>
           <input type="range" min="0" max="100" step="5" value="70" id="sound-volume" oninput="updateSoundSettings()" style="touch-action:none;">
         </div>
 
         <div class="form-group" style="margin-bottom:18px;">
-          <label class="form-label">🎵 カウントダウン音</label>
+          <label class="form-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> カウントダウン音</label>
           <div class="chip-group" id="sound-type-group">
-            <div class="chip active" onclick="setSoundType('sporty', this)">⚡ スポーティー</div>
-            <div class="chip" onclick="setSoundType('soft', this)">🎙 ソフト</div>
-            <div class="chip" onclick="setSoundType('classic', this)">🔔 クラシック</div>
+            <div class="chip active" onclick="setSoundType('sporty', this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> スポーティー</div>
+            <div class="chip" onclick="setSoundType('soft', this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> ソフト</div>
+            <div class="chip" onclick="setSoundType('classic', this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> クラシック</div>
           </div>
         </div>
 
@@ -354,52 +357,52 @@
           <div style="display:flex;justify-content:space-between;font-size:10px;color:#555;margin-top:4px;"><span>30秒</span><span>5分</span></div>
         </div>
 
-        <button class="btn btn--primary btn--full" onclick="testTimerSound()" style="margin-top:16px;">🔊 テスト再生</button>
+        <button class="btn btn--primary btn--full" onclick="testTimerSound()" style="margin-top:16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> テスト再生</button>
       </div>
     </div>
 
     <!-- PANEL: Exercise Management -->
     <div class="settings-panel" id="spanel-exercises" style="display:none;">
       <div class="card">
-        <div class="card__title"><span class="card__title-icon">🏋️</span>トレーニング種目管理</div>
+        <div class="card__title"><span class="card__title-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M6.5 6.5h11M6.5 17.5h11M3 8.5v7M21 8.5v7"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>️</span>トレーニング種目管理</div>
         <p style="font-size:12px;color:#666;margin-bottom:12px;">ここで登録・編集した種目がトレーニングとルーティーンに反映されます。</p>
         <div class="chip-group" id="exercise-manage-filter" style="margin-bottom:12px;overflow-x:auto;flex-wrap:nowrap;">
           <div class="chip active" onclick="filterExerciseManage('all', this)">全部</div>
-          <div class="chip" onclick="filterExerciseManage('脚', this)">🦵 脚</div>
-          <div class="chip" onclick="filterExerciseManage('胸', this)">🏋️ 胸</div>
-          <div class="chip" onclick="filterExerciseManage('背筋', this)">🔙 背筋</div>
-          <div class="chip" onclick="filterExerciseManage('肩', this)">🤾 肩</div>
-          <div class="chip" onclick="filterExerciseManage('腕', this)">💪 腕</div>
-          <div class="chip" onclick="filterExerciseManage('腹筋', this)">🎯 腹筋</div>
-          <div class="chip" onclick="filterExerciseManage('カーディオ', this)">🏃 カーディオ</div>
+          <div class="chip" onclick="filterExerciseManage('脚', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M12 3c0 0-2 3-2 7l2 11"/><path d="M10 10l4 2"/><path d="M14 21a2 2 0 0 1-4 0"/></svg> 脚</div>
+          <div class="chip" onclick="filterExerciseManage('胸', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M6.5 6.5h11M6.5 17.5h11M3 8.5v7M21 8.5v7"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>️ 胸</div>
+          <div class="chip" onclick="filterExerciseManage('背筋', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg> 背筋</div>
+          <div class="chip" onclick="filterExerciseManage('肩', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="4" r="2"/><path d="M7 10l5 2 5-2"/><path d="M7 22l5-10 5 10"/></svg> 肩</div>
+          <div class="chip" onclick="filterExerciseManage('腕', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> 腕</div>
+          <div class="chip" onclick="filterExerciseManage('腹筋', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 腹筋</div>
+          <div class="chip" onclick="filterExerciseManage('カーディオ', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="13" cy="4" r="2"/><path d="M7 22l2-5 3 3 2-7"/><path d="M7 15l2-4 4 2 4-3"/></svg> カーディオ</div>
         </div>
         <div id="exercise-manage-list"></div>
-        <button class="btn btn--secondary btn--full" onclick="openAddExerciseManageModal()" style="margin-top:12px;">➕ 種目を追加</button>
+        <button class="btn btn--secondary btn--full" onclick="openAddExerciseManageModal()" style="margin-top:12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> 種目を追加</button>
       </div>
     </div>
 
     <!-- PANEL: Routines -->
     <div class="settings-panel" id="spanel-routines" style="display:none;">
       <div class="card">
-        <div class="card__title"><span class="card__title-icon">📋</span>ルーティーン管理</div>
+        <div class="card__title"><span class="card__title-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></span>ルーティーン管理</div>
         <p style="font-size:12px;color:#666;margin-bottom:12px;">カラーフォルダでトレーニングメニューを事前登録。トレーニング画面から呼び出せます。</p>
         <div id="routines-list"></div>
-        <button class="btn btn--secondary btn--full" onclick="openAddRoutineModal()" style="margin-top:12px;">➕ ルーティーンを追加</button>
+        <button class="btn btn--secondary btn--full" onclick="openAddRoutineModal()" style="margin-top:12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> ルーティーンを追加</button>
       </div>
     </div>
 
     <!-- PANEL: System -->
     <div class="settings-panel" id="spanel-system" style="display:none;">
       <div class="card card--red">
-        <div class="card__title"><span class="card__title-icon">⚙️</span>GAS URL 設定</div>
+        <div class="card__title"><span class="card__title-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>️</span>GAS URL 設定</div>
         <div class="form-group">
           <label class="form-label">WebアプリのURL</label>
           <input class="form-input" type="url" id="settings-gas-url" placeholder="https://script.google.com/macros/s/...">
         </div>
-        <button class="btn btn--primary btn--full" onclick="saveGasUrlFromSettings()">💾 保存</button>
+        <button class="btn btn--primary btn--full" onclick="saveGasUrlFromSettings()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> 保存</button>
       </div>
       <div class="card" style="margin-top:8px;">
-        <div class="card__title"><span class="card__title-icon">📥</span>データ管理</div>
+        <div class="card__title"><span class="card__title-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></span>データ管理</div>
         <div style="display: flex; gap: 8px;">
           <button class="btn btn--secondary" style="flex:1;" onclick="exportData()">エクスポート</button>
           <button class="btn btn--secondary" style="flex:1; color: var(--danger);" onclick="clearAllData()">全データ削除</button>
@@ -422,7 +425,7 @@
     <div class="sub-page active" id="training-home">
       <!-- Sleep Input -->
       <div class="sleep-input-row">
-        <span class="sleep-input-row__icon">😴</span>
+        <span class="sleep-input-row__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
         <span class="sleep-input-row__label">前日の睡眠時間</span>
         <input type="number" id="training-sleep-hours" step="0.5" min="0" max="14" value="5" inputmode="decimal">
         <span style="color: #888; font-size: 12px;">時間</span>
@@ -432,7 +435,7 @@
       <div class="training-timer-bar">
         <div class="training-timer-bar__time" id="training-elapsed">00:00:00</div>
         <div class="training-timer-bar__controls">
-          <button class="training-timer-bar__btn training-timer-bar__btn--start" id="training-start-btn" onclick="toggleTrainingTimer()">▶</button>
+          <button class="training-timer-bar__btn training-timer-bar__btn--start" id="training-start-btn" onclick="toggleTrainingTimer()"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
           <button class="training-timer-bar__btn training-timer-bar__btn--stop" onclick="stopTrainingTimer()">⏹</button>
         </div>
       </div>
@@ -460,7 +463,7 @@
         <div class="rest-timer__progress"><div class="rest-timer__progress-fill" id="rest-timer-progress" style="width: 0%;"></div></div>
         <div class="rest-timer__controls">
           <button class="btn btn--secondary btn--circle" style="width:40px;height:40px;font-size:16px;" onclick="resetRestTimer()">↺</button>
-          <button class="btn btn--primary btn--circle" style="width:56px;height:56px;font-size:22px;" id="rest-start-btn" onclick="toggleRestTimer()">▶</button>
+          <button class="btn btn--primary btn--circle" style="width:56px;height:56px;font-size:22px;" id="rest-start-btn" onclick="toggleRestTimer()"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
         </div>
         <div class="rest-timer__presets" id="rest-presets">
           <div class="rest-timer__preset" onclick="setRestPreset(60)">1:00</div>
@@ -472,7 +475,7 @@
 
       <!-- Today's Menu -->
       <div class="card">
-        <div class="card__title"><span class="card__title-icon">📋</span>今日のメニュー<span id="today-menu-count" style="font-size: 11px; color: #888; margin-left: auto;">0種目</span></div>
+        <div class="card__title"><span class="card__title-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></span>今日のメニュー<span id="today-menu-count" style="font-size: 11px; color: #888; margin-left: auto;">0種目</span></div>
         <!-- Routine chips (visible when loaded) -->
         <div id="active-routine-badge" style="display:none; margin-bottom:8px;">
           <span class="routine-badge" id="active-routine-chip"></span>
@@ -481,13 +484,13 @@
           <p style="color: #555; text-align: center; padding: 16px 0; font-size: 13px;">メニューを追加してください</p>
         </div>
         <div style="display:flex;gap:6px;margin-top:8px;">
-          <button class="btn btn--secondary" style="flex:1;" onclick="openRoutineSheet()">📋 ルーティーン</button>
-          <button class="btn btn--secondary" style="flex:2;" onclick="showSubPage('training-menu-select')">➕ メニュー追加</button>
+          <button class="btn btn--secondary" style="flex:1;" onclick="openRoutineSheet()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg> ルーティーン</button>
+          <button class="btn btn--secondary" style="flex:2;" onclick="showSubPage('training-menu-select')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> メニュー追加</button>
         </div>
       </div>
 
       <!-- Submit Training -->
-      <button class="btn btn--gold btn--full" id="submit-training-btn" onclick="submitTrainingData()" style="display: none; margin-top: 8px;">📤 トレーニングを記録</button>
+      <button class="btn btn--gold btn--full" id="submit-training-btn" onclick="submitTrainingData()" style="display: none; margin-top: 8px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> トレーニングを記録</button>
     </div>
 
     <!-- Sub-page: Menu Selection (Muscle groups) -->
@@ -495,17 +498,17 @@
       <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
         <button class="back-btn" onclick="cancelExerciseSelect()" style="margin: 0;">← 戻る</button>
         <span class="section-header__title" style="flex: 1;">種目を選択</span>
-        <button class="btn btn--secondary" onclick="openModal('weight-settings-modal')" style="font-size: 12px; padding: 6px 10px;">⚙️ 重量設定</button>
+        <button class="btn btn--secondary" onclick="openModal('weight-settings-modal')" style="font-size: 12px; padding: 6px 10px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>️ 重量設定</button>
       </div>
       <div class="chip-group" id="muscle-chips">
         <div class="chip active" data-muscle="all" onclick="filterMuscleGroup('all', this)">全て</div>
-        <div class="chip" data-muscle="脚" onclick="filterMuscleGroup('脚', this)">🦵 脚</div>
-        <div class="chip" data-muscle="胸" onclick="filterMuscleGroup('胸', this)">🏋️ 胸</div>
-        <div class="chip" data-muscle="背筋" onclick="filterMuscleGroup('背筋', this)">🔙 背筋</div>
-        <div class="chip" data-muscle="肩" onclick="filterMuscleGroup('肩', this)">🤾 肩</div>
-        <div class="chip" data-muscle="腕" onclick="filterMuscleGroup('腕', this)">💪 腕</div>
-        <div class="chip" data-muscle="腹筋" onclick="filterMuscleGroup('腹筋', this)">🎯 腹筋</div>
-        <div class="chip" data-muscle="カーディオ" onclick="filterMuscleGroup('カーディオ', this)">🏃 カーディオ</div>
+        <div class="chip" data-muscle="脚" onclick="filterMuscleGroup('脚', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M12 3c0 0-2 3-2 7l2 11"/><path d="M10 10l4 2"/><path d="M14 21a2 2 0 0 1-4 0"/></svg> 脚</div>
+        <div class="chip" data-muscle="胸" onclick="filterMuscleGroup('胸', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M6.5 6.5h11M6.5 17.5h11M3 8.5v7M21 8.5v7"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>️ 胸</div>
+        <div class="chip" data-muscle="背筋" onclick="filterMuscleGroup('背筋', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg> 背筋</div>
+        <div class="chip" data-muscle="肩" onclick="filterMuscleGroup('肩', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="4" r="2"/><path d="M7 10l5 2 5-2"/><path d="M7 22l5-10 5 10"/></svg> 肩</div>
+        <div class="chip" data-muscle="腕" onclick="filterMuscleGroup('腕', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> 腕</div>
+        <div class="chip" data-muscle="腹筋" onclick="filterMuscleGroup('腹筋', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 腹筋</div>
+        <div class="chip" data-muscle="カーディオ" onclick="filterMuscleGroup('カーディオ', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="13" cy="4" r="2"/><path d="M7 22l2-5 3 3 2-7"/><path d="M7 15l2-4 4 2 4-3"/></svg> カーディオ</div>
       </div>
 
       <div id="exercise-list"></div>
@@ -517,7 +520,7 @@
       </div>
 
       <!-- Add Custom Exercise Button -->
-      <button class="btn btn--secondary btn--full" onclick="openModal('add-exercise-modal')" style="margin-top: 8px;">🆕 トレーニングを新規追加</button>
+      <button class="btn btn--secondary btn--full" onclick="openModal('add-exercise-modal')" style="margin-top: 8px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg> トレーニングを新規追加</button>
     </div>
 
     <!-- Sub-page: Exercise Set Input (Slider) -->
@@ -525,7 +528,7 @@
       <button class="back-btn" onclick="showSubPage('training-home')">← メニューに戻る</button>
       <div class="card">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-          <span style="font-size: 28px;" id="set-exercise-icon">🏋️</span>
+          <span style="font-size: 28px;" id="set-exercise-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M6.5 6.5h11M6.5 17.5h11M3 8.5v7M21 8.5v7"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>️</span>
           <div>
             <div style="font-size: 16px; font-weight: 700;" id="set-exercise-name">種目名</div>
             <div style="font-size: 11px; color: #888;" id="set-exercise-category">部位</div>
@@ -534,7 +537,7 @@
 
         <!-- Previous Record -->
         <div class="prev-record" id="prev-record-display" style="display: none;">
-          <span class="prev-record__icon">📊</span>
+          <span class="prev-record__icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>
           <span class="prev-record__label">前回:</span>
           <span class="prev-record__value" id="prev-record-text">--</span>
           <span style="margin-left: auto; color: #888;">|</span>
@@ -548,7 +551,7 @@
         <!-- Add / Save -->
         <div style="display: flex; gap: 8px; margin-top: 10px;">
           <button class="btn btn--secondary" style="flex: 1;" onclick="addSetCard()">＋ セット追加</button>
-          <button class="btn btn--primary" style="flex: 2;" onclick="saveExercise()">✅ 記録する</button>
+          <button class="btn btn--primary" style="flex: 2;" onclick="saveExercise()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00C853" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polyline points="20 6 9 17 4 12"/></svg> 記録する</button>
         </div>
       </div>
 
@@ -565,12 +568,12 @@
        ============================================= -->
   <div class="section" id="sec-recovery" data-title="回復">
     <div class="section-header">
-      <span class="section-header__title">💪 疲労 & 回復管理</span>
+      <span class="section-header__title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> 疲労 & 回復管理</span>
     </div>
 
     <!-- Sleep Input for Recovery -->
     <div class="sleep-input-row">
-      <span class="sleep-input-row__icon">😴</span>
+      <span class="sleep-input-row__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
       <span class="sleep-input-row__label">平均睡眠時間</span>
       <input type="number" id="recovery-sleep-hours" step="0.5" min="0" max="14" value="5" inputmode="decimal" onchange="updateRecoveryView()">
       <span style="color: #888; font-size: 12px;">時間</span>
@@ -760,15 +763,15 @@
        SECTION 5: ANALYSIS
        ============================================= -->
   <div class="section" id="sec-analysis" data-title="分析">
-    <div class="section-header"><span class="section-header__title">📊 分析ダッシュボード</span></div>
+    <div class="section-header"><span class="section-header__title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg> 分析ダッシュボード</span></div>
 
     <div class="card">
-      <div class="card__title"><span class="card__title-icon">⚖️</span>体重推移</div>
+      <div class="card__title"><span class="card__title-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M16 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"/><path d="M2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"/><path d="M7 21h10M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>️</span>体重推移</div>
       <div class="chart-container"><canvas id="chart-weight"></canvas></div>
     </div>
 
     <div class="card">
-      <div class="card__title"><span class="card__title-icon">🔥</span>カロリーギャップ推移</div>
+      <div class="card__title"><span class="card__title-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span>カロリーギャップ推移</div>
       <div class="chart-container"><canvas id="chart-gap"></canvas></div>
     </div>
 
@@ -780,7 +783,7 @@
     </div>
 
     <div class="card" style="margin-top: 8px;">
-      <div class="card__title"><span class="card__title-icon">📥</span>データ管理</div>
+      <div class="card__title"><span class="card__title-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></span>データ管理</div>
       <div style="display: flex; gap: 8px;">
         <button class="btn btn--secondary" style="flex:1;" onclick="exportData()">エクスポート</button>
         <button class="btn btn--secondary" style="flex:1; color: var(--danger);" onclick="clearAllData()">全データ削除</button>
@@ -825,8 +828,8 @@
 <div class="modal-overlay" id="gas-modal">
   <div class="modal">
     <div class="modal__header">
-      <span class="modal__title">⚙️ GAS URL設定</span>
-      <button class="modal__close" onclick="closeModal('gas-modal')">✕</button>
+      <span class="modal__title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>️ GAS URL設定</span>
+      <button class="modal__close" onclick="closeModal('gas-modal')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-1px;display:inline-block"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="form-group">
       <label class="form-label">WebアプリのURL</label>
@@ -840,8 +843,8 @@
 <div class="modal-overlay" id="add-exercise-modal">
   <div class="modal">
     <div class="modal__header">
-      <span class="modal__title">🆕 トレーニング追加</span>
-      <button class="modal__close" onclick="closeModal('add-exercise-modal')">✕</button>
+      <span class="modal__title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg> トレーニング追加</span>
+      <button class="modal__close" onclick="closeModal('add-exercise-modal')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-1px;display:inline-block"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="form-group">
       <label class="form-label">種目名</label>
@@ -850,13 +853,13 @@
     <div class="form-group">
       <label class="form-label">部位</label>
       <select class="form-select" id="new-exercise-category">
-        <option value="脚">🦵 脚</option>
-        <option value="胸">🏋️ 胸</option>
-        <option value="背筋">🔙 背筋</option>
-        <option value="肩">🤾 肩</option>
-        <option value="腕">💪 腕</option>
-        <option value="腹筋">🎯 腹筋</option>
-        <option value="カーディオ">🏃 カーディオ</option>
+        <option value="脚"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M12 3c0 0-2 3-2 7l2 11"/><path d="M10 10l4 2"/><path d="M14 21a2 2 0 0 1-4 0"/></svg> 脚</option>
+        <option value="胸"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M6.5 6.5h11M6.5 17.5h11M3 8.5v7M21 8.5v7"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>️ 胸</option>
+        <option value="背筋"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg> 背筋</option>
+        <option value="肩"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="4" r="2"/><path d="M7 10l5 2 5-2"/><path d="M7 22l5-10 5 10"/></svg> 肩</option>
+        <option value="腕"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> 腕</option>
+        <option value="腹筋"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 腹筋</option>
+        <option value="カーディオ"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="13" cy="4" r="2"/><path d="M7 22l2-5 3 3 2-7"/><path d="M7 15l2-4 4 2 4-3"/></svg> カーディオ</option>
       </select>
     </div>
     <div class="form-group">
@@ -870,12 +873,12 @@
 <div class="modal-overlay" id="weight-settings-modal">
   <div class="modal" style="max-height: 80vh; overflow-y: auto;">
     <div class="modal__header">
-      <span class="modal__title">⚙️ 重量スライダー設定</span>
-      <button class="modal__close" onclick="closeModal('weight-settings-modal')">✕</button>
+      <span class="modal__title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>️ 重量スライダー設定</span>
+      <button class="modal__close" onclick="closeModal('weight-settings-modal')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-1px;display:inline-block"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <p style="font-size: 11px; color: #888; margin-bottom: 12px;">各種目のスライダー最大重量を設定してください。</p>
     <div id="weight-settings-list"></div>
-    <button class="btn btn--primary btn--full" onclick="saveWeightSettings()" style="margin-top: 12px;">💾 保存する</button>
+    <button class="btn btn--primary btn--full" onclick="saveWeightSettings()" style="margin-top: 12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> 保存する</button>
   </div>
 </div>
 
@@ -883,14 +886,14 @@
 <div class="modal-overlay" id="day-edit-modal">
   <div class="modal" style="max-height: 88vh; overflow-y: auto;">
     <div class="modal__header">
-      <span class="modal__title" id="day-edit-title">📅 日付の記録</span>
-      <button class="modal__close" onclick="closeModal('day-edit-modal')">✕</button>
+      <span class="modal__title" id="day-edit-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> 日付の記録</span>
+      <button class="modal__close" onclick="closeModal('day-edit-modal')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-1px;display:inline-block"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
 
     <!-- Tab bar -->
     <div style="display:flex;gap:6px;margin-bottom:14px;">
-      <button class="chip active" id="day-tab-daily" onclick="switchDayTab('daily')">📊 日次</button>
-      <button class="chip" id="day-tab-training" onclick="switchDayTab('training')">💪 トレーニング</button>
+      <button class="chip active" id="day-tab-daily" onclick="switchDayTab('daily')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg> 日次</button>
+      <button class="chip" id="day-tab-training" onclick="switchDayTab('training')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> トレーニング</button>
     </div>
 
     <!-- Daily data panel -->
@@ -922,8 +925,8 @@
           <div class="stat-box"><div class="stat-box__value" id="edit-gap">0</div><div class="stat-box__label">ギャップ</div></div>
         </div>
       </div>
-      <button class="btn btn--gold btn--full" onclick="saveDayEdit()">💾 保存する</button>
-      <button class="btn btn--secondary btn--full" id="edit-delete-daily-btn" onclick="deleteDayLog()" style="margin-top:6px;color:var(--danger);display:none;">🗑 日次データを削除</button>
+      <button class="btn btn--gold btn--full" onclick="saveDayEdit()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> 保存する</button>
+      <button class="btn btn--secondary btn--full" id="edit-delete-daily-btn" onclick="deleteDayLog()" style="margin-top:6px;color:var(--danger);display:none;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg> 日次データを削除</button>
     </div>
 
     <!-- Training panel -->
@@ -931,8 +934,8 @@
       <div id="edit-training-summary" style="margin-bottom:12px;"></div>
       <div id="edit-exercise-list" style="margin-bottom:12px;"></div>
       <div style="font-size:11px;color:#666;text-align:center;margin-bottom:8px;">※ トレーニング内容の詳細編集はカレンダーから日付をタップ→トレーニングセクションで行えます</div>
-      <button class="btn btn--secondary btn--full" id="edit-goto-training-btn" onclick="gotoTrainingEdit()">✏️ トレーニングを編集する</button>
-      <button class="btn btn--secondary btn--full" id="edit-delete-training-btn" onclick="deleteTrainingLog()" style="margin-top:6px;color:var(--danger);display:none;">🗑 トレーニングデータを削除</button>
+      <button class="btn btn--secondary btn--full" id="edit-goto-training-btn" onclick="gotoTrainingEdit()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>️ トレーニングを編集する</button>
+      <button class="btn btn--secondary btn--full" id="edit-delete-training-btn" onclick="deleteTrainingLog()" style="margin-top:6px;color:var(--danger);display:none;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg> トレーニングデータを削除</button>
     </div>
   </div>
 </div>
@@ -944,8 +947,8 @@
 <div class="modal-overlay" id="exercise-manage-modal">
   <div class="modal" style="max-height:88vh;overflow-y:auto;">
     <div class="modal__header">
-      <span class="modal__title" id="exercise-manage-modal-title">➕ 種目を追加</span>
-      <button class="modal__close" onclick="closeModal('exercise-manage-modal')">✕</button>
+      <span class="modal__title" id="exercise-manage-modal-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> 種目を追加</span>
+      <button class="modal__close" onclick="closeModal('exercise-manage-modal')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-1px;display:inline-block"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="form-group">
       <label class="form-label">種目名</label>
@@ -954,24 +957,24 @@
     <div class="form-group">
       <label class="form-label">アイコン (絵文字)</label>
       <div style="display:flex;gap:8px;align-items:center;">
-        <input class="form-input" type="text" id="em-icon" placeholder="🏋️" style="max-width:80px;font-size:24px;text-align:center;">
+        <input class="form-input" type="text" id="em-icon" placeholder="<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M6.5 6.5h11M6.5 17.5h11M3 8.5v7M21 8.5v7"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>️" style="max-width:80px;font-size:24px;text-align:center;">
         <div class="emoji-picker" id="em-emoji-picker" style="flex:1;"></div>
       </div>
     </div>
     <div class="form-group">
       <label class="form-label">部位</label>
       <select class="form-select" id="em-category">
-        <option value="脚">🦵 脚</option>
-        <option value="胸">🏋️ 胸</option>
-        <option value="背筋">🔙 背筋</option>
-        <option value="肩">🤾 肩</option>
-        <option value="腕">💪 腕</option>
-        <option value="腹筋">🎯 腹筋</option>
-        <option value="カーディオ">🏃 カーディオ</option>
+        <option value="脚"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M12 3c0 0-2 3-2 7l2 11"/><path d="M10 10l4 2"/><path d="M14 21a2 2 0 0 1-4 0"/></svg> 脚</option>
+        <option value="胸"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M6.5 6.5h11M6.5 17.5h11M3 8.5v7M21 8.5v7"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>️ 胸</option>
+        <option value="背筋"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg> 背筋</option>
+        <option value="肩"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="4" r="2"/><path d="M7 10l5 2 5-2"/><path d="M7 22l5-10 5 10"/></svg> 肩</option>
+        <option value="腕"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> 腕</option>
+        <option value="腹筋"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 腹筋</option>
+        <option value="カーディオ"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="13" cy="4" r="2"/><path d="M7 22l2-5 3 3 2-7"/><path d="M7 15l2-4 4 2 4-3"/></svg> カーディオ</option>
       </select>
     </div>
-    <button class="btn btn--gold btn--full" onclick="saveExerciseManage()">💾 保存する</button>
-    <button class="btn btn--secondary btn--full" id="em-delete-btn" onclick="deleteExerciseManage()" style="margin-top:6px;color:var(--danger);display:none;">🗑 削除する</button>
+    <button class="btn btn--gold btn--full" onclick="saveExerciseManage()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> 保存する</button>
+    <button class="btn btn--secondary btn--full" id="em-delete-btn" onclick="deleteExerciseManage()" style="margin-top:6px;color:var(--danger);display:none;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg> 削除する</button>
   </div>
 </div>
 
@@ -980,8 +983,8 @@
 <div class="modal-overlay" id="routine-edit-modal">
   <div class="modal" style="max-height:88vh;overflow-y:auto;">
     <div class="modal__header">
-      <span class="modal__title" id="routine-modal-title">📋 ルーティーン追加</span>
-      <button class="modal__close" onclick="closeModal('routine-edit-modal')">✕</button>
+      <span class="modal__title" id="routine-modal-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg> ルーティーン追加</span>
+      <button class="modal__close" onclick="closeModal('routine-edit-modal')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-1px;display:inline-block"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="form-group">
       <label class="form-label">ルーティーン名</label>
@@ -995,8 +998,8 @@
       <label class="form-label">種目を選択</label>
       <div id="routine-exercise-picker" style="max-height:220px;overflow-y:auto;"></div>
     </div>
-    <button class="btn btn--gold btn--full" onclick="saveRoutine()">💾 保存する</button>
-    <button class="btn btn--secondary btn--full" id="routine-delete-btn" onclick="deleteRoutine()" style="margin-top:6px;color:var(--danger);display:none;">🗑 削除する</button>
+    <button class="btn btn--gold btn--full" onclick="saveRoutine()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> 保存する</button>
+    <button class="btn btn--secondary btn--full" id="routine-delete-btn" onclick="deleteRoutine()" style="margin-top:6px;color:var(--danger);display:none;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg> 削除する</button>
   </div>
 </div>
 
@@ -1004,12 +1007,12 @@
 <div class="modal-overlay" id="routine-sheet">
   <div class="modal" style="max-height:80vh;overflow-y:auto;">
     <div class="modal__header">
-      <span class="modal__title">📋 ルーティーンを読み込む</span>
-      <button class="modal__close" onclick="closeModal('routine-sheet')">✕</button>
+      <span class="modal__title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg> ルーティーンを読み込む</span>
+      <button class="modal__close" onclick="closeModal('routine-sheet')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-1px;display:inline-block"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <p style="font-size:12px;color:#666;margin-bottom:12px;">選択すると今日のメニューにセットされます</p>
     <div id="routine-sheet-list"></div>
-    <button class="btn btn--secondary btn--full" onclick="closeModal('routine-sheet');switchSection('sec-settings');switchSettingsTab('routines');" style="margin-top:12px;">⚙️ ルーティーンを管理する</button>
+    <button class="btn btn--secondary btn--full" onclick="closeModal('routine-sheet');switchSection('sec-settings');switchSettingsTab('routines');" style="margin-top:12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>️ ルーティーンを管理する</button>
   </div>
 </div>
 
@@ -1026,7 +1029,7 @@
   opacity: 0; transition: opacity 0.4s ease;
   pointer-events: none; z-index: 1000;
   backdrop-filter: blur(8px);
-">💾 自動保存済み</div>
+"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> 自動保存済み</div>
 
 </body>
 </html>
