@@ -8,8 +8,8 @@
   <meta name="mobile-web-app-capable" content="yes">
   <title>BODY MASTER — 体系管理 & 筋トレ DX</title>
   <meta name="description" content="体系管理・筋力トレーニング記録・疲労回復管理の統合ツール">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="../phosphor-icons/Fonts/regular/style.css">
+  <link rel="stylesheet" href="style.css?v=bm20260402">
+  <link rel="stylesheet" href="../phosphor-icons/Fonts/regular/style.css?v=bm20260402">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -78,6 +78,29 @@
           <div class="stat-box__label">達成率</div>
         </div>
       </div>
+      <script>
+      (function(){
+        try {
+          var labs = document.querySelectorAll('.stat-box__label');
+          for (var i = 0; i < labs.length; i++) {
+            if ((labs[i].textContent || '').trim() !== '連続日数') continue;
+            var box = labs[i].closest('.stat-box');
+            if (!box) continue;
+            var host = box.querySelector('.stat-box__value');
+            if (!host) continue;
+            var txt = (host.textContent || '');
+            if (!/[<>]|svg/i.test(txt)) continue;
+            var parsed = '0';
+            var tm = txt.trim().match(/-?\d+\s*$/);
+            if (tm) parsed = tm[0].trim();
+            host.className = 'stat-box__value stat-box__value--gold ct-streak-row';
+            host.style.fontSize = '14px';
+            host.removeAttribute('id');
+            host.innerHTML = '<span class="ct-streak-mark" aria-hidden="true"></span><span id="ct-streak">' + parsed + '</span>';
+          }
+        } catch (e) {}
+      })();
+      </script>
       <div id="calorie-tracker-empty" style="color:#555;font-size:12px;text-align:center;padding:6px 0;display:none;">日次データを入力すると進捗が表示されます</div>
     </div>
 
@@ -1010,7 +1033,29 @@
   </div>
 </div>
 
-<script src="app.js"></script>
+<script>
+(function(){
+  try {
+    var labs = document.querySelectorAll('.form-group .form-label');
+    for (var i = 0; i < labs.length; i++) {
+      var tx = labs[i].textContent || '';
+      if (tx.indexOf('アイコン') !== -1 && tx.indexOf('絵文字') !== -1) {
+        var fg = labs[i].closest('.form-group');
+        if (fg) fg.parentNode.removeChild(fg);
+      }
+    }
+    var em = document.getElementById('em-icon');
+    if (em) {
+      var fg = em.closest('.form-group');
+      if (fg) fg.parentNode.removeChild(fg);
+    }
+    var tit = document.getElementById('exercise-manage-modal-title');
+    if (tit && /[<>]/.test(tit.textContent || ''))
+      tit.textContent = (tit.textContent || '').indexOf('編集') !== -1 ? '種目を編集' : '種目を追加';
+  } catch (e) {}
+})();
+</script>
+<script src="app.js?v=bm20260402"></script>
 
 <!-- 自動保存バッジ（トレーニング中に表示） -->
 <div id="session-saved-badge" style="

@@ -354,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateRecoveryView();
   initDailyListeners();
   ensureCalorieStreakDom();
-  removeLegacyExerciseManageIconField();
+  repairExerciseManageModalChrome();
   renderRestPresets();
   setupRippleEffect();
   setupMobileScrollFix();
@@ -997,7 +997,7 @@ function filterExerciseManage(cat, el) {
 
 function openAddExerciseManageModal() {
   _editingExerciseId = null;
-  removeLegacyExerciseManageIconField();
+  repairExerciseManageModalChrome();
   document.getElementById('exercise-manage-modal-title').textContent = '種目を追加';
   document.getElementById('em-name').value = '';
   document.getElementById('em-category').value = '胸';
@@ -1010,7 +1010,7 @@ function openEditExerciseManageModal(idOrName) {
   const ex = allEx.find(e => e.id === idOrName || e.name === idOrName);
   if (!ex) return;
   _editingExerciseId = ex.id || ex.name;
-  removeLegacyExerciseManageIconField();
+  repairExerciseManageModalChrome();
   document.getElementById('exercise-manage-modal-title').textContent = '種目を編集';
   document.getElementById('em-name').value = ex.name;
   document.getElementById('em-category').value = ex.category;
@@ -1338,8 +1338,9 @@ function loadRoutineToMenu(routineId) {
 
 // ==================== CALORIE DEFICIT TRACKER ====================
 /**
- * キャッシュされた古い index / 旧 app.js と併用されたとき、
- * #ct-streak が単一ブロックに SVG 文字列が入っている状態を正規化する。
+ * 連続日数ブロックの DOM を正規化する。
+ * 特に「新 index + キャッシュされた旧 app.js」だと、子 #ct-streak に SVG 文字列が textContent され、
+ * 見た目は壊れたまま early-return してしまうため、テキストに < や svg を含む場合も必ず組み替える。
  */
 function ensureCalorieStreakDom() {
   const labels = [...document.querySelectorAll('.stat-box__label')];
@@ -1349,33 +1350,56 @@ function ensureCalorieStreakDom() {
   if (!box) return;
   const host = box.querySelector('.stat-box__value');
   if (!host) return;
-  const numInRow = [...host.children].find(c => c.id === 'ct-streak');
-  if (host.classList.contains('ct-streak-row') && numInRow) return;
+
+  const numEl = document.getElementById('ct-streak');
+  const directChildNum = numEl && numEl.parentElement === host;
+  const combinedText = (host.textContent || '').trim();
+  const numText = numEl ? (numEl.textContent || '').trim() : '';
+  const streakLooksCorrupt =
+    /[<>]/.test(combinedText) ||
+    /svg/i.test(combinedText) ||
+    /[<>]/.test(numText) ||
+    /svg/i.test(numText);
+  const structureOk =
+    host.classList.contains('ct-streak-row') &&
+    directChildNum &&
+    !streakLooksCorrupt;
+
+  if (structureOk) return;
 
   let parsed = '0';
-  const byId = document.getElementById('ct-streak');
-  const rawText = (host.textContent || '').trim();
-  if (byId === host) {
-    const m = rawText.match(/-?\d+\s*$/);
-    parsed = m ? m[0].trim() : '0';
-  } else if (byId && host.contains(byId)) {
-    parsed = String(byId.textContent).trim() || '0';
-  } else {
-    const m = rawText.match(/-?\d+\s*$/);
-    parsed = m ? m[0].trim() : '0';
+  const tail = combinedText.match(/-?\d+\s*$/);
+  if (tail) parsed = tail[0].trim();
+  else {
+    const allNum = combinedText.match(/-?\d+/g);
+    if (allNum) parsed = allNum[allNum.length - 1];
   }
+
   host.className = 'stat-box__value stat-box__value--gold ct-streak-row';
   host.style.fontSize = '14px';
   host.removeAttribute('id');
   host.innerHTML = `<span class="ct-streak-mark" aria-hidden="true"></span><span id="ct-streak">${parsed}</span>`;
 }
 
-/** 旧 HTML に残っている「アイコン（絵文字）」欄を除去（コードが入力欄に表示されるのを防ぐ） */
-function removeLegacyExerciseManageIconField() {
+/** 旧 HTML のアイコン（絵文字）欄削除 + モーダルタイトルに HTML が平文で入っている場合の修復 */
+function repairExerciseManageModalChrome() {
+  document.querySelectorAll('.form-group .form-label').forEach(lbl => {
+    const t = lbl.textContent || '';
+    if (t.includes('アイコン') && (t.includes('絵文字') || t.includes('Phosphor'))) {
+      const fg = lbl.closest('.form-group');
+      if (fg) fg.remove();
+    }
+  });
   const inp = document.getElementById('em-icon');
-  if (!inp) return;
-  const fg = inp.closest('.form-group');
-  if (fg) fg.remove();
+  if (inp) {
+    const fg = inp.closest('.form-group');
+    if (fg) fg.remove();
+  }
+  const title = document.getElementById('exercise-manage-modal-title');
+  if (title && /[<>]/.test(title.textContent || '')) {
+    const x = title.textContent || '';
+    title.textContent = x.includes('編集') ? '種目を編集' : '種目を追加';
+  }
 }
 
 function updateCalorieTracker() {
