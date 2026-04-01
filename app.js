@@ -1349,7 +1349,7 @@ function ensureCalorieStreakDom() {
   if (!box) return;
   const host = box.querySelector('.stat-box__value');
   if (!host) return;
-  const numInRow = host.querySelector(':scope > #ct-streak');
+  const numInRow = [...host.children].find(c => c.id === 'ct-streak');
   if (host.classList.contains('ct-streak-row') && numInRow) return;
 
   let parsed = '0';
