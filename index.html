@@ -160,12 +160,24 @@
 
     <!-- Settings Internal Nav -->
     <div class="settings-nav" id="settings-nav">
-      <button class="settings-nav__item active" id="stab-profile" onclick="switchSettingsTab('profile')">👤 プロファール</button>
-      <button class="settings-nav__item" id="stab-timer" onclick="switchSettingsTab('timer')">⏱ タイマー</button>
-      <button class="settings-nav__item" id="stab-sound" onclick="switchSettingsTab('sound')">🔔 サウンド</button>
-      <button class="settings-nav__item" id="stab-exercises" onclick="switchSettingsTab('exercises')">🏋️ トレーニング設定</button>
-      <button class="settings-nav__item" id="stab-routines" onclick="switchSettingsTab('routines')">📋 ルーティーン</button>
-      <button class="settings-nav__item" id="stab-system" onclick="switchSettingsTab('system')">⚙️ システム</button>
+      <button class="settings-nav__item active" id="stab-profile" onclick="switchSettingsTab('profile')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:4px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>プロフィール
+      </button>
+      <button class="settings-nav__item" id="stab-timer" onclick="switchSettingsTab('timer')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:4px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>タイマー
+      </button>
+      <button class="settings-nav__item" id="stab-sound" onclick="switchSettingsTab('sound')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:4px;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>サウンド
+      </button>
+      <button class="settings-nav__item" id="stab-exercises" onclick="switchSettingsTab('exercises')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:4px;"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 8.5v7"/><path d="M21 8.5v7"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>トレ設定
+      </button>
+      <button class="settings-nav__item" id="stab-routines" onclick="switchSettingsTab('routines')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:4px;"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>ルーティーン
+      </button>
+      <button class="settings-nav__item" id="stab-system" onclick="switchSettingsTab('system')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:4px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>システム
+      </button>
     </div>
 
     <!-- PANEL: Profile -->
@@ -174,12 +186,14 @@
       <div id="profile-locked-banner" style="display:none;">
         <div class="card" style="background:linear-gradient(135deg,rgba(206,17,65,0.15),rgba(26,26,26,0.9));border:1px solid rgba(206,17,65,0.4);margin-bottom:12px;">
           <div style="display:flex;align-items:center;gap:12px;">
-            <div style="font-size:32px;">🔒</div>
-            <div style="flex:1;">
-              <div style="font-size:13px;font-weight:700;color:#eee;">プロファール登録済</div>
-              <div style="font-size:11px;color:#888;margin-top:2px;">進捗追跡中—内容は固定されています</div>
+            <div style="font-size:32px;">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#CE1141" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             </div>
-            <button class="btn btn--secondary" style="font-size:12px;padding:6px 12px;" onclick="unlockProfile()">✏️ 編集</button>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:700;color:#eee;">プロフィール登録済</div>
+              <div style="font-size:11px;color:#888;margin-top:2px;">進捗追跡中 — 内容は固定されています</div>
+            </div>
+            <button class="btn btn--secondary" style="font-size:12px;padding:6px 12px;" onclick="unlockProfile()">編集</button>
           </div>
           <div id="profile-locked-summary" style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px;"></div>
         </div>
@@ -187,7 +201,10 @@
       <!-- 入力フォームエリア -->
       <div id="profile-form-area">
       <div class="card card--red">
-        <div class="card__title"><span class="card__title-icon">📐</span>プロファール設定
+        <div class="card__title">
+          <span class="card__title-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </span>プロフィール設定
           <span style="font-size:11px;color:#888;margin-left:auto;">(一度登録すると固定)</span>
         </div>
         <div class="form-row">
@@ -776,19 +793,29 @@
 <!-- ======== TABBAR (5 tabs) ======== -->
 <nav class="tabbar">
   <button class="tabbar__item active" data-section="sec-home" onclick="switchSection('sec-home')">
-    <span class="tabbar__icon">🏠</span>ホーム
+    <span class="tabbar__icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </span>ホーム
   </button>
   <button class="tabbar__item" data-section="sec-training" onclick="switchSection('sec-training')">
-    <span class="tabbar__icon">💪</span>トレーニング
+    <span class="tabbar__icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 8.5v7"/><path d="M21 8.5v7"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>
+    </span>トレ
   </button>
   <button class="tabbar__item" data-section="sec-recovery" onclick="switchSection('sec-recovery')">
-    <span class="tabbar__icon">🫀</span>回復
+    <span class="tabbar__icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    </span>回復
   </button>
   <button class="tabbar__item" data-section="sec-analysis" onclick="switchSection('sec-analysis')">
-    <span class="tabbar__icon">📊</span>分析
+    <span class="tabbar__icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+    </span>分析
   </button>
   <button class="tabbar__item" data-section="sec-settings" onclick="switchSection('sec-settings')">
-    <span class="tabbar__icon">⚙️</span>設定
+    <span class="tabbar__icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </span>設定
   </button>
 </nav>
 

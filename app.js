@@ -204,21 +204,25 @@ function playCountdownBeep(count) {
       osc.start(now); osc.stop(now + dur + 0.06);
 
     } else if (type === 'soft') {
-      // 時報（NHK風）: クリーンなサイン波 pip、単音で扰やかに上昇
-      const freqMap = { 5: 440, 4: 523, 3: 587, 2: 659, 1: 880 };
-      const freq = freqMap[count] || 440;
-      const isLast = count === 1;
-      const dur = isLast ? 0.35 : 0.18;
-      const osc = ctx.createOscillator();
+      // 時報（NHK風）: 純粋な440Hz サイン波、count1のみ880Hzで長め
+      // 実際のNHK方式: 全pip = 440Hz、最終合図 = 880Hz
+      const freq = (count === 1) ? 880 : 440;
+      const dur  = (count === 1) ? 0.18 : 0.07;
+      const osc  = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
+      const filt = ctx.createBiquadFilter();
+      filt.type = 'lowpass';
+      filt.frequency.value = 5000;
+      filt.Q.value = 0.5;
+      osc.connect(filt); filt.connect(gain); gain.connect(ctx.destination);
       osc.type = 'sine';
       osc.frequency.setValueAtTime(freq, now);
+      // 極細エンベロープ（NHK時報のような "コッ" 感）
       gain.gain.setValueAtTime(0, now);
-      gain.gain.linearRampToValueAtTime(vol * 0.9, now + 0.02);
-      gain.gain.setValueAtTime(vol * 0.9, now + dur * 0.75);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
-      osc.start(now); osc.stop(now + dur + 0.02);
+      gain.gain.linearRampToValueAtTime(vol * 0.88, now + 0.005);
+      gain.gain.setValueAtTime(vol * 0.88, now + dur * 0.70);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur + 0.04);
+      osc.start(now); osc.stop(now + dur + 0.06);
 
     } else {  // RPG (8ビット JRPG風)
       // ディスコントックな2音ブリップ、スクエア波
@@ -270,24 +274,48 @@ function playTimerEndSound() {
       });
 
     } else if (type === 'soft') {
-      // NHK時報風: 短3音 (440Hz 0.2s) + 長先1音 (880Hz 0.7s)
-      [
-        { freq: 440, start: 0,   dur: 0.2 },
-        { freq: 440, start: 0.4, dur: 0.2 },
-        { freq: 440, start: 0.8, dur: 0.2 },
-        { freq: 880, start: 1.3, dur: 0.7 },
-      ].forEach(({ freq, start, dur }) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, now + start);
-        gain.gain.setValueAtTime(0, now + start);
-        gain.gain.linearRampToValueAtTime(vol * 0.9, now + start + 0.02);
-        gain.gain.setValueAtTime(vol * 0.9, now + start + dur * 0.8);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
-        osc.start(now + start); osc.stop(now + start + dur + 0.04);
+      // NHK時報完全再現: 車載成功口調で送信
+      // 実際のNHK時報パターン:
+      // 短く高いpip x3 (440Hz, 0.07sずつ) + 長く低いpip x1 (880Hz弘, 0.6s)
+      const pipHz      = 440;   // 高澎 (NHK標準: 440Hz)
+      const finalHz    = 880;   // 満澎
+      const pipDur     = 0.07;  // 短いpipの音的期間
+      const pipSpacing = 0.3;   // pip間のゴー（金属道ギャップ）
+      const finalDur   = 0.60;  // 満放音
+      const finalStart = pipSpacing * 3; // 0.9s後
+
+      // pip 1, 2, 3
+      [0, pipSpacing, pipSpacing * 2].forEach(startOffset => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        const f = ctx.createBiquadFilter();
+        f.type = 'lowpass'; f.frequency.value = 5000; f.Q.value = 0.5;
+        o.connect(f); f.connect(g); g.connect(ctx.destination);
+        o.type = 'sine';
+        o.frequency.setValueAtTime(pipHz, now + startOffset);
+        g.gain.setValueAtTime(0, now + startOffset);
+        g.gain.linearRampToValueAtTime(vol * 0.85, now + startOffset + 0.005);
+        g.gain.setValueAtTime(vol * 0.85, now + startOffset + pipDur * 0.75);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + startOffset + pipDur + 0.05);
+        o.start(now + startOffset);
+        o.stop(now + startOffset + pipDur + 0.07);
       });
+
+      // 満放音 (最後の長いpip)
+      const oF = ctx.createOscillator();
+      const gF = ctx.createGain();
+      const fF = ctx.createBiquadFilter();
+      fF.type = 'lowpass'; fF.frequency.value = 5000; fF.Q.value = 0.5;
+      oF.connect(fF); fF.connect(gF); gF.connect(ctx.destination);
+      oF.type = 'sine';
+      oF.frequency.setValueAtTime(finalHz, now + finalStart);
+      // 満放音エンベロープ: 短く立ち上がり → 雙曲線減衰
+      gF.gain.setValueAtTime(0, now + finalStart);
+      gF.gain.linearRampToValueAtTime(vol * 0.90, now + finalStart + 0.008);
+      gF.gain.setValueAtTime(vol * 0.90, now + finalStart + finalDur * 0.70);
+      gF.gain.exponentialRampToValueAtTime(0.0001, now + finalStart + finalDur + 0.10);
+      oF.start(now + finalStart);
+      oF.stop(now + finalStart + finalDur + 0.15);
 
     } else { // RPG — JRPG風アスケールファンファーレ (ドラクエ風)
       [
@@ -816,7 +844,7 @@ function calculateBody() {
 
   document.getElementById('body-results').style.display = 'block';
   document.getElementById('body-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  showToast('計算完了！プロファールを登録しました！', 'success');
+  showToast('計算完了！プロフィールを登録しました！', 'success');
   // 計算後に自動ロック
   setTimeout(() => lockProfile(), 1800);
 }
@@ -912,7 +940,7 @@ function lockProfile() {
 }
 
 function unlockProfile() {
-  if (!confirm('プロファールを編集モードにしますか？\n計算後に再度固定されます。')) return;
+  if (!confirm('プロフィールを編集モードにしますか？\n計算後に再度固定されます。')) return;
   localStorage.removeItem('profileLocked');
   renderProfileLockState();
 }
