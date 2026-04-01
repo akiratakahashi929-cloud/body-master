@@ -27,6 +27,16 @@ const SHEET_DAILY = '日次データ';
 const SHEET_TRAINING = 'トレーニング';
 const SHEET_PROFILE = 'プロフィール';
 
+function hasValue(value) {
+  return value !== null && value !== undefined && value !== '';
+}
+
+function roundOrBlank(value) {
+  if (!hasValue(value)) return '';
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.round(n * 100) / 100 : '';
+}
+
 /**
  * POST リクエスト受信
  */
@@ -101,16 +111,16 @@ function recordDailyData(data) {
 
   sheet.appendRow([
     data.date || '',
-    data.weight || '',
-    data.waist || '',
-    data.appKcal || '',
-    data.totalKcal || '',
-    data.carbs || '',
+    hasValue(data.weight) ? data.weight : '',
+    hasValue(data.waist) ? data.waist : '',
+    hasValue(data.appKcal) ? data.appKcal : '',
+    hasValue(data.totalKcal) ? data.totalKcal : '',
+    hasValue(data.carbs) ? data.carbs : '',
     data.training || '',
-    data.bmr ? Math.round(data.bmr * 100) / 100 : '',
-    data.maintenance ? Math.round(data.maintenance * 100) / 100 : '',
-    data.targetKcal ? Math.round(data.targetKcal * 100) / 100 : '',
-    data.gap ? Math.round(data.gap * 100) / 100 : '',
+    roundOrBlank(data.bmr),
+    roundOrBlank(data.maintenance),
+    roundOrBlank(data.targetKcal),
+    roundOrBlank(data.gap),
     data.timestamp || new Date().toISOString()
   ]);
 
@@ -143,7 +153,8 @@ function recordTrainingData(data) {
   const exercises = data.exercises || [];
 
   exercises.forEach(function(ex) {
-    const setDetails = ex.sets.map(function(s, i) {
+    const sets = Array.isArray(ex.sets) ? ex.sets : [];
+    const setDetails = sets.map(function(s, i) {
       return (i + 1) + ': ' + s.weight + 'kg × ' + s.reps + '回' + (s.rpe ? ' (RPE' + s.rpe + ')' : '');
     }).join(' | ');
 
@@ -151,11 +162,11 @@ function recordTrainingData(data) {
       date,
       ex.name || '',
       ex.category || '',
-      ex.totalSets || '',
+      hasValue(ex.totalSets) ? ex.totalSets : '',
       setDetails,
-      ex.totalVolume || '',
+      hasValue(ex.totalVolume) ? ex.totalVolume : '',
       ex.notes || '',
-      data.duration || '',
+      hasValue(data.duration) ? data.duration : '',
       new Date().toISOString()
     ]);
   });
@@ -166,11 +177,11 @@ function recordTrainingData(data) {
       date,
       '【サマリー】',
       exercises.map(function(e) { return e.category; }).filter(function(v, i, a) { return a.indexOf(v) === i; }).join(', '),
-      data.totalSets || '',
+      hasValue(data.totalSets) ? data.totalSets : '',
       '',
-      data.totalVolume || '',
+      hasValue(data.totalVolume) ? data.totalVolume : '',
       '',
-      data.duration || '',
+      hasValue(data.duration) ? data.duration : '',
       new Date().toISOString()
     ]);
   }
@@ -210,14 +221,14 @@ function recordProfileData(data) {
 
   sheet.appendRow([
     new Date().toISOString().split('T')[0],
-    data.height || '',
-    data.weight || '',
-    data.age || '',
-    data.gender === 'male' ? '男性' : '女性',
+    hasValue(data.height) ? data.height : '',
+    hasValue(data.weight) ? data.weight : '',
+    hasValue(data.age) ? data.age : '',
+    data.gender === 'male' ? '男性' : (data.gender === 'female' ? '女性' : ''),
     activityLabels[String(data.activity)] || data.activity,
-    data.deficit || '',
-    data.targetLoss || '',
-    data.waist || '',
+    hasValue(data.deficit) ? data.deficit : '',
+    hasValue(data.targetLoss) ? data.targetLoss : '',
+    hasValue(data.waist) ? data.waist : '',
     new Date().toISOString()
   ]);
 

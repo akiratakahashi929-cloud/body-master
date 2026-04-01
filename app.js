@@ -30,29 +30,32 @@ const APP = {
   },
 };
 
+const ICON_PLAY = '<i class="ph ph-play ph-inline"></i>';
+const ICON_PAUSE = '<i class="ph ph-pause ph-inline"></i>';
+
 // ==================== EXERCISE DATABASE ====================
 const DEFAULT_EXERCISES = [
-  { name: 'バックスクワット', category: '脚', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M12 3c0 0-2 3-2 7l2 11"/><path d="M10 10l4 2"/><path d="M14 21a2 2 0 0 1-4 0"/></svg>', freq: 36, muscles: ['大腿四頭筋','ハムストリング','臀筋','脊柱起立筋'] },
-  { name: 'レッグプレス', category: '脚', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M12 3c0 0-2 3-2 7l2 11"/><path d="M10 10l4 2"/><path d="M14 21a2 2 0 0 1-4 0"/></svg>', freq: 47, muscles: ['大腿四頭筋','臀筋'] },
-  { name: 'レッグエクステンション', category: '脚', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M12 3c0 0-2 3-2 7l2 11"/><path d="M10 10l4 2"/><path d="M14 21a2 2 0 0 1-4 0"/></svg>', freq: 41, muscles: ['大腿四頭筋'] },
-  { name: 'シーテッドレッグカール', category: '脚', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M12 3c0 0-2 3-2 7l2 11"/><path d="M10 10l4 2"/><path d="M14 21a2 2 0 0 1-4 0"/></svg>', freq: 63, muscles: ['ハムストリング'] },
-  { name: 'ヒップアブダクションマシン', category: '脚', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M12 3c0 0-2 3-2 7l2 11"/><path d="M10 10l4 2"/><path d="M14 21a2 2 0 0 1-4 0"/></svg>', freq: 42, muscles: ['臀筋','内転筋'] },
-  { name: 'ダンベルブルガリアンスプリットスクワット', category: '脚', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M12 3c0 0-2 3-2 7l2 11"/><path d="M10 10l4 2"/><path d="M14 21a2 2 0 0 1-4 0"/></svg>', freq: 33, muscles: ['大腿四頭筋','臀筋','ハムストリング'] },
-  { name: 'インクラインダンベルベンチプレス', category: '胸', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M6.5 6.5h11M6.5 17.5h11M3 8.5v7M21 8.5v7"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>️', freq: 54, muscles: ['大胸筋上部','三角筋前部','上腕三頭筋'] },
-  { name: 'ディップチンアシスト', category: '胸', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M6.5 6.5h11M6.5 17.5h11M3 8.5v7M21 8.5v7"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>️', freq: 67, muscles: ['大胸筋下部','上腕三頭筋','三角筋前部'] },
-  { name: 'スミスマシンインクラインベンチプレス', category: '胸', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M6.5 6.5h11M6.5 17.5h11M3 8.5v7M21 8.5v7"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>️', freq: 31, muscles: ['大胸筋上部','三角筋前部','上腕三頭筋'] },
-  { name: 'ラットプルダウン', category: '背筋', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg>', freq: 53, muscles: ['広背筋','僧帽筋','上腕二頭筋'] },
-  { name: 'シーテッドケーブルロウ', category: '背筋', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg>', freq: 63, muscles: ['広背筋','僧帽筋','脊柱起立筋','上腕二頭筋'] },
-  { name: 'パラレルグリップラットプルダウン', category: '背筋', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg>', freq: 56, muscles: ['広背筋','僧帽筋','上腕二頭筋'] },
-  { name: 'ストレートアームプルダウン', category: '背筋', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg>', freq: 40, muscles: ['広背筋','腹直筋下部'] },
-  { name: 'アシストプルアップマシン', category: '背筋', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg>', freq: 34, muscles: ['広背筋','上腕二頭筋','僧帽筋'] },
-  { name: 'ダンベルサイドレイズ', category: '肩', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="4" r="2"/><path d="M7 10l5 2 5-2"/><path d="M7 22l5-10 5 10"/></svg>', freq: 81, muscles: ['三角筋側部'] },
-  { name: 'シーテッドダンベルショルダープレス', category: '肩', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="4" r="2"/><path d="M7 10l5 2 5-2"/><path d="M7 22l5-10 5 10"/></svg>', freq: 50, muscles: ['三角筋前部','三角筋側部','上腕三頭筋'] },
-  { name: 'リアデルトフライマシン', category: '肩', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="4" r="2"/><path d="M7 10l5 2 5-2"/><path d="M7 22l5-10 5 10"/></svg>', freq: 56, muscles: ['三角筋後部','僧帽筋'] },
-  { name: 'ダンベルアップライトロウ', category: '肩', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="4" r="2"/><path d="M7 10l5 2 5-2"/><path d="M7 22l5-10 5 10"/></svg>', freq: 32, muscles: ['三角筋側部','僧帽筋'] },
-  { name: 'ケーブルプレスダウン', category: '腕', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>', freq: 41, muscles: ['上腕三頭筋'] },
-  { name: 'ハンギングレッグレイズ', category: '腹筋', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>', freq: 45, muscles: ['腹直筋下部','腸腰筋','腹斜筋'] },
-  { name: 'トレッドミル', category: 'カーディオ', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="13" cy="4" r="2"/><path d="M7 22l2-5 3 3 2-7"/><path d="M7 15l2-4 4 2 4-3"/></svg>', freq: 49, muscles: ['大腿四頭筋','ハムストリング','腓腹筋'] },
+  { name: 'バックスクワット', category: '脚', freq: 36, muscles: ['大腿四頭筋','ハムストリング','臀筋','脊柱起立筋'] },
+  { name: 'レッグプレス', category: '脚', freq: 47, muscles: ['大腿四頭筋','臀筋'] },
+  { name: 'レッグエクステンション', category: '脚', freq: 41, muscles: ['大腿四頭筋'] },
+  { name: 'シーテッドレッグカール', category: '脚', freq: 63, muscles: ['ハムストリング'] },
+  { name: 'ヒップアブダクションマシン', category: '脚', freq: 42, muscles: ['臀筋','内転筋'] },
+  { name: 'ダンベルブルガリアンスプリットスクワット', category: '脚', freq: 33, muscles: ['大腿四頭筋','臀筋','ハムストリング'] },
+  { name: 'インクラインダンベルベンチプレス', category: '胸', freq: 54, muscles: ['大胸筋上部','三角筋前部','上腕三頭筋'] },
+  { name: 'ディップチンアシスト', category: '胸', freq: 67, muscles: ['大胸筋下部','上腕三頭筋','三角筋前部'] },
+  { name: 'スミスマシンインクラインベンチプレス', category: '胸', freq: 31, muscles: ['大胸筋上部','三角筋前部','上腕三頭筋'] },
+  { name: 'ラットプルダウン', category: '背筋', freq: 53, muscles: ['広背筋','僧帽筋','上腕二頭筋'] },
+  { name: 'シーテッドケーブルロウ', category: '背筋', freq: 63, muscles: ['広背筋','僧帽筋','脊柱起立筋','上腕二頭筋'] },
+  { name: 'パラレルグリップラットプルダウン', category: '背筋', freq: 56, muscles: ['広背筋','僧帽筋','上腕二頭筋'] },
+  { name: 'ストレートアームプルダウン', category: '背筋', freq: 40, muscles: ['広背筋','腹直筋下部'] },
+  { name: 'アシストプルアップマシン', category: '背筋', freq: 34, muscles: ['広背筋','上腕二頭筋','僧帽筋'] },
+  { name: 'ダンベルサイドレイズ', category: '肩', freq: 81, muscles: ['三角筋側部'] },
+  { name: 'シーテッドダンベルショルダープレス', category: '肩', freq: 50, muscles: ['三角筋前部','三角筋側部','上腕三頭筋'] },
+  { name: 'リアデルトフライマシン', category: '肩', freq: 56, muscles: ['三角筋後部','僧帽筋'] },
+  { name: 'ダンベルアップライトロウ', category: '肩', freq: 32, muscles: ['三角筋側部','僧帽筋'] },
+  { name: 'ケーブルプレスダウン', category: '腕', freq: 41, muscles: ['上腕三頭筋'] },
+  { name: 'ハンギングレッグレイズ', category: '腹筋', freq: 45, muscles: ['腹直筋下部','腸腰筋','腹斜筋'] },
+  { name: 'トレッドミル', category: 'カーディオ', freq: 49, muscles: ['大腿四頭筋','ハムストリング','腓腹筋'] },
 ];
 
 // Exercise name → detailed muscles (for recovery tracking)
@@ -350,7 +353,8 @@ document.addEventListener('DOMContentLoaded', () => {
   updateAnalysis();
   updateRecoveryView();
   initDailyListeners();
-  initEmojiPicker();
+  ensureCalorieStreakDom();
+  removeLegacyExerciseManageIconField();
   renderRestPresets();
   setupRippleEffect();
   setupMobileScrollFix();
@@ -432,7 +436,7 @@ function restoreSession() {
       APP.todayExercises = data.todayExercises;
       renderTodayMenu();
       switchSection('sec-training');
-      showToast(`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> ${data.todayExercises.length}種目のセッションを復元しました！`, 'success');
+      showToast(`${data.todayExercises.length}種目のセッションを復元しました！`, 'success');
     });
   } catch(e) { console.warn('セッション復元エラー:', e); }
 }
@@ -774,6 +778,13 @@ function getCategoryClass(cat) {
   return map[cat] || 'chest';
 }
 
+/** カレンダー下ドットと同じ色の部位スウォッチ（種目表示用・絵文字・アイコンは使わない） */
+function exerciseCategorySwatch(cat) {
+  const cls = getCategoryClass(cat);
+  const label = cat || '';
+  return `<span class="exercise-cat-swatch calendar__dot calendar__dot--${cls}" title="${label}" role="img" aria-label="${label}"></span>`;
+}
+
 function changeMonth(delta) {
   if (delta === 0) {
     APP.calendarDate = new Date();
@@ -966,10 +977,10 @@ function renderExerciseManageList(filter) {
 
   list.innerHTML = filtered.map(ex => `
     <div class="routine-card" onclick="openEditExerciseManageModal('${ex.id || ex.name}')" style="margin-bottom:6px;">
-      <div style="font-size:22px;width:36px;text-align:center;">${ex.icon || '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M6.5 6.5h11M6.5 17.5h11M3 8.5v7M21 8.5v7"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>️'}</div>
+      <div class="exercise-manage-swatch">${exerciseCategorySwatch(ex.category)}</div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:14px;font-weight:700;color:#eee;">${ex.name}</div>
-        <div style="font-size:11px;color:#666;">${ex.category}</div>
+        <div style="font-size:11px;color:#b0b0b0;">${ex.category}</div>
       </div>
       <span style="font-size:12px;color:${ex.isCustom ? 'var(--victory-gold)' : '#444'};">${ex.isCustom ? 'カスタム' : 'デフォルト'}</span>
     </div>
@@ -986,9 +997,9 @@ function filterExerciseManage(cat, el) {
 
 function openAddExerciseManageModal() {
   _editingExerciseId = null;
-  document.getElementById('exercise-manage-modal-title').textContent = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> 種目を追加';
+  removeLegacyExerciseManageIconField();
+  document.getElementById('exercise-manage-modal-title').textContent = '種目を追加';
   document.getElementById('em-name').value = '';
-  document.getElementById('em-icon').value = '';
   document.getElementById('em-category').value = '胸';
   document.getElementById('em-delete-btn').style.display = 'none';
   openModal('exercise-manage-modal');
@@ -999,9 +1010,9 @@ function openEditExerciseManageModal(idOrName) {
   const ex = allEx.find(e => e.id === idOrName || e.name === idOrName);
   if (!ex) return;
   _editingExerciseId = ex.id || ex.name;
-  document.getElementById('exercise-manage-modal-title').textContent = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>️ 種目を編集';
+  removeLegacyExerciseManageIconField();
+  document.getElementById('exercise-manage-modal-title').textContent = '種目を編集';
   document.getElementById('em-name').value = ex.name;
-  document.getElementById('em-icon').value = ex.icon || '';
   document.getElementById('em-category').value = ex.category;
   document.getElementById('em-delete-btn').style.display = ex.isCustom ? '' : 'none';
   openModal('exercise-manage-modal');
@@ -1009,7 +1020,6 @@ function openEditExerciseManageModal(idOrName) {
 
 function saveExerciseManage() {
   const name = document.getElementById('em-name').value.trim();
-  const icon = document.getElementById('em-icon').value.trim() || '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M6.5 6.5h11M6.5 17.5h11M3 8.5v7M21 8.5v7"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>️';
   const category = document.getElementById('em-category').value;
   if (!name) { showToast('種目名を入力してください', 'error'); return; }
 
@@ -1017,13 +1027,13 @@ function saveExerciseManage() {
     // 查定済み支 ID又は名前で編集
     const idx = APP.customExercises.findIndex(e => e.id === _editingExerciseId || e.name === _editingExerciseId);
     if (idx >= 0) {
-      APP.customExercises[idx] = { ...APP.customExercises[idx], name, icon, category };
+      APP.customExercises[idx] = { ...APP.customExercises[idx], name, category };
     } else {
       // デフォルト種目は、カスタム層にオーバーライドとして登録
-      APP.customExercises.push({ id: `custom_${Date.now()}`, name, icon, category, isCustom: true });
+      APP.customExercises.push({ id: `custom_${Date.now()}`, name, category, isCustom: true });
     }
   } else {
-    APP.customExercises.push({ id: `custom_${Date.now()}`, name, icon, category, isCustom: true });
+    APP.customExercises.push({ id: `custom_${Date.now()}`, name, category, isCustom: true });
   }
   localStorage.setItem('customExercises', JSON.stringify(APP.customExercises));
   closeModal('exercise-manage-modal');
@@ -1156,7 +1166,7 @@ function getContrastColor(hex) {
 function openAddRoutineModal() {
   editingRoutineId = null;
   selectedRoutineColor = ROUTINE_COLORS[0].hex;
-  document.getElementById('routine-modal-title').textContent = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg> ルーティーン追加';
+  document.getElementById('routine-modal-title').innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg> ルーティーン追加';
   document.getElementById('routine-name-input').value = '';
   document.getElementById('routine-delete-btn').style.display = 'none';
   renderColorPicker(null);
@@ -1169,7 +1179,7 @@ function openEditRoutineModal(id) {
   if (!r) return;
   editingRoutineId = id;
   selectedRoutineColor = r.color;
-  document.getElementById('routine-modal-title').textContent = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>️ ルーティーン編集';
+  document.getElementById('routine-modal-title').innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>️ ルーティーン編集';
   document.getElementById('routine-name-input').value = r.name;
   document.getElementById('routine-delete-btn').style.display = '';
   renderColorPicker(r.color);
@@ -1199,7 +1209,6 @@ function renderExercisePicker(checkedNames) {
   const allEx = getAllExercises();
 
   // カテゴリー別にグループ化
-  const CAT_ICONS = { '脚': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M12 3c0 0-2 3-2 7l2 11"/><path d="M10 10l4 2"/><path d="M14 21a2 2 0 0 1-4 0"/></svg>', '胸': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M6.5 6.5h11M6.5 17.5h11M3 8.5v7M21 8.5v7"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>️', '背筋': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg>', '肩': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="4" r="2"/><path d="M7 10l5 2 5-2"/><path d="M7 22l5-10 5 10"/></svg>', '腕': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>', '腹筋': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>', 'カーディオ': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="13" cy="4" r="2"/><path d="M7 22l2-5 3 3 2-7"/><path d="M7 15l2-4 4 2 4-3"/></svg>' };
   const byCategory = {};
   allEx.forEach(ex => {
     if (!byCategory[ex.category]) byCategory[ex.category] = [];
@@ -1211,7 +1220,7 @@ function renderExercisePicker(checkedNames) {
     return `
       <div class="routine-cat-group">
         <div class="routine-cat-toggle" onclick="toggleRoutineCat('${cat}', this)">
-          <span>${CAT_ICONS[cat] || '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>'} ${cat}</span>
+          <span class="routine-cat-toggle__label">${exerciseCategorySwatch(cat)} ${cat}</span>
           <span class="routine-cat-count" id="rcc-${cat}">${checkedInCat > 0 ? `${checkedInCat}選択中` : ''}</span>
           <span class="routine-cat-arrow"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
         </div>
@@ -1219,7 +1228,7 @@ function renderExercisePicker(checkedNames) {
           ${exercises.map(ex => `
             <label class="routine-ex-item">
               <input type="checkbox" value="${ex.name}" ${checkedNames.includes(ex.name) ? 'checked' : ''} onchange="updateRoutineCatCount('${cat}')">
-              <span class="routine-ex-item__name">${ex.icon || ''} ${ex.name}</span>
+              <span class="routine-ex-item__name"><span class="routine-ex-item__swatch">${exerciseCategorySwatch(ex.category)}</span>${ex.name}</span>
             </label>
           `).join('')}
         </div>
@@ -1244,7 +1253,7 @@ function toggleRoutineCat(cat, el) {
   if (!exercises) return;
   const isOpen = exercises.style.display !== 'none';
   exercises.style.display = isOpen ? 'none' : 'block';
-  if (arrow) arrow.textContent = isOpen ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg>' : '▼';
+  if (arrow) arrow.innerHTML = isOpen ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg>' : '▼';
 }
 
 function updateRoutineCatCount(cat) {
@@ -1328,6 +1337,47 @@ function loadRoutineToMenu(routineId) {
 }
 
 // ==================== CALORIE DEFICIT TRACKER ====================
+/**
+ * キャッシュされた古い index / 旧 app.js と併用されたとき、
+ * #ct-streak が単一ブロックに SVG 文字列が入っている状態を正規化する。
+ */
+function ensureCalorieStreakDom() {
+  const labels = [...document.querySelectorAll('.stat-box__label')];
+  const lab = labels.find(l => l.textContent.trim() === '連続日数');
+  if (!lab) return;
+  const box = lab.closest('.stat-box');
+  if (!box) return;
+  const host = box.querySelector('.stat-box__value');
+  if (!host) return;
+  const numInRow = host.querySelector(':scope > #ct-streak');
+  if (host.classList.contains('ct-streak-row') && numInRow) return;
+
+  let parsed = '0';
+  const byId = document.getElementById('ct-streak');
+  const rawText = (host.textContent || '').trim();
+  if (byId === host) {
+    const m = rawText.match(/-?\d+\s*$/);
+    parsed = m ? m[0].trim() : '0';
+  } else if (byId && host.contains(byId)) {
+    parsed = String(byId.textContent).trim() || '0';
+  } else {
+    const m = rawText.match(/-?\d+\s*$/);
+    parsed = m ? m[0].trim() : '0';
+  }
+  host.className = 'stat-box__value stat-box__value--gold ct-streak-row';
+  host.style.fontSize = '14px';
+  host.removeAttribute('id');
+  host.innerHTML = `<span class="ct-streak-mark" aria-hidden="true"></span><span id="ct-streak">${parsed}</span>`;
+}
+
+/** 旧 HTML に残っている「アイコン（絵文字）」欄を除去（コードが入力欄に表示されるのを防ぐ） */
+function removeLegacyExerciseManageIconField() {
+  const inp = document.getElementById('em-icon');
+  if (!inp) return;
+  const fg = inp.closest('.form-group');
+  if (fg) fg.remove();
+}
+
 function updateCalorieTracker() {
   const logs = getDeduplicatedDailyLogs();
   const profile = APP.profile;
@@ -1367,7 +1417,9 @@ function updateCalorieTracker() {
   setEl('calorie-accumulated', `${Math.round(accumulated).toLocaleString()} kcal 減少済`);
   setEl('calorie-remaining', `残り ${Math.round(remaining).toLocaleString()} kcal`);
   setEl('ct-percent', percent.toFixed(1) + '%');
-  setEl('ct-streak', `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg> ${streak}`);
+  // 連続日数: 古い DOM のとき一度だけ組み替え → 数値は子 #ct-streak にのみ入れる
+  ensureCalorieStreakDom();
+  setEl('ct-streak', String(streak));
 
   const bar = document.getElementById('calorie-progress-bar');
   if (bar) bar.style.width = percent.toFixed(1) + '%';
@@ -1592,10 +1644,10 @@ function renderExerciseList() {
     return `
       <div class="exercise-item ${isSelected ? 'checked' : ''}" onclick="toggleExerciseSelect('${safeName}')" ${isAdded ? 'style="opacity:0.4;pointer-events:none;"' : ''}>
         <div class="exercise-item__checkbox">${isSelected ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-1px;display:inline-block"><polyline points="20 6 9 17 4 12"/></svg>' : ''}</div>
-        <div class="exercise-item__icon">${ex.icon}</div>
+        <div class="exercise-item__icon">${exerciseCategorySwatch(ex.category)}</div>
         <span class="exercise-item__name">${ex.name}</span>
         <span style="font-size: 9px; color: #555;">${maxW}kg</span>
-        <span style="font-size: 10px; color: #666;">${ex.category}</span>
+        <span style="font-size: 10px; color: #b0b0b0;">${ex.category}</span>
       </div>
     `;
   }).join('');
@@ -1631,7 +1683,7 @@ function batchAddExercises() {
     if (!ex) return;
     if (APP.todayExercises.find(e => e.name === name)) return;
     APP.todayExercises.push({
-      name: ex.name, category: ex.category, icon: ex.icon,
+      name: ex.name, category: ex.category,
       sets: [], totalSets: 0, totalVolume: 0, notes: '', recorded: false
     });
     added++;
@@ -1659,7 +1711,7 @@ function renderWeightSettings() {
   sorted.forEach(ex => {
     if (ex.category !== currentCat) {
       currentCat = ex.category;
-      html += `<div style="font-size: 10px; font-weight: 700; color: var(--bulls-red-light); text-transform: uppercase; letter-spacing: 1px; padding: 8px 0 2px; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.08);">${ex.icon} ${currentCat}</div>`;
+      html += `<div style="display:flex;align-items:center;gap:8px;font-size: 10px; font-weight: 700; color: var(--bulls-red-light); text-transform: uppercase; letter-spacing: 1px; padding: 8px 0 2px; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.08);">${exerciseCategorySwatch(currentCat)} ${currentCat}</div>`;
     }
     const maxW = getExerciseMaxWeight(ex.name, ex.category);
     html += `
@@ -1700,7 +1752,7 @@ function renderTodayMenu() {
 
   container.innerHTML = APP.todayExercises.map((ex, idx) => `
     <div class="today-menu-item ${ex.recorded ? 'done' : ''}" onclick="openSetInput(${idx})">
-      <span class="today-menu-item__icon">${ex.icon}</span>
+      <span class="today-menu-item__icon">${exerciseCategorySwatch(ex.category)}</span>
       <div class="today-menu-item__info">
         <div class="today-menu-item__name">${ex.name}</div>
         <div class="today-menu-item__meta">${ex.category} ${ex.recorded ? (ex.cardioData ? `| ${ex.cardioData.minutes}分 / ${ex.cardioData.incline}° / ${ex.cardioData.speed}km/h` : `| ${ex.totalSets}set / ${ex.totalVolume.toLocaleString()}kg`) : '| 未記録'}</div>
@@ -1739,7 +1791,7 @@ function openSetInput(idx) {
   const ex = APP.todayExercises[idx];
   isCardioMode = (ex.category === 'カーディオ');
 
-  document.getElementById('set-exercise-icon').textContent = ex.icon;
+  document.getElementById('set-exercise-icon').innerHTML = exerciseCategorySwatch(ex.category);
   document.getElementById('set-exercise-name').textContent = ex.name;
   document.getElementById('set-exercise-category').textContent = ex.category;
   document.getElementById('exercise-notes').value = ex.notes || '';
@@ -1984,25 +2036,12 @@ function saveExercise() {
 }
 
 // --- Custom Exercise ---
-function initEmojiPicker() {
-  const emojis = ['<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M12 3c0 0-2 3-2 7l2 11"/><path d="M10 10l4 2"/><path d="M14 21a2 2 0 0 1-4 0"/></svg>','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M6.5 6.5h11M6.5 17.5h11M3 8.5v7M21 8.5v7"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>️','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg>','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="4" r="2"/><path d="M7 10l5 2 5-2"/><path d="M7 22l5-10 5 10"/></svg>','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="13" cy="4" r="2"/><path d="M7 22l2-5 3 3 2-7"/><path d="M7 15l2-4 4 2 4-3"/></svg>','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="5" cy="17" r="3"/><circle cx="19" cy="17" r="3"/><path d="M12 3a2 2 0 1 0 2 2"/><path d="M5.5 6l1.5 5h9l-4-5"/><path d="M7 11l5 6"/></svg>','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="4" r="2"/><path d="M6 10l6 2 6-2"/><path d="M6 10l3 10h6l3-10"/></svg>','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="4" r="2"/><path d="M4 11l4-4 4 4 4-4 4 4"/><path d="M6 21l6-10 6 10"/></svg>','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="4" r="2"/><path d="M8 8l-4 8M16 8l4 8"/><path d="M8 8l4 4 4-4"/><path d="M6 22l6-10 6 10"/></svg>️','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="5" r="2"/><path d="M4 14l5-3 3 3 5-3 3 3"/><path d="M4 19l5-3 3 3 5-3 3 3"/></svg>','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="8" cy="4" r="2"/><circle cx="16" cy="4" r="2"/><path d="M8 6l4 4-4 4M16 6l-4 4 4 4"/><path d="M4 22l4-8M20 22l-4-8"/></svg>','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><rect x="4" y="4" width="12" height="16" rx="4"/><path d="M4 12h12M16 8h4v8h-4"/></svg>','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="4" r="2"/><path d="M8 21l4-12 4 4-4 8z"/></svg>','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="4" r="2"/><path d="M9 12l3-8 3 8"/><path d="M7 19l5-7 5 7"/></svg>','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M4 6a8 8 0 0 1 16 0"/><path d="M4 6l8 14M20 6l-8 14M12 6v14"/></svg>','<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>','<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>','<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 7l-5-5-5 5M17 17l-5 5-5-5"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M7 7l-5 5 5 5M17 7l5 5-5 5"/></svg>️','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M2 12c2-4 6-4 8 0s6 4 8 0"/><path d="M2 17c2-4 6-4 8 0s6 4 8 0"/></svg>','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>','<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M8 21h8M12 17v4"/><path d="M17 3H7l2 9a5 5 0 0 0 6 0z"/><path d="M3 3h4M17 3h4M3 3c0 4 2 6 4 7M21 3c0 4-2 6-4 7"/></svg>','<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="11" r="8"/><path d="M12 7v8M9 10l3-3 3 3"/></svg>','<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/><line x1="12" y1="22" x2="12" y2="2"/><path d="M2 8.5l10 7 10-7"/></svg>','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>','<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M9.5 2a2.5 2.5 0 0 1 5 0"/><path d="M9 2C6 2 4 4 4 7c0 2 1 4 3 5v10h10V12c2-1 3-3 3-5 0-3-2-5-5-5"/><path d="M9 12h6"/></svg>'];
-  const picker = document.getElementById('emoji-picker');
-  picker.innerHTML = emojis.map(e => `<div class="emoji-picker__item" onclick="selectEmoji(this, '${e}')">${e}</div>`).join('');
-}
-
-let selectedEmoji = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>';
-function selectEmoji(el, emoji) {
-  document.querySelectorAll('.emoji-picker__item').forEach(e => e.classList.remove('selected'));
-  el.classList.add('selected');
-  selectedEmoji = emoji;
-}
-
 function addCustomExercise() {
   const name = document.getElementById('new-exercise-name').value.trim();
   const category = document.getElementById('new-exercise-category').value;
   if (!name) { showToast('種目名を入力してください', 'error'); return; }
 
-  APP.customExercises.push({ name, category, icon: selectedEmoji, freq: 0 });
+  APP.customExercises.push({ name, category, freq: 0 });
   localStorage.setItem('customExercises', JSON.stringify(APP.customExercises));
 
   document.getElementById('new-exercise-name').value = '';
@@ -2040,7 +2079,7 @@ function submitTrainingData() {
   renderCalendar();
   // セッションドラフトをクリア（送信完了）
   localStorage.removeItem(SESSION_KEY);
-  showToast('トレーニングデータを記録しました！<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00C853" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polyline points="20 6 9 17 4 12"/></svg>', 'success');
+  showToast('トレーニングデータを記録しました！', 'success');
 }
 
 // ==================== TRAINING TIMER (Start/Pause/Stop) ====================
@@ -2056,13 +2095,13 @@ function toggleTrainingTimer() {
     clearInterval(trainingTimerInterval);
     trainingTimerElapsed += Date.now() - trainingTimerStartTime;
     trainingTimerRunning = false;
-    btn.textContent = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+    btn.innerHTML = ICON_PLAY;
     btn.className = 'training-timer-bar__btn training-timer-bar__btn--start';
   } else {
     // Start
     trainingTimerStartTime = Date.now();
     trainingTimerRunning = true;
-    btn.textContent = '⏸';
+    btn.innerHTML = ICON_PAUSE;
     btn.className = 'training-timer-bar__btn training-timer-bar__btn--pause';
     trainingTimerInterval = setInterval(updateTrainingTimerDisplay, 1000);
     updateTrainingTimerDisplay();
@@ -2076,7 +2115,7 @@ function stopTrainingTimer() {
   }
   clearInterval(trainingTimerInterval);
   const btn = document.getElementById('training-start-btn');
-  btn.textContent = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  btn.innerHTML = ICON_PLAY;
   btn.className = 'training-timer-bar__btn training-timer-bar__btn--start';
   // Keep elapsed shown
   updateTrainingTimerDisplay();
@@ -2131,13 +2170,13 @@ function toggleRestTimer() {
     // Pause
     clearInterval(restTimerInterval);
     restTimerRunning = false;
-    btn.textContent = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+    btn.innerHTML = ICON_PLAY;
   } else {
     // Start
     if (restTimerRemaining <= 0) restTimerRemaining = restTimerDuration;
     restTimerStartTime = Date.now();
     restTimerRunning = true;
-    btn.textContent = '⏸';
+    btn.innerHTML = ICON_PAUSE;
     _restCountdownBeeped.clear();
     restTimerInterval = setInterval(() => {
       const elapsed = (Date.now() - restTimerStartTime) / 1000;
@@ -2146,10 +2185,10 @@ function toggleRestTimer() {
         restTimerRemaining = 0;
         clearInterval(restTimerInterval);
         restTimerRunning = false;
-        btn.textContent = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+        btn.innerHTML = ICON_PLAY;
         if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
         playTimerEndSound();
-        showToast('⏱ レスト終了！', 'success');
+        showToast('レスト終了！', 'success');
       } else {
         // 3秒前カウントダウンBeep
         const s = Math.ceil(restTimerRemaining);
@@ -2168,7 +2207,7 @@ function resetRestTimer() {
   clearInterval(restTimerInterval);
   restTimerRunning = false;
   restTimerRemaining = restTimerDuration;
-  document.getElementById('rest-start-btn').textContent = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  document.getElementById('rest-start-btn').innerHTML = ICON_PLAY;
   updateRestTimerDisplay();
   document.getElementById('rest-timer-progress').style.width = '100%';
 }
@@ -2377,10 +2416,11 @@ let swInterval = null, swStartTime = null, swElapsed = 0, swRunning = false, lap
 function toggleStopwatch() {
   if (swRunning) {
     clearInterval(swInterval); swElapsed += Date.now() - swStartTime; swRunning = false;
-    document.getElementById('sw-start').textContent = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+    document.getElementById('sw-start').innerHTML = ICON_PLAY;
+    document.getElementById('sw-start').classList.remove('pulse');
   } else {
     swStartTime = Date.now(); swRunning = true;
-    document.getElementById('sw-start').textContent = '⏸';
+    document.getElementById('sw-start').innerHTML = ICON_PAUSE;
     document.getElementById('sw-start').classList.add('pulse');
     swInterval = setInterval(() => {
       document.getElementById('stopwatch-display').textContent = formatMs(swElapsed + Date.now() - swStartTime);
@@ -2409,7 +2449,7 @@ function stopwatchLap() {
 function resetStopwatch() {
   clearInterval(swInterval); swElapsed = 0; swRunning = false; laps = [];
   document.getElementById('stopwatch-display').textContent = '00:00.00';
-  document.getElementById('sw-start').textContent = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  document.getElementById('sw-start').innerHTML = ICON_PLAY;
   document.getElementById('sw-start').classList.remove('pulse');
   document.getElementById('lap-card').style.display = 'none';
 }
@@ -2427,18 +2467,19 @@ function switchTimerTab(tab) {
 function setTimerPreset(sec) {
   tmTotal = sec; tmRemaining = sec; tmRunning = false;
   clearInterval(tmInterval);
-  document.getElementById('tm-start').textContent = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  document.getElementById('tm-start').innerHTML = ICON_PLAY;
   updateTimerDisplay();
 }
 
 function toggleTimer() {
   if (tmRunning) {
     clearInterval(tmInterval); tmRunning = false;
-    document.getElementById('tm-start').textContent = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+    document.getElementById('tm-start').innerHTML = ICON_PLAY;
+    document.getElementById('tm-start').classList.remove('pulse');
   } else {
     if (tmRemaining <= 0) tmRemaining = tmTotal || 60;
     tmRunning = true;
-    document.getElementById('tm-start').textContent = '⏸';
+    document.getElementById('tm-start').innerHTML = ICON_PAUSE;
     document.getElementById('tm-start').classList.add('pulse');
     _timerCountdownBeeped.clear();
     const startTime = Date.now();
@@ -2447,11 +2488,11 @@ function toggleTimer() {
       tmRemaining = startRemaining - (Date.now() - startTime) / 1000;
       if (tmRemaining <= 0) {
         tmRemaining = 0; clearInterval(tmInterval); tmRunning = false;
-        document.getElementById('tm-start').textContent = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+        document.getElementById('tm-start').innerHTML = ICON_PLAY;
         document.getElementById('tm-start').classList.remove('pulse');
         if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
         playTimerEndSound();
-        showToast('⏱ タイマー終了！', 'success');
+        showToast('タイマー終了！', 'success');
       } else {
         // 3秒前カウントダウンBeep
         const s = Math.ceil(tmRemaining);
@@ -2467,7 +2508,7 @@ function toggleTimer() {
 
 function resetTimer() {
   clearInterval(tmInterval); tmRemaining = tmTotal; tmRunning = false;
-  document.getElementById('tm-start').textContent = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  document.getElementById('tm-start').innerHTML = ICON_PLAY;
   document.getElementById('tm-start').classList.remove('pulse');
   updateTimerDisplay();
 }
@@ -2615,7 +2656,7 @@ function openDayEditModal(dateStr) {
   editingDate = dateStr;
   // タイトル設定
   const [y, m, d] = dateStr.split('-');
-  document.getElementById('day-edit-title').textContent = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> ${y}年${m}月${d}日`;
+  document.getElementById('day-edit-title').innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> ${y}年${m}月${d}日`;
 
   // 既存の日次データを読み込む
   const daily = APP.dailyLogs.find(l => l.date === dateStr);
@@ -2682,7 +2723,7 @@ function renderEditTrainingSummary(dateStr) {
       </div>`;
     listEl.innerHTML = log.exercises.map(ex => `
       <div style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:4px;">
-        <span style="font-size:20px;">${ex.icon}</span>
+        ${exerciseCategorySwatch(ex.category)}
         <div style="flex:1;">
           <div style="font-size:13px;font-weight:600;">${ex.name}</div>
           <div style="font-size:10px;color:#888;">${ex.category} | ${ex.totalSets}set / ${ex.totalVolume.toLocaleString()}kg</div>
