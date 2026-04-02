@@ -395,13 +395,13 @@
         <p style="font-size:12px;color:#666;margin-bottom:12px;">ここで登録・編集した種目がトレーニングとルーティーンに反映されます。</p>
         <div class="chip-group" id="exercise-manage-filter" style="margin-bottom:12px;overflow-x:auto;flex-wrap:nowrap;">
           <div class="chip active" onclick="filterExerciseManage('all', this)">全部</div>
-          <div class="chip" onclick="filterExerciseManage('脚', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M12 3c0 0-2 3-2 7l2 11"/><path d="M10 10l4 2"/><path d="M14 21a2 2 0 0 1-4 0"/></svg> 脚</div>
-          <div class="chip" onclick="filterExerciseManage('胸', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M6.5 6.5h11M6.5 17.5h11M3 8.5v7M21 8.5v7"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>️ 胸</div>
-          <div class="chip" onclick="filterExerciseManage('背筋', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg> 背筋</div>
-          <div class="chip" onclick="filterExerciseManage('肩', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="4" r="2"/><path d="M7 10l5 2 5-2"/><path d="M7 22l5-10 5 10"/></svg> 肩</div>
-          <div class="chip" onclick="filterExerciseManage('腕', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> 腕</div>
-          <div class="chip" onclick="filterExerciseManage('腹筋', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 腹筋</div>
-          <div class="chip" onclick="filterExerciseManage('カーディオ', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="13" cy="4" r="2"/><path d="M7 22l2-5 3 3 2-7"/><path d="M7 15l2-4 4 2 4-3"/></svg> カーディオ</div>
+          <div class="chip" onclick="filterExerciseManage('脚', this)"><span class="chip__cat-dot calendar__dot calendar__dot--legs"></span>脚</div>
+          <div class="chip" onclick="filterExerciseManage('胸', this)"><span class="chip__cat-dot calendar__dot calendar__dot--chest"></span>胸</div>
+          <div class="chip" onclick="filterExerciseManage('背筋', this)"><span class="chip__cat-dot calendar__dot calendar__dot--back"></span>背筋</div>
+          <div class="chip" onclick="filterExerciseManage('肩', this)"><span class="chip__cat-dot calendar__dot calendar__dot--shoulders"></span>肩</div>
+          <div class="chip" onclick="filterExerciseManage('腕', this)"><span class="chip__cat-dot calendar__dot calendar__dot--arms"></span>腕</div>
+          <div class="chip" onclick="filterExerciseManage('腹筋', this)"><span class="chip__cat-dot calendar__dot calendar__dot--abs"></span>腹筋</div>
+          <div class="chip" onclick="filterExerciseManage('カーディオ', this)"><span class="chip__cat-dot calendar__dot calendar__dot--cardio"></span>カーディオ</div>
         </div>
         <div id="exercise-manage-list"></div>
         <button class="btn btn--secondary btn--full" onclick="openAddExerciseManageModal()" style="margin-top:12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> 種目を追加</button>
@@ -529,13 +529,13 @@
       </div>
       <div class="chip-group" id="muscle-chips">
         <div class="chip active" data-muscle="all" onclick="filterMuscleGroup('all', this)">全て</div>
-        <div class="chip" data-muscle="脚" onclick="filterMuscleGroup('脚', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M12 3c0 0-2 3-2 7l2 11"/><path d="M10 10l4 2"/><path d="M14 21a2 2 0 0 1-4 0"/></svg> 脚</div>
-        <div class="chip" data-muscle="胸" onclick="filterMuscleGroup('胸', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M6.5 6.5h11M6.5 17.5h11M3 8.5v7M21 8.5v7"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>️ 胸</div>
-        <div class="chip" data-muscle="背筋" onclick="filterMuscleGroup('背筋', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg> 背筋</div>
-        <div class="chip" data-muscle="肩" onclick="filterMuscleGroup('肩', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="4" r="2"/><path d="M7 10l5 2 5-2"/><path d="M7 22l5-10 5 10"/></svg> 肩</div>
-        <div class="chip" data-muscle="腕" onclick="filterMuscleGroup('腕', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> 腕</div>
-        <div class="chip" data-muscle="腹筋" onclick="filterMuscleGroup('腹筋', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 腹筋</div>
-        <div class="chip" data-muscle="カーディオ" onclick="filterMuscleGroup('カーディオ', this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="13" cy="4" r="2"/><path d="M7 22l2-5 3 3 2-7"/><path d="M7 15l2-4 4 2 4-3"/></svg> カーディオ</div>
+        <div class="chip" data-muscle="脚" onclick="filterMuscleGroup('脚', this)"><span class="chip__cat-dot calendar__dot calendar__dot--legs"></span>脚</div>
+        <div class="chip" data-muscle="胸" onclick="filterMuscleGroup('胸', this)"><span class="chip__cat-dot calendar__dot calendar__dot--chest"></span>胸</div>
+        <div class="chip" data-muscle="背筋" onclick="filterMuscleGroup('背筋', this)"><span class="chip__cat-dot calendar__dot calendar__dot--back"></span>背筋</div>
+        <div class="chip" data-muscle="肩" onclick="filterMuscleGroup('肩', this)"><span class="chip__cat-dot calendar__dot calendar__dot--shoulders"></span>肩</div>
+        <div class="chip" data-muscle="腕" onclick="filterMuscleGroup('腕', this)"><span class="chip__cat-dot calendar__dot calendar__dot--arms"></span>腕</div>
+        <div class="chip" data-muscle="腹筋" onclick="filterMuscleGroup('腹筋', this)"><span class="chip__cat-dot calendar__dot calendar__dot--abs"></span>腹筋</div>
+        <div class="chip" data-muscle="カーディオ" onclick="filterMuscleGroup('カーディオ', this)"><span class="chip__cat-dot calendar__dot calendar__dot--cardio"></span>カーディオ</div>
       </div>
 
       <div id="exercise-list"></div>
@@ -880,13 +880,13 @@
     <div class="form-group">
       <label class="form-label">部位</label>
       <select class="form-select" id="new-exercise-category">
-        <option value="脚"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M12 3c0 0-2 3-2 7l2 11"/><path d="M10 10l4 2"/><path d="M14 21a2 2 0 0 1-4 0"/></svg> 脚</option>
-        <option value="胸"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M6.5 6.5h11M6.5 17.5h11M3 8.5v7M21 8.5v7"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>️ 胸</option>
-        <option value="背筋"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg> 背筋</option>
-        <option value="肩"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="4" r="2"/><path d="M7 10l5 2 5-2"/><path d="M7 22l5-10 5 10"/></svg> 肩</option>
-        <option value="腕"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> 腕</option>
-        <option value="腹筋"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 腹筋</option>
-        <option value="カーディオ"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="13" cy="4" r="2"/><path d="M7 22l2-5 3 3 2-7"/><path d="M7 15l2-4 4 2 4-3"/></svg> カーディオ</option>
+        <option value="脚">脚</option>
+        <option value="胸">胸</option>
+        <option value="背筋">背筋</option>
+        <option value="肩">肩</option>
+        <option value="腕">腕</option>
+        <option value="腹筋">腹筋</option>
+        <option value="カーディオ">カーディオ</option>
       </select>
     </div>
     <p style="font-size:11px;color:#888;margin-bottom:12px;">部位を選ぶと、ホームのカレンダーと同じ色で種目が表示されます（種目ごとのアイコン設定はありません）。</p>
@@ -981,13 +981,13 @@
     <div class="form-group">
       <label class="form-label">部位</label>
       <select class="form-select" id="em-category">
-        <option value="脚"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M12 3c0 0-2 3-2 7l2 11"/><path d="M10 10l4 2"/><path d="M14 21a2 2 0 0 1-4 0"/></svg> 脚</option>
-        <option value="胸"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M6.5 6.5h11M6.5 17.5h11M3 8.5v7M21 8.5v7"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>️ 胸</option>
-        <option value="背筋"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg> 背筋</option>
-        <option value="肩"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="4" r="2"/><path d="M7 10l5 2 5-2"/><path d="M7 22l5-10 5 10"/></svg> 肩</option>
-        <option value="腕"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> 腕</option>
-        <option value="腹筋"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 腹筋</option>
-        <option value="カーディオ"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="13" cy="4" r="2"/><path d="M7 22l2-5 3 3 2-7"/><path d="M7 15l2-4 4 2 4-3"/></svg> カーディオ</option>
+        <option value="脚">脚</option>
+        <option value="胸">胸</option>
+        <option value="背筋">背筋</option>
+        <option value="肩">肩</option>
+        <option value="腕">腕</option>
+        <option value="腹筋">腹筋</option>
+        <option value="カーディオ">カーディオ</option>
       </select>
     </div>
     <button class="btn btn--gold btn--full" onclick="saveExerciseManage()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> 保存する</button>
@@ -1069,6 +1069,18 @@
   pointer-events: none; z-index: 1000;
   backdrop-filter: blur(8px);
 "><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> 自動保存済み</div>
+
+<!-- クラウド同期インジケーター（右下） -->
+<div id="sync-indicator" style="
+  position: fixed; bottom: 80px; right: 16px;
+  background: rgba(26,26,26,0.88);
+  border: 1px solid rgba(255,255,255,0.1);
+  font-size: 11px; font-weight: 600;
+  padding: 5px 10px; border-radius: 20px;
+  opacity: 0; transition: opacity 0.5s ease, color 0.3s;
+  pointer-events: none; z-index: 1000;
+  backdrop-filter: blur(8px);
+"></div>
 
 </body>
 </html>

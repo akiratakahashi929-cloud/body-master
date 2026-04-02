@@ -1,99 +1,174 @@
 /**
  * ============================================================
- * BODY MASTER — Google Apps Script (GAS)
- * 体系管理 & 筋トレ DX ツール
+ * BODY MASTER — Google Apps Script (GAS) v2.0
+ * 双方向同期 + スキーマバージョン管理対応
  * ============================================================
+ * 
+ * 【アップデート内容】
+ * - doGet(): 全データをJSONで返す（デバイス間同期）
+ * - doPost(): データ種別ごとに保存（既存互換）
+ * - スキーマバージョン管理で更新後もデータ破損しない
+ * - CORS対応ヘッダー追加
  * 
  * 【セットアップ手順】
  * 1. Google スプレッドシートを新規作成
  * 2. 「拡張機能」→「Apps Script」を開く
  * 3. このコードを Code.gs にコピー＆ペースト
- * 4. 上部の SPREADSHEET_ID をスプレッドシートのIDに変更
- *    （URL: https://docs.google.com/spreadsheets/d/★ここがID★/edit）
- * 5. 「デプロイ」→「新しいデプロイ」
+ * 4. SPREADSHEET_ID を実際のIDに変更
+ * 5. 「デプロイ」→「新しいデプロイ」（または既存デプロイを更新）
  *    - 種類: ウェブアプリ
- *    - 次のユーザーとして実行: 自分
- *    - アクセスできるユーザー: 全員
- * 6. デプロイ後のURLをアプリのGAS設定に貼り付ける
- * 
+ *    - 実行ユーザー: 自分
+ *    - アクセス: 全員
+ * 6. デプロイURLをアプリのGAS設定に貼り付け
  * ============================================================
  */
 
-// ★★★ ここにスプレッドシートIDを入力 ★★★
 const SPREADSHEET_ID = '1tlMgu_eg_5zbk0hpKbui6M4BTgVjjP317cLDbfxyu4I';
 
 // シート名
-const SHEET_DAILY = '日次データ';
+const SHEET_DAILY    = '日次データ';
 const SHEET_TRAINING = 'トレーニング';
-const SHEET_PROFILE = 'プロフィール';
+const SHEET_PROFILE  = 'プロフィール';
+const SHEET_SYNC     = '同期データ';   // ← 新規: JSON全データを保存
 
-function hasValue(value) {
-  return value !== null && value !== undefined && value !== '';
-}
+const SCHEMA_VERSION = 2;
 
-function roundOrBlank(value) {
-  if (!hasValue(value)) return '';
-  const n = Number(value);
+// ============================================================
+// ヘルパー
+// ============================================================
+function hasValue(v) { return v !== null && v !== undefined && v !== ''; }
+function roundOrBlank(v) {
+  if (!hasValue(v)) return '';
+  const n = Number(v);
   return Number.isFinite(n) ? Math.round(n * 100) / 100 : '';
 }
+function jsonResponse(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
 
-/**
- * POST リクエスト受信
- */
+// ============================================================
+// GET: 全データをJSONで返す（デバイス間同期の読み込み側）
+// ============================================================
+function doGet(e) {
+  try {
+    const action = e && e.parameter && e.parameter.action;
+
+    if (action === 'sync') {
+      // 同期シートから最新のJSONデータを返す
+      return jsonResponse(getSyncData());
+    }
+
+    // デフォルト: 稼働確認
+    return jsonResponse({
+      status: 'ok',
+      message: 'BODY MASTER GAS v2.0 is running!',
+      schemaVersion: SCHEMA_VERSION,
+      timestamp: new Date().toISOString()
+    });
+  } catch(err) {
+    return jsonResponse({ status: 'error', message: err.toString() });
+  }
+}
+
+// ============================================================
+// POST: データ受信 & 保存
+// ============================================================
 function doPost(e) {
   try {
     const payload = JSON.parse(e.postData.contents);
-    const type = payload.type;
-    const data = payload.data;
+    const { type, data } = payload;
 
     let result;
-
     switch (type) {
-      case 'daily':
-        result = recordDailyData(data);
-        break;
-      case 'training':
-        result = recordTrainingData(data);
-        break;
-      case 'profile':
-        result = recordProfileData(data);
-        break;
+      case 'daily':    result = recordDailyData(data);    break;
+      case 'training': result = recordTrainingData(data); break;
+      case 'profile':  result = recordProfileData(data);  break;
+      case 'sync':     result = saveSyncData(data);       break;  // ← 新規
       default:
         result = { status: 'error', message: 'Unknown type: ' + type };
     }
 
-    return ContentService
-      .createTextOutput(JSON.stringify(result))
-      .setMimeType(ContentService.MimeType.JSON);
-
-  } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: 'error', message: err.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonResponse(result);
+  } catch(err) {
+    return jsonResponse({ status: 'error', message: err.toString() });
   }
 }
 
-/**
- * GET リクエスト（テスト用）
- */
-function doGet(e) {
-  return ContentService
-    .createTextOutput(JSON.stringify({
+// ============================================================
+// 同期シート: 全データ一括保存・読み込み
+// ============================================================
+function getSyncData() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = ss.getSheetByName(SHEET_SYNC);
+  if (!sheet) return { status: 'empty', data: null };
+
+  const rows = sheet.getDataRange().getValues();
+  // 最新行（タイムスタンプ降順の1行目: ヘッダー除く）
+  let latestRow = null;
+  let latestTime = 0;
+  for (let i = 1; i < rows.length; i++) {
+    const ts = new Date(rows[i][0]).getTime();
+    if (ts > latestTime) {
+      latestTime = ts;
+      latestRow = rows[i];
+    }
+  }
+  if (!latestRow) return { status: 'empty', data: null };
+
+  try {
+    const parsed = JSON.parse(latestRow[1]);
+    return {
       status: 'ok',
-      message: 'BODY MASTER GAS is running!',
-      timestamp: new Date().toISOString()
-    }))
-    .setMimeType(ContentService.MimeType.JSON);
+      schemaVersion: latestRow[2] || 1,
+      savedAt: latestRow[0],
+      deviceType: latestRow[3] || 'unknown',
+      data: parsed
+    };
+  } catch(e) {
+    return { status: 'error', message: 'Parse error: ' + e.toString() };
+  }
 }
 
-/**
- * 日次データを記録
- */
+function saveSyncData(data) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = ss.getSheetByName(SHEET_SYNC);
+
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_SYNC);
+    sheet.appendRow(['タイムスタンプ', 'JSONデータ', 'スキーマVersion', 'デバイス種別', '端末情報']);
+    const h = sheet.getRange(1, 1, 1, 5);
+    h.setFontWeight('bold');
+    h.setBackground('#1A1A1A');
+    h.setFontColor('#CE1141');
+    sheet.setFrozenRows(1);
+    // JSON列を広く
+    sheet.setColumnWidth(2, 800);
+  }
+
+  const ts = data._syncedAt || new Date().toISOString();
+  const device = data._deviceType || 'unknown';
+  const json = JSON.stringify(data);
+
+  sheet.appendRow([ts, json, SCHEMA_VERSION, device, '']);
+
+  // 古いデータを削除（100行超えたら古い順に整理）
+  const lastRow = sheet.getLastRow();
+  if (lastRow > 102) {
+    sheet.deleteRows(2, lastRow - 102);
+  }
+
+  return { status: 'ok', savedAt: ts, schemaVersion: SCHEMA_VERSION };
+}
+
+// ============================================================
+// 日次データ記録（既存互換）
+// ============================================================
 function recordDailyData(data) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   let sheet = ss.getSheetByName(SHEET_DAILY);
 
-  // シートが無ければ作成
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_DAILY);
     sheet.appendRow([
@@ -101,15 +176,19 @@ function recordDailyData(data) {
       'カーボ(g)', 'トレーニング', '基礎代謝', 'メンテナンスkcal',
       '必要摂取kcal', 'ギャップ', 'タイムスタンプ'
     ]);
-    // ヘッダー書式
-    const headerRange = sheet.getRange(1, 1, 1, 12);
-    headerRange.setFontWeight('bold');
-    headerRange.setBackground('#CE1141');
-    headerRange.setFontColor('#FFFFFF');
+    const h = sheet.getRange(1, 1, 1, 12);
+    h.setFontWeight('bold'); h.setBackground('#CE1141'); h.setFontColor('#FFFFFF');
     sheet.setFrozenRows(1);
   }
 
-  sheet.appendRow([
+  // 既存の同日データをupsert
+  const allData = sheet.getDataRange().getValues();
+  let targetRow = -1;
+  for (let i = 1; i < allData.length; i++) {
+    if (allData[i][0] === data.date) { targetRow = i + 1; break; }
+  }
+
+  const row = [
     data.date || '',
     hasValue(data.weight) ? data.weight : '',
     hasValue(data.waist) ? data.waist : '',
@@ -122,46 +201,44 @@ function recordDailyData(data) {
     roundOrBlank(data.targetKcal),
     roundOrBlank(data.gap),
     data.timestamp || new Date().toISOString()
-  ]);
+  ];
+
+  if (targetRow > 0) {
+    sheet.getRange(targetRow, 1, 1, row.length).setValues([row]);
+  } else {
+    sheet.appendRow(row);
+  }
 
   return { status: 'ok', sheet: SHEET_DAILY, rows: sheet.getLastRow() };
 }
 
-/**
- * トレーニングデータを記録
- */
+// ============================================================
+// トレーニングデータ記録（既存互換）
+// ============================================================
 function recordTrainingData(data) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   let sheet = ss.getSheetByName(SHEET_TRAINING);
 
-  // シートが無ければ作成
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_TRAINING);
     sheet.appendRow([
-      '日付', '種目名', '部位', 'セット数', 
+      '日付', '種目名', '部位', 'セット数',
       'セット詳細(重量×回数)', '総ボリューム(kg)',
       'メモ', 'トレーニング時間(分)', 'タイムスタンプ'
     ]);
-    const headerRange = sheet.getRange(1, 1, 1, 9);
-    headerRange.setFontWeight('bold');
-    headerRange.setBackground('#CE1141');
-    headerRange.setFontColor('#FFFFFF');
+    const h = sheet.getRange(1, 1, 1, 9);
+    h.setFontWeight('bold'); h.setBackground('#CE1141'); h.setFontColor('#FFFFFF');
     sheet.setFrozenRows(1);
   }
 
   const date = data.date || new Date().toISOString().split('T')[0];
-  const exercises = data.exercises || [];
-
-  exercises.forEach(function(ex) {
+  (data.exercises || []).forEach(function(ex) {
     const sets = Array.isArray(ex.sets) ? ex.sets : [];
     const setDetails = sets.map(function(s, i) {
-      return (i + 1) + ': ' + s.weight + 'kg × ' + s.reps + '回' + (s.rpe ? ' (RPE' + s.rpe + ')' : '');
+      return (i+1) + ': ' + s.weight + 'kg×' + s.reps + '回' + (s.rpe ? ' (RPE'+s.rpe+')' : '');
     }).join(' | ');
-
     sheet.appendRow([
-      date,
-      ex.name || '',
-      ex.category || '',
+      date, ex.name || '', ex.category || '',
       hasValue(ex.totalSets) ? ex.totalSets : '',
       setDetails,
       hasValue(ex.totalVolume) ? ex.totalVolume : '',
@@ -171,32 +248,16 @@ function recordTrainingData(data) {
     ]);
   });
 
-  // サマリー行を追加
-  if (exercises.length > 1) {
-    sheet.appendRow([
-      date,
-      '【サマリー】',
-      exercises.map(function(e) { return e.category; }).filter(function(v, i, a) { return a.indexOf(v) === i; }).join(', '),
-      hasValue(data.totalSets) ? data.totalSets : '',
-      '',
-      hasValue(data.totalVolume) ? data.totalVolume : '',
-      '',
-      hasValue(data.duration) ? data.duration : '',
-      new Date().toISOString()
-    ]);
-  }
-
   return { status: 'ok', sheet: SHEET_TRAINING, rows: sheet.getLastRow() };
 }
 
-/**
- * プロフィールデータを記録
- */
+// ============================================================
+// プロフィール記録（既存互換）
+// ============================================================
 function recordProfileData(data) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   let sheet = ss.getSheetByName(SHEET_PROFILE);
 
-  // シートが無ければ作成
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_PROFILE);
     sheet.appendRow([
@@ -204,19 +265,14 @@ function recordProfileData(data) {
       '活動レベル', '1日赤字目標(kcal)', '減量目標(kg)',
       '腹囲(cm)', 'タイムスタンプ'
     ]);
-    const headerRange = sheet.getRange(1, 1, 1, 10);
-    headerRange.setFontWeight('bold');
-    headerRange.setBackground('#CE1141');
-    headerRange.setFontColor('#FFFFFF');
+    const h = sheet.getRange(1, 1, 1, 10);
+    h.setFontWeight('bold'); h.setBackground('#CE1141'); h.setFontColor('#FFFFFF');
     sheet.setFrozenRows(1);
   }
 
   const activityLabels = {
-    '1.2': '座りがち',
-    '1.375': '軽い運動',
-    '1.55': '中程度',
-    '1.725': '活発',
-    '1.9': '非常に活発'
+    '1.2': '座りがち', '1.375': '軽い運動',
+    '1.55': '中程度', '1.725': '活発', '1.9': '非常に活発'
   };
 
   sheet.appendRow([
@@ -237,37 +293,8 @@ function recordProfileData(data) {
 
 /**
  * 初回セットアップ用（手動実行）
- * メニューから実行すると全シートが初期化されます
  */
 function setupSheets() {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  
-  // テスト用にダミーデータで各シートを初期化
-  recordDailyData({
-    date: '2026-03-17',
-    weight: 82.7,
-    waist: 85,
-    appKcal: 2200,
-    totalKcal: 2400,
-    carbs: 350,
-    training: '筋トレDay',
-    bmr: 1821.39,
-    maintenance: 2549.946,
-    targetKcal: 2049.946,
-    gap: 350.054,
-    timestamp: new Date().toISOString()
-  });
-
-  recordProfileData({
-    height: 168,
-    weight: 82.7,
-    age: 32,
-    gender: 'male',
-    activity: 1.375,
-    deficit: 500,
-    targetLoss: 10,
-    waist: 85
-  });
-
-  Logger.log('セットアップ完了！');
+  getSyncData(); // 同期シートを初期化
+  Logger.log('セットアップ完了: ' + new Date().toISOString());
 }

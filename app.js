@@ -6,6 +6,7 @@
 // ==================== STATE ====================
 const APP = {
   gasUrl: localStorage.getItem('gasUrl') || 'https://script.google.com/macros/s/AKfycbz6RkpFaz0Wm5qP2etNdYafG3lD89gkp8s0YilYa_NgY0-4PlHiNd_xJYQThM3lKSTU/exec',
+  schemaVersion: 2,
   profile: JSON.parse(localStorage.getItem('profile') || 'null') || {
     height: 168, weight: 82.7, age: 32, gender: 'male',
     activity: 1.375, deficit: 500, targetLoss: 10, waist: 0
@@ -30,8 +31,144 @@ const APP = {
   },
 };
 
+// デバイス判定（スマホ = true）
+const IS_MOBILE = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+
 const ICON_PLAY = '<i class="ph ph-play ph-inline"></i>';
 const ICON_PAUSE = '<i class="ph ph-pause ph-inline"></i>';
+
+const MUSCLE_CATEGORIES = ['脚', '胸', '背筋', '肩', '腕', '腹筋', 'カーディオ'];
+
+function isSerializedSvgText(value) {
+  const s = String(value || '');
+  return /(?:<|&lt;)svg\b/i.test(s);
+}
+
+function stripSerializedSvgText(value) {
+  return String(value || '')
+    .replace(/&lt;svg[\s\S]*?&lt;\/svg&gt;/gi, ' ')
+    .replace(/<svg[\s\S]*?<\/svg>/gi, ' ')
+    .replace(/<\/?[^>]+>/g, ' ')
+    .replace(/&(?:quot|#34);/g, '"')
+    .replace(/&(?:apos|#39);/g, "'")
+    .replace(/&(?:nbsp|#160);/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function sanitizeExerciseName(value) {
+  const cleaned = stripSerializedSvgText(value).replace(/[<>]/g, '').trim();
+  if (!cleaned) return '';
+  return cleaned.slice(0, 80);
+}
+
+function sanitizeCategory(value) {
+  const raw = stripSerializedSvgText(value);
+  if (MUSCLE_CATEGORIES.includes(raw)) return raw;
+  const inferred = MUSCLE_CATEGORIES.find(cat => raw.includes(cat));
+  return inferred || '胸';
+}
+
+function sanitizePersistedData() {
+  let changed = false;
+
+  if (!Array.isArray(APP.customExercises)) APP.customExercises = [];
+  const sanitizedCustom = APP.customExercises
+    .map((item, idx) => {
+      const name = sanitizeExerciseName(item?.name);
+      if (!name) return null;
+      return {
+        id: item?.id || `custom_${Date.now()}_${idx}`,
+        name,
+        category: sanitizeCategory(item?.category),
+        freq: Number.isFinite(Number(item?.freq)) ? Number(item.freq) : 0,
+        isCustom: true,
+      };
+    })
+    .filter(Boolean);
+
+  if (JSON.stringify(sanitizedCustom) !== JSON.stringify(APP.customExercises)) {
+    APP.customExercises = sanitizedCustom;
+    localStorage.setItem('customExercises', JSON.stringify(APP.customExercises));
+    changed = true;
+  }
+
+  if (!Array.isArray(APP.routines)) APP.routines = [];
+  const sanitizedRoutines = APP.routines.map((r, idx) => ({
+    id: r?.id || `r_${Date.now()}_${idx}`,
+    name: sanitizeExerciseName(r?.name) || `ルーティーン${idx + 1}`,
+    color: typeof r?.color === 'string' ? r.color : '#CE1141',
+    label: typeof r?.label === 'string' ? r.label : 'A',
+    exercises: Array.isArray(r?.exercises)
+      ? r.exercises.map(sanitizeExerciseName).filter(Boolean)
+      : [],
+  }));
+
+  if (JSON.stringify(sanitizedRoutines) !== JSON.stringify(APP.routines)) {
+    APP.routines = sanitizedRoutines;
+    localStorage.setItem('routines', JSON.stringify(APP.routines));
+    changed = true;
+  }
+
+  if (changed) console.info('legacy data sanitized');
+}
+
+function normalizeCategorySelectOptions() {
+  const optionsHtml = MUSCLE_CATEGORIES.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+  ['new-exercise-category', 'em-category'].forEach((id) => {
+    const select = document.getElementById(id);
+    if (!select) return;
+    const current = sanitizeCategory(select.value);
+    select.innerHTML = optionsHtml;
+    select.value = current;
+  });
+}
+
+function cleanupLegacyIconFields(modalRoot) {
+  if (!modalRoot) return;
+  modalRoot.querySelectorAll('.form-group').forEach((group) => {
+    const label = group.querySelector('.form-label');
+    const labelText = (label?.textContent || '').trim();
+    const hasLegacyLabel = /アイコン|絵文字|Phosphor/i.test(labelText);
+    const hasLegacyInput = !!group.querySelector(
+      '#em-icon, #new-exercise-icon, [id*="icon"][type="text"], [name*="icon"]'
+    );
+    if (hasLegacyLabel || hasLegacyInput) {
+      group.remove();
+    }
+  });
+}
+
+function normalizeLegacyCorruptedUI() {
+  normalizeCategorySelectOptions();
+  ensureCalorieStreakDom();
+
+  ['exercise-manage-modal', 'add-exercise-modal'].forEach((modalId) => {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    cleanupLegacyIconFields(modal);
+
+    modal.querySelectorAll('*').forEach((node) => {
+      if (node.children.length > 0) return;
+      const txt = (node.textContent || '').trim();
+      if (!isSerializedSvgText(txt)) return;
+      if (node.classList.contains('modal__title')) return;
+      const cleaned = sanitizeExerciseName(txt);
+      if (cleaned) node.textContent = cleaned;
+    });
+  });
+
+  const emTitle = document.getElementById('exercise-manage-modal-title');
+  if (emTitle && isSerializedSvgText(emTitle.textContent || '')) {
+    emTitle.textContent = (emTitle.textContent || '').includes('編集') ? '種目を編集' : '種目を追加';
+  }
+
+  const streak = document.getElementById('ct-streak');
+  if (streak && isSerializedSvgText(streak.textContent || '')) {
+    streak.textContent = '0';
+  }
+}
 
 // ==================== EXERCISE DATABASE ====================
 const DEFAULT_EXERCISES = [
@@ -344,6 +481,9 @@ function playTimerEndSound() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  sanitizePersistedData();
+  normalizeLegacyCorruptedUI();
+
   initParticles();
   loadProfile();
   renderCalendar();
@@ -355,6 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initDailyListeners();
   ensureCalorieStreakDom();
   repairExerciseManageModalChrome();
+  normalizeLegacyCorruptedUI();
   renderRestPresets();
   setupRippleEffect();
   setupMobileScrollFix();
@@ -375,15 +516,174 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==================== 自動保存（5秒ごと） ====================
   setInterval(autoSaveSession, 5000);
 
+  // ==================== 定期クラウド同期（3分ごと） ====================
+  setInterval(() => pushSyncToGas(), 3 * 60 * 1000);
+
   // ==================== ページ離脱前に保存 ====================
   window.addEventListener('beforeunload', () => {
     autoSaveSession();
     saveFormDraft();
+    pushSyncToGas(true); // 同期beacon送信
   });
 
   // ==================== フォーム入力の自動保存（リアルタイム） ====================
   setupFormAutoSave();
+
+  // ==================== 起動時にGASから最新データを取得（クラウド同期） ====================
+  setTimeout(() => pullSyncFromGas(), 1500);
+
+  // 初期描画直後にも一度実行（古いキャッシュ由来DOMの再汚染対策）
+  setTimeout(normalizeLegacyCorruptedUI, 0);
 });
+
+// ==================== クラウド同期エンジン ====================
+
+/**
+ * GASにデータをプッシュ（全データを1つのJSONで送信）
+ * immediate=trueのときはnavigator.sendBeaconを使う（ページ離脱時用）
+ */
+function pushSyncToGas(immediate = false) {
+  if (!APP.gasUrl) return;
+  const payload = buildSyncPayload();
+  const body = JSON.stringify({ type: 'sync', data: payload });
+  if (immediate && navigator.sendBeacon) {
+    navigator.sendBeacon(APP.gasUrl, body);
+  } else {
+    fetch(APP.gasUrl, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body
+    }).catch(() => {});
+  }
+}
+
+/**
+ * GASから最新データを取得してマージ
+ * スマホ側データを優先（タイムスタンプが新しい方を採用）
+ */
+async function pullSyncFromGas() {
+  if (!APP.gasUrl) return;
+  try {
+    showSyncIndicator('syncing');
+    const res = await fetch(`${APP.gasUrl}?action=sync`, { method: 'GET', cache: 'no-cache' });
+    if (!res.ok) { showSyncIndicator('offline'); return; }
+    const json = await res.json();
+    if (json.status !== 'ok' || !json.data) { showSyncIndicator('offline'); return; }
+
+    const remote = json.data;
+    const remoteAt = new Date(remote._syncedAt || 0).getTime();
+    const localAt  = parseInt(localStorage.getItem('bm_last_push') || '0', 10);
+
+    // リモート（GAS）が新しければマージ
+    if (remoteAt > localAt) {
+      applyRemoteData(remote);
+      showSyncIndicator('synced');
+      showToast(`クラウドから最新データを取得しました（${IS_MOBILE ? 'スマホ' : 'PC'}）`, 'success');
+    } else {
+      showSyncIndicator('local');
+    }
+  } catch (e) {
+    showSyncIndicator('offline');
+    console.warn('GAS同期エラー:', e);
+  }
+}
+
+/**
+ * リモートデータをlocalStorageとAPP stateに適用（スキーマ移行対応）
+ */
+function applyRemoteData(remote) {
+  // スキーマバージョンチェック — 古いフィールドも壊さずにマージ
+  if (remote.profile && Object.keys(remote.profile).length > 0) {
+    APP.profile = Object.assign({}, APP.profile, remote.profile);
+    localStorage.setItem('profile', JSON.stringify(APP.profile));
+  }
+  if (Array.isArray(remote.dailyLogs) && remote.dailyLogs.length >= (APP.dailyLogs || []).length) {
+    APP.dailyLogs = remote.dailyLogs;
+    localStorage.setItem('dailyLogs', JSON.stringify(APP.dailyLogs));
+  }
+  if (Array.isArray(remote.trainingLogs) && remote.trainingLogs.length >= (APP.trainingLogs || []).length) {
+    APP.trainingLogs = remote.trainingLogs;
+    localStorage.setItem('trainingLogs', JSON.stringify(APP.trainingLogs));
+  }
+  if (Array.isArray(remote.routines)) {
+    APP.routines = remote.routines;
+    localStorage.setItem('routines', JSON.stringify(APP.routines));
+  }
+  if (Array.isArray(remote.customExercises)) {
+    APP.customExercises = remote.customExercises;
+    localStorage.setItem('customExercises', JSON.stringify(APP.customExercises));
+  }
+  if (remote.soundSettings) {
+    APP.soundSettings = Object.assign({}, APP.soundSettings, remote.soundSettings);
+    localStorage.setItem('soundSettings', JSON.stringify(APP.soundSettings));
+  }
+  if (remote.exerciseWeightSettings) {
+    APP.exerciseWeightSettings = Object.assign({}, APP.exerciseWeightSettings, remote.exerciseWeightSettings);
+    localStorage.setItem('exerciseWeightSettings', JSON.stringify(APP.exerciseWeightSettings));
+  }
+  // profileLocked状態を復元
+  if (remote._profileLocked) {
+    localStorage.setItem('profileLocked', '1');
+  }
+  localStorage.setItem('bm_last_push', String(new Date(remote._syncedAt || 0).getTime()));
+
+  // 画面を再描画
+  loadProfile();
+  renderCalendar();
+  updateHomeStats();
+  updateCalorieTracker();
+  updateAnalysis();
+  updateRecoveryView();
+}
+
+/**
+ * 同期用ペイロードを構築
+ */
+function buildSyncPayload() {
+  return {
+    _syncedAt: new Date().toISOString(),
+    _schemaVersion: APP.schemaVersion || 2,
+    _deviceType: IS_MOBILE ? 'mobile' : 'desktop',
+    profile: APP.profile,
+    dailyLogs: APP.dailyLogs,
+    trainingLogs: APP.trainingLogs,
+    customExercises: APP.customExercises,
+    routines: APP.routines,
+    soundSettings: APP.soundSettings,
+    exerciseWeightSettings: APP.exerciseWeightSettings,
+    _profileLocked: !!localStorage.getItem('profileLocked'),
+  };
+}
+
+/**
+ * 手動同期（設定画面のボタンから呼ばれる）
+ */
+async function manualSync() {
+  showToast('クラウドと同期中...', 'success');
+  pushSyncToGas();
+  await pullSyncFromGas();
+  // push後に最新タイムスタンプを更新
+  localStorage.setItem('bm_last_push', Date.now().toString());
+}
+
+/**
+ * 同期インジケーターを表示
+ */
+function showSyncIndicator(state) {
+  const el = document.getElementById('sync-indicator');
+  if (!el) return;
+  const states = {
+    syncing: { text: '同期中...', color: '#888' },
+    synced:  { text: 'クラウド同期済', color: '#00C853' },
+    local:   { text: 'ローカル最新', color: '#FFB300' },
+    offline: { text: 'オフライン', color: '#666' },
+  };
+  const s = states[state] || states.offline;
+  el.textContent = s.text;
+  el.style.color = s.color;
+  el.style.opacity = '1';
+  setTimeout(() => { el.style.opacity = '0'; }, 4000);
+}
 
 // ==================== 自動保存 / 復元 システム ====================
 
@@ -1383,23 +1683,14 @@ function ensureCalorieStreakDom() {
 
 /** 旧 HTML のアイコン（絵文字）欄削除 + モーダルタイトルに HTML が平文で入っている場合の修復 */
 function repairExerciseManageModalChrome() {
-  document.querySelectorAll('.form-group .form-label').forEach(lbl => {
-    const t = lbl.textContent || '';
-    if (t.includes('アイコン') && (t.includes('絵文字') || t.includes('Phosphor'))) {
-      const fg = lbl.closest('.form-group');
-      if (fg) fg.remove();
-    }
-  });
-  const inp = document.getElementById('em-icon');
-  if (inp) {
-    const fg = inp.closest('.form-group');
-    if (fg) fg.remove();
-  }
+  cleanupLegacyIconFields(document.getElementById('exercise-manage-modal'));
+  cleanupLegacyIconFields(document.getElementById('add-exercise-modal'));
   const title = document.getElementById('exercise-manage-modal-title');
-  if (title && /[<>]/.test(title.textContent || '')) {
+  if (title && isSerializedSvgText(title.textContent || '')) {
     const x = title.textContent || '';
     title.textContent = x.includes('編集') ? '種目を編集' : '種目を追加';
   }
+  normalizeCategorySelectOptions();
 }
 
 function updateCalorieTracker() {
@@ -2634,7 +2925,13 @@ function saveGasUrl() {
 // ==================== MODAL ====================
 function openModal(id) {
   if (id === 'weight-settings-modal') renderWeightSettings();
-  document.getElementById(id).classList.add('active');
+  if (id === 'exercise-manage-modal' || id === 'add-exercise-modal') {
+    normalizeLegacyCorruptedUI();
+  }
+  const modal = document.getElementById(id);
+  if (!modal) return;
+  modal.classList.add('active');
+  normalizeLegacyCorruptedUI();
 }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 

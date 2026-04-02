@@ -287,8 +287,13 @@ input, textarea, [contenteditable] {
   border: 1px solid rgba(255,255,255,0.15);
   background: rgba(255,255,255,0.05); color: #aaa;
   transition: all var(--transition-fast); -webkit-tap-highlight-color: transparent;
+  display: inline-flex; align-items: center; gap: 6px;
 }
 .chip.active, .chip:hover { background: var(--bulls-red); border-color: var(--bulls-red); color: white; box-shadow: var(--shadow-glow-red); }
+.chip__cat-dot.calendar__dot {
+  width: 8px; height: 8px;
+  min-width: 8px; min-height: 8px;
+}
 
 /* ============================================================
    CALENDAR
