@@ -1146,39 +1146,49 @@ function createCalendarDay(day, isOtherMonth, isToday = false, dateStr = '') {
 
   if (dateStr && !isOtherMonth) {
     let mealHtml = '';
+    // MEAL (Right Top)
     if (APP.mealPlans && APP.mealPlans[dateStr] && APP.mealPlans[dateStr].length > 0) {
-      mealHtml = `<div class="calendar__day-meal-macros"><span class="m-dot p"></span><span class="m-dot f"></span><span class="m-dot c"></span></div>`;
+      mealHtml = `<div class="cd-meal-badge" title="食事記録あり"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>`;
     }
 
+    // TRAINING (Bottom Wide)
+    let trainingHtml = '';
     const logs = APP.trainingLogs.filter(l => l.date === dateStr);
     if (logs.length > 0) {
-      const categories = [...new Set(logs.flatMap(l => l.exercises.map(e => e.category)))];
-      const totalSets = logs.reduce((s, l) => s + (l.totalSets || 0), 0);
-      const catDots = categories.slice(0, 3).map(cat =>
-        `<span class="calendar__dot calendar__dot--${getCategoryClass(cat)}"></span>`
-      ).join('');
-
-      el.innerHTML = `
-        ${mealHtml}
-        <span class="cal-day-num">${day}</span>
-        <div class="cal-day-info">${catDots}</div>
-        <span class="cal-day-sets">${totalSets}s</span>
-      `;
+      const catSets = {};
+      logs.forEach(l => {
+        l.exercises.forEach(e => {
+          catSets[e.category] = (catSets[e.category] || 0) + (e.sets ? e.sets.length : 0);
+        });
+      });
+      const sortedCats = Object.entries(catSets).sort((a, b) => b[1] - a[1]);
+      
+      sortedCats.slice(0, 2).forEach(([cat, sets]) => {
+        const catClass = getCategoryClass(cat);
+        const shortCat = cat === 'カーディオ' ? '有酸素' : cat;
+        trainingHtml += `<div class="cd-train-bar bg-${catClass}">${shortCat} ${sets}s</div>`;
+      });
     } else {
       const dailyLog = APP.dailyLogs.find(l => l.date === dateStr);
       if (dailyLog) {
-        el.innerHTML = `${mealHtml}<span class="cal-day-num">${day}</span><div class="cal-day-info"><span style="font-size:6px;color:var(--victory-gold);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M16 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"/><path d="M2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"/><path d="M7 21h10M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg></span></div>`;
-      } else {
-        el.innerHTML = `${mealHtml}<span class="cal-day-num">${day}</span>`;
+        trainingHtml = `<div class="cd-train-bar bg-rest" style="text-align:center;">✓ Check</div>`;
       }
     }
+
+    el.innerHTML = `
+      <div class="cal-day-grid">
+        <div class="cd-top-left"><span class="cal-day-num" style="font-size:12px;">${day}</span></div>
+        <div class="cd-top-right">${mealHtml}</div>
+        <div class="cd-bottom-wide">${trainingHtml}</div>
+      </div>
+    `;
 
     el.onclick = () => {
       APP.selectedDate = dateStr;
       openDayEditModal(dateStr);
     };
   } else {
-    el.innerHTML = `<span class="cal-day-num">${day}</span>`;
+    el.innerHTML = `<div class="cal-day-grid"><div class="cd-top-left"><span class="cal-day-num">${day}</span></div></div>`;
   }
 
   return el;
