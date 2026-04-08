@@ -3414,7 +3414,7 @@ function renderEditMealSummary(dateStr) {
 }
 
 function formatTiming(timing) {
-  const map = { 'morning': '☀ 朝', 'lunch': '🕛 昼', 'pre_workout': '⚡ プレWO', 'post_workout': '💪 トレ後', 'night': '🌙 夜' };
+  const map = { 'morning': '☀ 朝', 'lunch': '🕛 昼', 'pre_workout': '⚡ プレWO', 'night': '🌙 夜' };
   return map[timing] || timing;
 }
 
@@ -3512,7 +3512,7 @@ window.addMpIngredient = function() {
   });
   
   // Sort by timing
-  const tOrder = { 'morning':1, 'lunch':2, 'pre_workout':3, 'post_workout':4, 'night':5 };
+  const tOrder = { 'morning':1, 'lunch':2, 'pre_workout':3, 'night':4 };
   currentMealDraft.sort((a,b) => tOrder[a.timing] - tOrder[b.timing]);
   
   renderMpDraftList();
@@ -3523,13 +3523,13 @@ window.autoGenerateOptimalMealPlan = function() {
     showToast('先にフェーズと強度を選択してターゲットを算出してください', 'error');
     return;
   }
-  if (!confirm('現在のターゲットPFCに合わせて最適な食事プランを自動生成しますか？\n(※現在のプランは上書きされます)')) return;
+  if (!confirm('現在のスケジュールに合わせて（トレ後を夜に統合）、自動生成しますか？\n(※現在のプランは上書きされます)')) return;
 
   const plan = [];
   // EAAや調味料分としてざっくり150kcal(P:-15g, F:-2g, C:-20g)をアンダーにする
   let remainingP = targetPFC.p - 15;
-  let remainingF = targetPFC.f - 2;
-  let remainingC = targetPFC.c - 20;
+  let remainingF = Math.max(0, targetPFC.f - 2);
+  let remainingC = Math.max(0, targetPFC.c - 20);
 
   const add = (ingId, timing, amount) => {
     if (amount <= 0) return;
@@ -3547,7 +3547,7 @@ window.autoGenerateOptimalMealPlan = function() {
     remainingP -= p; remainingF -= f; remainingC -= c;
   };
 
-  // サプリと乾物の固定配置 (微量の計算は省くが、わかめ/大根はC等を持つので反映させる)
+  // サプリと乾物の固定配置
   add('multi_v', 'morning', 1);
   add('vit_d_ca', 'morning', 1);
   add('potassium', 'night', 1);
@@ -3560,44 +3560,53 @@ window.autoGenerateOptimalMealPlan = function() {
   }
   if (remainingF > 5) {
     const eggNeedGrams = (remainingF / INGREDIENTS_DB['egg'].f) * 100;
-    const eggAmount = Math.min(150, eggNeedGrams);
+    const eggAmount = Math.min(250, eggNeedGrams); // 最大5個まで
     add('egg', 'lunch', eggAmount);
   }
 
   // 2. Protein充当
-  // 煮干しをおやつ(昼)に少し配置
   add('niboshi', 'lunch', 15);
 
-  // 残りのPを鶏胸肉で分配
+  // 残りのPを鶏胸肉で分配 (朝はサバ缶があるので、昼、プレ、夜の3分割)
   if (remainingP > 0) {
     const chickenNeedGrams = (remainingP / INGREDIENTS_DB['chicken_breast'].p) * 100;
-    const ckcPerMeal = chickenNeedGrams / 4;
+    const ckcPerMeal = chickenNeedGrams / 3;
     add('chicken_breast', 'lunch', ckcPerMeal);
     add('chicken_breast', 'pre_workout', ckcPerMeal);
-    add('chicken_breast', 'post_workout', ckcPerMeal);
     add('chicken_breast', 'night', ckcPerMeal);
   }
 
-  // 3. Carb充当
+  // 3. Carb充当 (残りの全てを分配)
   if (remainingC > 0) {
-    const nightC = remainingC * 0.25;
-    add('potato', 'night', (nightC / INGREDIENTS_DB['potato'].c) * 100);
-    
-    const dayC = remainingC * 0.25;
+    // プレWO: 20% (白米)
+    const woC = remainingC * 0.20;
+    add('white_rice', 'pre_workout', (woC / INGREDIENTS_DB['white_rice'].c) * 100);
+    remainingC -= woC;
+
+    // 朝・昼: 残りのうち40%ずつをミックスご飯 (大体全体から20%, 20%)
+    const dayC = remainingC * 0.50;
     add('mixed_rice', 'morning', (dayC * 0.5 / INGREDIENTS_DB['mixed_rice'].c) * 100);
     add('mixed_rice', 'lunch', (dayC * 0.5 / INGREDIENTS_DB['mixed_rice'].c) * 100);
+    remainingC -= dayC;
+
+    // 夜(トレ後兼用): 残りのすべてのCarb (全体から約40%)
+    // じゃがいもはMax200g (C約35g) として残りは白米で吸収を早める
+    const potatoGrams = Math.min(200, (remainingC / INGREDIENTS_DB['potato'].c) * 100);
+    const actualPotatoC = (potatoGrams / 100) * INGREDIENTS_DB['potato'].c;
+    add('potato', 'night', potatoGrams);
+    remainingC -= actualPotatoC;
     
-    const woC = remainingC * 0.50;
-    add('white_rice', 'pre_workout', (woC * 0.5 / INGREDIENTS_DB['white_rice'].c) * 100);
-    add('white_rice', 'post_workout', (woC * 0.5 / INGREDIENTS_DB['white_rice'].c) * 100);
+    if (remainingC > 0) {
+       add('white_rice', 'night', (remainingC / INGREDIENTS_DB['white_rice'].c) * 100);
+    }
   }
 
-  const tOrder = { 'morning':1, 'lunch':2, 'pre_workout':3, 'post_workout':4, 'night':5 };
+  const tOrder = { 'morning':1, 'lunch':2, 'pre_workout':3, 'night':4 };
   plan.sort((a,b) => tOrder[a.timing] - tOrder[b.timing]);
   
   currentMealDraft = plan;
   renderMpDraftList();
-  showToast('食事プランを自動生成しました！(調味料・EAA分の約150kcalをバッファとして残しています)', 'success');
+  showToast('食事プランをスケジュールに合わせて再構築しました！', 'success');
 };
 
 window.removeMpIngredient = function(id) {
