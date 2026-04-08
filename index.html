@@ -8,8 +8,8 @@
   <meta name="mobile-web-app-capable" content="yes">
   <title>BODY MASTER — 体系管理 & 筋トレ DX</title>
   <meta name="description" content="体系管理・筋力トレーニング記録・疲労回復管理の統合ツール">
-  <link rel="stylesheet" href="style.css?v=bm20260402">
-  <link rel="stylesheet" href="../phosphor-icons/Fonts/regular/style.css?v=bm20260402">
+  <link rel="stylesheet" href="style.css?v=bm20260408_01">
+  <link rel="stylesheet" href="../phosphor-icons/Fonts/regular/style.css?v=bm20260408_01">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -224,6 +224,14 @@
         <div class="form-group">
           <label class="form-label">追加kcal</label>
           <input class="form-input" type="number" id="h-daily-extra-kcal" inputmode="numeric" placeholder="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">トレーニング強度</label>
+        <div class="chip-group" id="home-intensity-group" style="flex-wrap: nowrap;">
+          <div class="chip home-intensity-chip active" data-intensity="mid" onclick="setDayIntensity('home', 'mid')">中強度</div>
+          <div class="chip home-intensity-chip" data-intensity="high" onclick="setDayIntensity('home', 'high')">高強度</div>
+          <div class="chip home-intensity-chip" data-intensity="rest" onclick="setDayIntensity('home', 'rest')">休息日</div>
         </div>
       </div>
       <div id="h-daily-calc" style="display:none; margin-bottom:12px;">
@@ -1064,6 +1072,14 @@
           <input class="form-input" type="number" id="edit-extra-kcal" inputmode="numeric" placeholder="0">
         </div>
       </div>
+      <div class="form-group">
+        <label class="form-label">トレーニング強度</label>
+        <div class="chip-group" id="edit-intensity-group" style="flex-wrap: nowrap;">
+          <div class="chip edit-intensity-chip active" data-intensity="mid" onclick="setDayIntensity('edit', 'mid')">中強度</div>
+          <div class="chip edit-intensity-chip" data-intensity="high" onclick="setDayIntensity('edit', 'high')">高強度</div>
+          <div class="chip edit-intensity-chip" data-intensity="rest" onclick="setDayIntensity('edit', 'rest')">休息日</div>
+        </div>
+      </div>
       <div id="edit-daily-calc" style="display:none;margin-bottom:10px;">
         <div class="stat-grid stat-grid--3">
           <div class="stat-box"><div class="stat-box__value" id="edit-total-kcal">0</div><div class="stat-box__label">合計kcal</div></div>
@@ -1156,6 +1172,8 @@
              <option value="potato">じゃがいも (茹で/蒸し)</option>
              <option value="chicken_breast">鶏胸肉 (皮なし)</option>
              <option value="mackerel_can">サバ缶 (水煮 1缶190g)</option>
+             <option value="egg">卵 (全卵)</option>
+             <option value="niboshi">カタクチイワシの煮干し</option>
              <option value="wakame">わかめ (乾燥)</option>
              <option value="daikon">切り干し大根 (乾燥)</option>
              <option value="multi_v">サプリ: マルチV＆M (Dear-Natura)</option>
@@ -1177,6 +1195,7 @@
            <div class="chip active" onclick="setMpTiming('morning', this)">☀ 朝</div>
            <div class="chip" onclick="setMpTiming('lunch', this)">🕛 昼</div>
            <div class="chip" onclick="setMpTiming('pre_workout', this)">⚡ プレWO</div>
+           <div class="chip" onclick="setMpTiming('post_workout', this)">💪 トレ後</div>
            <div class="chip" onclick="setMpTiming('night', this)">🌙 夜</div>
          </div>
        </div>
@@ -1184,6 +1203,10 @@
        <button class="btn btn--secondary btn--full" onclick="addMpIngredient()">追加</button>
     </div>
 
+    <div style="font-size:12px;font-weight:700;margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+      <span>当日の食事メニュー</span>
+      <button class="btn btn--secondary" style="font-size:10px; padding:4px 8px; border: 1px solid var(--victory-gold); color: var(--victory-gold);" onclick="autoGenerateOptimalMealPlan()">🤖 ターゲットから自動生成</button>
+    </div>
     <!-- Added Ingredients List -->
     <div id="mp-added-list"></div>
 
@@ -1282,7 +1305,7 @@
   } catch (e) {}
 })();
 </script>
-<script src="app.js?v=bm20260402"></script>
+<script src="app.js?v=bm20260408_01"></script>
 
 <!-- 自動保存バッジ（トレーニング中に表示） -->
 <div id="session-saved-badge" style="

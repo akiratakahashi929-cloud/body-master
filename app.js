@@ -182,6 +182,8 @@ const INGREDIENTS_DB = {
   'potato':         { name: 'じゃがいも', p: 1.6, f: 0.1, c: 17.6, kcal: 76 },
   'chicken_breast': { name: '鶏胸肉(皮無)', p: 22.3, f: 1.5, c: 0.0, kcal: 108 },
   'mackerel_can':   { name: 'サバ缶(190g)', p: 28.5, f: 28.5, c: 0.0, kcal: 361, fixedAmount: 190 },
+  'egg':            { name: '卵(全卵)', p: 12.3, f: 10.3, c: 0.3, kcal: 151 },
+  'niboshi':        { name: 'カタクチイワシ煮干し', p: 64.5, f: 6.2, c: 0.3, kcal: 332 },
   'wakame':         { name: 'わかめ(乾燥)', p: 18.0, f: 4.0, c: 41.8, kcal: 138 },
   'daikon':         { name: '切り干し大根', p: 5.7, f: 0.8, c: 67.5, kcal: 301 },
   'multi_v':        { name: 'マルチV&M', p: 0, f: 0, c: 0, kcal: 0 },
@@ -1946,7 +1948,10 @@ function submitHomeDaily() {
   if (waist) APP.profile.waist = waist;
   localStorage.setItem('profile', JSON.stringify(APP.profile));
 
-  const logEntry = { date, weight, waist, appKcal, totalKcal, gap, bmr, maintenance, targetKcal, timestamp: new Date().toISOString() };
+  const intensityEl = document.querySelector('.home-intensity-chip.active');
+  const intensity = intensityEl ? intensityEl.dataset.intensity : 'mid';
+
+  const logEntry = { date, weight, waist, appKcal, totalKcal, gap, bmr, maintenance, targetKcal, intensity, timestamp: new Date().toISOString() };
   // 同日データをupsert（重複を防ぐ）
   const existingIdx = APP.dailyLogs.findIndex(l => l.date === date);
   if (existingIdx >= 0) {
@@ -3134,6 +3139,9 @@ function openDayEditModal(dateStr) {
   document.getElementById('edit-waist').value = daily ? (daily.waist || '') : '';
   document.getElementById('edit-app-kcal').value = daily ? (daily.appKcal || '') : '';
   document.getElementById('edit-extra-kcal').value = daily ? (Math.round((daily.totalKcal || 0) - (daily.appKcal || 0)) || '') : '';
+  
+  const intensity = daily ? (daily.intensity || 'mid') : 'mid';
+  if (window.setDayIntensity) window.setDayIntensity('edit', intensity);
 
   // 削除ボタンの表示制御
   document.getElementById('edit-delete-daily-btn').style.display = daily ? '' : 'none';
@@ -3233,9 +3241,12 @@ function saveDayEdit() {
   const totalKcal = appKcal + extraKcal;
   const gap = totalKcal > 0 ? totalKcal - targetKcal : 0;
 
+  const intensityEl = document.querySelector('.edit-intensity-chip.active');
+  const intensity = intensityEl ? intensityEl.dataset.intensity : 'mid';
+
   const newEntry = {
     date: editingDate, weight, waist, appKcal, totalKcal, gap,
-    bmr, maintenance, targetKcal, timestamp: new Date().toISOString()
+    bmr, maintenance, targetKcal, intensity, timestamp: new Date().toISOString()
   };
 
   // 既存の同日データを上書き or 追加
@@ -3335,6 +3346,13 @@ window.updateMealTargets = function() {
   }
 };
 
+window.setDayIntensity = function(prefix, intensity) {
+  const chips = document.querySelectorAll(`.${prefix}-intensity-chip`);
+  chips.forEach(c => c.classList.remove('active'));
+  const target = document.querySelector(`.${prefix}-intensity-chip[data-intensity="${intensity}"]`);
+  if (target) target.classList.add('active');
+};
+
 window.setMealIntensity = function(intensity, btnEl) {
   const chips = document.querySelectorAll('.meal-intensity-chip');
   chips.forEach(c => c.classList.remove('active'));
@@ -3396,7 +3414,7 @@ function renderEditMealSummary(dateStr) {
 }
 
 function formatTiming(timing) {
-  const map = { 'morning': '☀ 朝', 'lunch': '🕛 昼', 'pre_workout': '⚡ プレWO', 'night': '🌙 夜' };
+  const map = { 'morning': '☀ 朝', 'lunch': '🕛 昼', 'pre_workout': '⚡ プレWO', 'post_workout': '💪 トレ後', 'night': '🌙 夜' };
   return map[timing] || timing;
 }
 
@@ -3412,7 +3430,19 @@ window.openMealPlannerModal = function(dateStr) {
   const title = document.getElementById('meal-planner-title');
   if (title) title.textContent = `食事プラン構築 (${currentMealDate})`;
   
-  updateMealTargets();
+  let targetIntensity = 'mid';
+  const daily = APP.dailyLogs.find(l => l.date === currentMealDate);
+  if (daily && daily.intensity) targetIntensity = daily.intensity;
+  else {
+    const editC = document.querySelector('.edit-intensity-chip.active');
+    const homeC = document.querySelector('.home-intensity-chip.active');
+    if (document.getElementById('day-edit-modal').classList.contains('active') && editC) targetIntensity = editC.dataset.intensity;
+    else if (homeC) targetIntensity = homeC.dataset.intensity;
+  }
+  
+  const phaseSelect = document.getElementById('meal-phase');
+  const phase = phaseSelect ? phaseSelect.value : 'phase1';
+  targetPFC = calculateMealTargets(phase, APP.profile.weight || 80, targetIntensity);
   
   // Load existing plan
   currentMealDraft = APP.mealPlans[currentMealDate] ? JSON.parse(JSON.stringify(APP.mealPlans[currentMealDate])) : [];
@@ -3482,10 +3512,92 @@ window.addMpIngredient = function() {
   });
   
   // Sort by timing
-  const tOrder = { 'morning':1, 'lunch':2, 'pre_workout':3, 'night':4 };
+  const tOrder = { 'morning':1, 'lunch':2, 'pre_workout':3, 'post_workout':4, 'night':5 };
   currentMealDraft.sort((a,b) => tOrder[a.timing] - tOrder[b.timing]);
   
   renderMpDraftList();
+};
+
+window.autoGenerateOptimalMealPlan = function() {
+  if (!targetPFC.p || !targetPFC.kcal) {
+    showToast('先にフェーズと強度を選択してターゲットを算出してください', 'error');
+    return;
+  }
+  if (!confirm('現在のターゲットPFCに合わせて最適な食事プランを自動生成しますか？\n(※現在のプランは上書きされます)')) return;
+
+  const plan = [];
+  // EAAや調味料分としてざっくり150kcal(P:-15g, F:-2g, C:-20g)をアンダーにする
+  let remainingP = targetPFC.p - 15;
+  let remainingF = targetPFC.f - 2;
+  let remainingC = targetPFC.c - 20;
+
+  const add = (ingId, timing, amount) => {
+    if (amount <= 0) return;
+    const dbItem = INGREDIENTS_DB[ingId];
+    if (!dbItem) return;
+    const ratio = amount / 100;
+    const p = dbItem.p * ratio;
+    const f = dbItem.f * ratio;
+    const c = dbItem.c * ratio;
+    plan.push({
+      id: 'mp_' + Math.random().toString(36).substr(2, 9),
+      ingredientId: ingId, name: dbItem.name, amount: Math.round(amount),
+      timing, p, f, c, kcal: Math.round(dbItem.kcal * ratio)
+    });
+    remainingP -= p; remainingF -= f; remainingC -= c;
+  };
+
+  // サプリと乾物の固定配置 (微量の計算は省くが、わかめ/大根はC等を持つので反映させる)
+  add('multi_v', 'morning', 1);
+  add('vit_d_ca', 'morning', 1);
+  add('potassium', 'night', 1);
+  add('wakame', 'lunch', 5);
+  add('daikon', 'night', 10);
+
+  // 1. Fat充当: 朝〜昼。サバ缶(190g=54.15F) と 卵(10.3F)
+  if (remainingF >= 40) {
+    add('mackerel_can', 'morning', 190); 
+  }
+  if (remainingF > 5) {
+    const eggNeedGrams = (remainingF / INGREDIENTS_DB['egg'].f) * 100;
+    const eggAmount = Math.min(150, eggNeedGrams);
+    add('egg', 'lunch', eggAmount);
+  }
+
+  // 2. Protein充当
+  // 煮干しをおやつ(昼)に少し配置
+  add('niboshi', 'lunch', 15);
+
+  // 残りのPを鶏胸肉で分配
+  if (remainingP > 0) {
+    const chickenNeedGrams = (remainingP / INGREDIENTS_DB['chicken_breast'].p) * 100;
+    const ckcPerMeal = chickenNeedGrams / 4;
+    add('chicken_breast', 'lunch', ckcPerMeal);
+    add('chicken_breast', 'pre_workout', ckcPerMeal);
+    add('chicken_breast', 'post_workout', ckcPerMeal);
+    add('chicken_breast', 'night', ckcPerMeal);
+  }
+
+  // 3. Carb充当
+  if (remainingC > 0) {
+    const nightC = remainingC * 0.25;
+    add('potato', 'night', (nightC / INGREDIENTS_DB['potato'].c) * 100);
+    
+    const dayC = remainingC * 0.25;
+    add('mixed_rice', 'morning', (dayC * 0.5 / INGREDIENTS_DB['mixed_rice'].c) * 100);
+    add('mixed_rice', 'lunch', (dayC * 0.5 / INGREDIENTS_DB['mixed_rice'].c) * 100);
+    
+    const woC = remainingC * 0.50;
+    add('white_rice', 'pre_workout', (woC * 0.5 / INGREDIENTS_DB['white_rice'].c) * 100);
+    add('white_rice', 'post_workout', (woC * 0.5 / INGREDIENTS_DB['white_rice'].c) * 100);
+  }
+
+  const tOrder = { 'morning':1, 'lunch':2, 'pre_workout':3, 'post_workout':4, 'night':5 };
+  plan.sort((a,b) => tOrder[a.timing] - tOrder[b.timing]);
+  
+  currentMealDraft = plan;
+  renderMpDraftList();
+  showToast('食事プランを自動生成しました！(調味料・EAA分の約150kcalをバッファとして残しています)', 'success');
 };
 
 window.removeMpIngredient = function(id) {
