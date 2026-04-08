@@ -1186,3 +1186,30 @@ input[type="date"] { color-scheme: dark; }
 .m-dot.p { background: var(--bulls-red-light); }
 .m-dot.f { background: var(--victory-gold); }
 .m-dot.c { background: var(--recovery-green); }
+
+/* Daily Flow Timeline */
+.daily-flow-timeline {
+  display: flex; flex-direction: column; gap: 0;
+  position: relative; padding-left: 14px; margin-top: 12px;
+}
+.daily-flow-timeline::before {
+  content: ''; position: absolute; left: 3px; top: 8px; bottom: 8px;
+  width: 2px; background: rgba(255,255,255,0.1); border-radius: 2px;
+}
+.daily-flow-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  position: relative; padding-bottom: 20px;
+}
+.daily-flow-item::before {
+  content: ''; position: absolute; left: -14px; top: 4px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--bulls-red); border: 2px solid #1A1A1A;
+}
+.daily-flow-time {
+  font-size: 11px; font-weight: 700; color: #aaa; background: rgba(255,255,255,0.05);
+  padding: 4px 8px; border-radius: 4px; min-width: 46px; text-align: center;
+}
+.daily-flow-content { flex: 1; }
+.daily-flow-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; color: #fff; }
+.daily-flow-desc { font-size: 11px; color: #888; line-height: 1.4; }
+
