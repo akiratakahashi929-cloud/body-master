@@ -176,16 +176,17 @@ function normalizeLegacyCorruptedUI() {
 // ==================== MEAL INGREDIENTS DATABASE ====================
 const INGREDIENTS_DB = {
   'white_rice':     { name: '白米(炊飯)', p: 2.5, f: 0.3, c: 37.1, kcal: 156 },
-  'brown_rice':     { name: '玄米(炊飯)', p: 2.8, f: 1.0, c: 35.6, kcal: 152 },
-  'barley':         { name: '大麦(茹で)', p: 1.8, f: 0.8, c: 28.2, kcal: 114 },
-  'mixed_rice':     { name: 'ミックスご飯', p: 2.6, f: 0.6, c: 36.5, kcal: 154 },
-  'potato':         { name: 'じゃがいも', p: 1.6, f: 0.1, c: 17.6, kcal: 76 },
-  'chicken_breast': { name: '鶏胸肉(皮無)', p: 22.3, f: 1.5, c: 0.0, kcal: 108 },
-  'mackerel_can':   { name: 'サバ缶(190g)', p: 28.5, f: 28.5, c: 0.0, kcal: 361, fixedAmount: 190 },
-  'egg':            { name: '卵(全卵)', p: 12.3, f: 10.3, c: 0.3, kcal: 151 },
+  'brown_rice':     { name: '玄米(炊飯)', p: 3.0, f: 1.2, c: 35.6, kcal: 152 },
+  'barley':         { name: '押麦(茹で)', p: 2.3, f: 0.3, c: 24.3, kcal: 105 },
+  'mixed_rice':     { name: 'ミックスご飯', p: 2.6, f: 0.6, c: 34.1, kcal: 145 },
+  'potato':         { name: 'じゃがいも', p: 1.5, f: 0.1, c: 14.8, kcal: 59 },
+  'chicken_breast': { name: '鶏胸肉(皮無)', p: 24.4, f: 1.9, c: 0.1, kcal: 116 },
+  'mackerel_can':   { name: 'サバ缶(190g)', p: 20.9, f: 10.7, c: 0.2, kcal: 190, fixedAmount: 190 }, // ※100gあたり
+  'egg':            { name: '卵(全卵)', p: 12.3, f: 10.3, c: 0.9, kcal: 142 },
   'niboshi':        { name: 'カタクチイワシ煮干し', p: 64.5, f: 6.2, c: 0.3, kcal: 332 },
-  'wakame':         { name: 'わかめ(乾燥)', p: 18.0, f: 4.0, c: 41.8, kcal: 138 },
-  'daikon':         { name: '切り干し大根', p: 5.7, f: 0.8, c: 67.5, kcal: 301 },
+  'wakame':         { name: 'わかめ(乾燥)', p: 13.6, f: 1.6, c: 41.3, kcal: 117 },
+  'daikon':         { name: '切り干し大根(乾燥)', p: 9.7, f: 0.8, c: 75.8, kcal: 277 },
+  'walnut':         { name: 'くるみ(いり)', p: 14.6, f: 68.8, c: 11.7, kcal: 674 },
   'multi_v':        { name: 'マルチV&M', p: 0, f: 0, c: 0, kcal: 0 },
   'vit_d_ca':       { name: 'VitD&Ca', p: 0, f: 0, c: 0, kcal: 0 },
   'potassium':      { name: 'カリウム', p: 0, f: 0, c: 0, kcal: 0 }
