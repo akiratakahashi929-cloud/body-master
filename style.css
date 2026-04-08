@@ -1155,3 +1155,34 @@ input[type="date"] { color-scheme: dark; }
   background: radial-gradient(circle, rgba(206,17,65,0.15) 0%, transparent 70%);
   pointer-events: none;
 }
+
+/* ==================== MEAL PLANNER ==================== */
+.meal-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-md); margin-bottom: 6px;
+}
+.meal-item__timing {
+  font-size: 10px; font-weight: 700; color: var(--sole-cream);
+  background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: var(--radius-sm);
+  white-space: nowrap; flex-shrink: 0;
+}
+.meal-item__name { font-size: 13px; font-weight: 600; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display:flex; align-items:center; gap:6px; }
+.meal-item__amount { font-size: 11px; color:#aaa; font-weight:normal; }
+.meal-item__macros { font-size: 11px; color: #888; text-align:right;}
+.meal-item__macros span { margin-left: 6px; }
+.meal-item__p { color: var(--bulls-red-light); }
+.meal-item__f { color: var(--victory-gold); }
+.meal-item__c { color: var(--recovery-green); }
+
+.calendar__day-meal-macros {
+  position: absolute; top: 4px; left: 4px;
+  display: flex; gap: 2px;
+}
+.calendar__day-meal-macros .m-dot {
+  width: 4px; height: 4px; border-radius: 50%;
+}
+.m-dot.p { background: var(--bulls-red-light); }
+.m-dot.f { background: var(--victory-gold); }
+.m-dot.c { background: var(--recovery-green); }

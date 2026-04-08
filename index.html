@@ -190,6 +190,9 @@
       <button class="settings-nav__item active" id="stab-profile" onclick="switchSettingsTab('profile')">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:4px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>プロフィール
       </button>
+      <button class="settings-nav__item" id="stab-meal" onclick="switchSettingsTab('meal')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:4px;"><path d="M3 12h18M3 6h18M3 18h18" stroke-linecap="round"/></svg>食事プラン
+      </button>
       <button class="settings-nav__item" id="stab-timer" onclick="switchSettingsTab('timer')">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:4px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>タイマー
       </button>
@@ -304,6 +307,43 @@
         <button class="btn btn--gold btn--full" onclick="submitBodyData()" style="margin-top: 8px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> スプレッドシートに保存</button>
       </div>
       </div><!-- /profile-form-area -->
+    </div>
+
+    <!-- PANEL: Meal Planning -->
+    <div class="settings-panel" id="spanel-meal" style="display:none;">
+      <div class="card card--gold">
+        <div class="card__title">
+          <span class="card__title-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg></span>
+          食事プランニング設定
+        </div>
+        <div class="form-group">
+          <label class="form-label">現在のフェーズ</label>
+          <select class="form-select" id="meal-phase" onchange="updateMealTargets()">
+            <option value="phase1">Phase 1 (体脂肪率 25〜30%) - 糖質絞込期</option>
+            <option value="phase2">Phase 2 (体脂肪率 20〜25%) - 本格除脂肪期</option>
+            <option value="phase3">Phase 3 (体脂肪率 15〜20%) - 仕上げ期</option>
+            <option value="phase4">Phase 4 (体脂肪率 10〜15%) - 筋量維持・超絞込期</option>
+          </select>
+        </div>
+        
+        <div id="meal-targets-view" style="margin-top: 12px; display: none;">
+          <div style="font-size:12px;color:#888;margin-bottom:4px;">1日の目標PFC（フェーズ自動計算） <span id="meal-target-kcal" style="float:right;color:#eee;">-- kcal</span></div>
+          <div class="stat-grid stat-grid--3" style="margin-bottom: 12px;">
+             <div class="stat-box"><div class="stat-box__value stat-box__value--red" id="mt-p">--g</div><div class="stat-box__label">タンパク質(P)</div></div>
+             <div class="stat-box"><div class="stat-box__value stat-box__value--gold" id="mt-f">--g</div><div class="stat-box__label">脂質(F)</div></div>
+             <div class="stat-box"><div class="stat-box__value stat-box__value--green" id="mt-c">--g</div><div class="stat-box__label">糖質(C)</div></div>
+          </div>
+        </div>
+
+        <button class="btn btn--secondary btn--full" onclick="openMealPlannerModal()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;display:inline-block"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> 本日の食事メニューを構築する</button>
+      </div>
+
+      <div class="card" style="margin-top: 12px;">
+        <div class="card__title">本日の構築済みプラン <span id="today-plan-date" style="float:right;font-size:11px;color:#888;"></span></div>
+        <div id="meal-planned-list">
+           <p style="color:#666;font-size:12px;text-align:center;">プランが作成されていません</p>
+        </div>
+      </div>
     </div>
 
     <!-- PANEL: Timer -->
@@ -427,6 +467,17 @@
           <input class="form-input" type="url" id="settings-gas-url" placeholder="https://script.google.com/macros/s/...">
         </div>
         <button class="btn btn--primary btn--full" onclick="saveGasUrlFromSettings()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> 保存</button>
+      <div class="card card--red" style="margin-top:8px;">
+        <div class="card__title"><span class="card__title-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></span>Upstash KV 連携</div>
+        <div class="form-group">
+          <label class="form-label">KV REST API URL</label>
+          <input class="form-input" type="url" id="settings-kv-url" placeholder="https://...upstash.io">
+        </div>
+        <div class="form-group">
+          <label class="form-label">KV REST API TOKEN</label>
+          <input class="form-input" type="password" id="settings-kv-token" placeholder="Bearer Token">
+        </div>
+        <button class="btn btn--primary btn--full" onclick="saveKVSettings()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> 保存</button>
       </div>
       <div class="card" style="margin-top:8px;">
         <div class="card__title"><span class="card__title-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></span>データ管理</div>
@@ -917,7 +968,8 @@
     <!-- Tab bar -->
     <div style="display:flex;gap:6px;margin-bottom:14px;">
       <button class="chip active" id="day-tab-daily" onclick="switchDayTab('daily')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg> 日次</button>
-      <button class="chip" id="day-tab-training" onclick="switchDayTab('training')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> トレーニング</button>
+      <button class="chip" id="day-tab-meal" onclick="switchDayTab('meal')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M3 12h18M3 6h18M3 18h18"/></svg> 食事</button>
+      <button class="chip" id="day-tab-training" onclick="switchDayTab('training')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> トレ</button>
     </div>
 
     <!-- Daily data panel -->
@@ -961,6 +1013,105 @@
       <button class="btn btn--secondary btn--full" id="edit-goto-training-btn" onclick="gotoTrainingEdit()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>️ トレーニングを編集する</button>
       <button class="btn btn--secondary btn--full" id="edit-delete-training-btn" onclick="deleteTrainingLog()" style="margin-top:6px;color:var(--danger);display:none;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg> トレーニングデータを削除</button>
     </div>
+
+    <!-- Meal panel -->
+    <div id="day-panel-meal" style="display:none;">
+      <div id="edit-meal-summary" style="margin-bottom:12px;">
+        <div class="stat-grid stat-grid--3">
+          <div class="stat-box"><div class="stat-box__value stat-box__value--red" id="dm-p">--g</div><div class="stat-box__label">タンパク質</div></div>
+          <div class="stat-box"><div class="stat-box__value stat-box__value--gold" id="dm-f">--g</div><div class="stat-box__label">脂質</div></div>
+          <div class="stat-box"><div class="stat-box__value stat-box__value--green" id="dm-c">--g</div><div class="stat-box__label">糖質</div></div>
+        </div>
+      </div>
+      <div id="edit-meal-list" style="margin-bottom:12px;"></div>
+      <button class="btn btn--gold btn--full" id="edit-goto-meal-btn" onclick="openMealPlannerModalForDay()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> 食事プランを編集する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======== MEAL PLANNER MODAL ======== -->
+<div class="modal-overlay" id="meal-planner-modal">
+  <div class="modal" style="max-height:88vh;overflow-y:auto;">
+    <div class="modal__header">
+      <span class="modal__title" id="meal-planner-title">食事メニュー構築</span>
+      <button class="modal__close" onclick="closeModal('meal-planner-modal')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-1px;display:inline-block"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;color:#888;">
+      <span>ターゲットPFC差分</span>
+      <span id="mp-total-kcal">0 kcal / 0 kcal</span>
+    </div>
+
+    <!-- Progress bars for PFC -->
+    <div style="margin-bottom:16px;">
+      <div style="display:flex;align-items:center;margin-bottom:4px;font-size:11px;">
+        <span style="width:16px;color:var(--bulls-red)">P</span>
+        <div style="flex:1;background:rgba(255,255,255,0.08);height:6px;border-radius:3px;margin:0 8px;overflow:hidden;">
+          <div id="mp-p-bar" style="background:var(--bulls-red);height:100%;width:0%;transition:0.3s;"></div>
+        </div>
+        <span id="mp-p-text" style="width:60px;text-align:right">0/0g</span>
+      </div>
+      <div style="display:flex;align-items:center;margin-bottom:4px;font-size:11px;">
+        <span style="width:16px;color:var(--victory-gold)">F</span>
+        <div style="flex:1;background:rgba(255,255,255,0.08);height:6px;border-radius:3px;margin:0 8px;overflow:hidden;">
+          <div id="mp-f-bar" style="background:var(--victory-gold);height:100%;width:0%;transition:0.3s;"></div>
+        </div>
+        <span id="mp-f-text" style="width:60px;text-align:right">0/0g</span>
+      </div>
+      <div style="display:flex;align-items:center;margin-bottom:4px;font-size:11px;">
+        <span style="width:16px;color:var(--recovery-green)">C</span>
+        <div style="flex:1;background:rgba(255,255,255,0.08);height:6px;border-radius:3px;margin:0 8px;overflow:hidden;">
+          <div id="mp-c-bar" style="background:var(--recovery-green);height:100%;width:0%;transition:0.3s;"></div>
+        </div>
+        <span id="mp-c-text" style="width:60px;text-align:right">0/0g</span>
+      </div>
+    </div>
+
+    <!-- Ingredient Adder -->
+    <div class="card" style="margin-bottom:12px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.05);">
+       <div style="font-size:12px;font-weight:700;margin-bottom:8px;">食材を追加</div>
+       <div class="form-row">
+         <div class="form-group" style="flex:2;">
+           <select class="form-select" id="mp-ingredient-select" onchange="updateMpTimingHint()">
+             <option value="white_rice">白米 (炊飯)</option>
+             <option value="brown_rice">玄米 (炊飯)</option>
+             <option value="barley">大麦 (茹で)</option>
+             <option value="mixed_rice">ミックスご飯</option>
+             <option value="potato">じゃがいも (茹で/蒸し)</option>
+             <option value="chicken_breast">鶏胸肉 (皮なし)</option>
+             <option value="mackerel_can">サバ缶 (水煮 1缶190g)</option>
+             <option value="wakame">わかめ (乾燥)</option>
+             <option value="daikon">切り干し大根 (乾燥)</option>
+             <option value="multi_v">サプリ: マルチV＆M (Dear-Natura)</option>
+             <option value="vit_d_ca">サプリ: Vit D & Ca (Dear-Natura)</option>
+             <option value="potassium">サプリ: カリウム</option>
+           </select>
+         </div>
+         <div class="form-group" style="flex:1;">
+           <div style="display:flex;align-items:center;">
+             <input class="form-input" type="number" id="mp-amount" value="100" style="padding-right:4px;">
+             <span style="margin-left:4px;font-size:12px;">g</span>
+           </div>
+         </div>
+       </div>
+       <!-- 摂取タイミング（朝・昼・夜） -->
+       <div class="form-group" style="margin-top: -6px;">
+         <label class="form-label">タイミング</label>
+         <div class="chip-group" id="mp-timing-group">
+           <div class="chip active" onclick="setMpTiming('morning', this)">☀ 朝</div>
+           <div class="chip" onclick="setMpTiming('lunch', this)">🕛 昼</div>
+           <div class="chip" onclick="setMpTiming('pre_workout', this)">⚡ プレWO</div>
+           <div class="chip" onclick="setMpTiming('night', this)">🌙 夜</div>
+         </div>
+       </div>
+       <div id="mp-timing-hint" style="font-size:11px;color:#38bdf8;margin-bottom:12px;display:none;"></div>
+       <button class="btn btn--secondary btn--full" onclick="addMpIngredient()">追加</button>
+    </div>
+
+    <!-- Added Ingredients List -->
+    <div id="mp-added-list"></div>
+
+    <button class="btn btn--primary btn--full" onclick="saveMealPlan()" style="margin-top:16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> プランを日時保存</button>
   </div>
 </div>
 

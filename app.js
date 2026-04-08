@@ -6,6 +6,8 @@
 // ==================== STATE ====================
 const APP = {
   gasUrl: localStorage.getItem('gasUrl') || 'https://script.google.com/macros/s/AKfycbz6RkpFaz0Wm5qP2etNdYafG3lD89gkp8s0YilYa_NgY0-4PlHiNd_xJYQThM3lKSTU/exec',
+  kvUrl: localStorage.getItem('kvUrl') || '',
+  kvToken: localStorage.getItem('kvToken') || '',
   schemaVersion: 2,
   profile: JSON.parse(localStorage.getItem('profile') || 'null') || {
     height: 168, weight: 82.7, age: 32, gender: 'male',
@@ -13,6 +15,7 @@ const APP = {
   },
   dailyLogs: JSON.parse(localStorage.getItem('dailyLogs') || '[]'),
   trainingLogs: JSON.parse(localStorage.getItem('trainingLogs') || '[]'),
+  mealPlans: JSON.parse(localStorage.getItem('mealPlans') || '{}'),
   todayExercises: [],
   customExercises: JSON.parse(localStorage.getItem('customExercises') || '[]'),
   settings: JSON.parse(localStorage.getItem('appSettings') || 'null') || {
@@ -168,6 +171,43 @@ function normalizeLegacyCorruptedUI() {
   if (streak && isSerializedSvgText(streak.textContent || '')) {
     streak.textContent = '0';
   }
+}
+
+// ==================== MEAL INGREDIENTS DATABASE ====================
+const INGREDIENTS_DB = {
+  'white_rice':     { name: '白米(炊飯)', p: 2.5, f: 0.3, c: 37.1, kcal: 156 },
+  'brown_rice':     { name: '玄米(炊飯)', p: 2.8, f: 1.0, c: 35.6, kcal: 152 },
+  'barley':         { name: '大麦(茹で)', p: 1.8, f: 0.8, c: 28.2, kcal: 114 },
+  'mixed_rice':     { name: 'ミックスご飯', p: 2.6, f: 0.6, c: 36.5, kcal: 154 },
+  'potato':         { name: 'じゃがいも', p: 1.6, f: 0.1, c: 17.6, kcal: 76 },
+  'chicken_breast': { name: '鶏胸肉(皮無)', p: 22.3, f: 1.5, c: 0.0, kcal: 108 },
+  'mackerel_can':   { name: 'サバ缶(190g)', p: 28.5, f: 28.5, c: 0.0, kcal: 361, fixedAmount: 190 },
+  'wakame':         { name: 'わかめ(乾燥)', p: 18.0, f: 4.0, c: 41.8, kcal: 138 },
+  'daikon':         { name: '切り干し大根', p: 5.7, f: 0.8, c: 67.5, kcal: 301 },
+  'multi_v':        { name: 'マルチV&M', p: 0, f: 0, c: 0, kcal: 0 },
+  'vit_d_ca':       { name: 'VitD&Ca', p: 0, f: 0, c: 0, kcal: 0 },
+  'potassium':      { name: 'カリウム', p: 0, f: 0, c: 0, kcal: 0 }
+};
+
+let currentMealDraft = [];
+let targetPFC = { p: 0, f: 0, c: 0, kcal: 0 };
+let currentMealDate = '';
+
+function calculateMealTargets(phase, weight) {
+  let targets = { p: 0, f: 0, c: 0, kcal: 0 };
+  let pRatio, fRatio, cRatio;
+  switch (phase) {
+    case 'phase1': pRatio = 2.2; fRatio = 1.0; cRatio = 2.0; break;
+    case 'phase2': pRatio = 2.3; fRatio = 0.9; cRatio = 3.0; break;
+    case 'phase3': pRatio = 2.0; fRatio = 0.8; cRatio = 3.5; break;
+    case 'phase4': pRatio = 2.5; fRatio = 0.7; cRatio = 2.5; break;
+    default:       pRatio = 2.0; fRatio = 0.9; cRatio = 2.5; break;
+  }
+  targets.p = Math.round(weight * pRatio);
+  targets.f = Math.round(weight * fRatio);
+  targets.c = Math.round(weight * cRatio);
+  targets.kcal = targets.p * 4 + targets.f * 9 + targets.c * 4;
+  return targets;
 }
 
 // ==================== EXERCISE DATABASE ====================
@@ -539,52 +579,96 @@ document.addEventListener('DOMContentLoaded', () => {
 // ==================== クラウド同期エンジン ====================
 
 /**
- * GASにデータをプッシュ（全データを1つのJSONで送信）
- * immediate=trueのときはnavigator.sendBeaconを使う（ページ離脱時用）
+ * GAS / Upstash KVにデータをプッシュ（全データを1つのJSONで送信）
+ * immediate=trueのときはnavigator.sendBeacon/keepaliveを使う（ページ離脱時用）
  */
 function pushSyncToGas(immediate = false) {
-  if (!APP.gasUrl) return;
+  if (!APP.gasUrl && !APP.kvUrl) return;
   const payload = buildSyncPayload();
   const body = JSON.stringify({ type: 'sync', data: payload });
-  if (immediate && navigator.sendBeacon) {
-    navigator.sendBeacon(APP.gasUrl, body);
-  } else {
-    fetch(APP.gasUrl, {
-      method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body
-    }).catch(() => {});
+
+  // 1. Upstash KV Sync
+  if (APP.kvUrl && APP.kvToken) {
+    const kvEp = `${APP.kvUrl.replace(/\/$/, '')}/set/bm_sync_data`;
+    if (immediate) {
+      fetch(kvEp, {
+        method: 'POST', keepalive: true,
+        headers: { 'Authorization': `Bearer ${APP.kvToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(()=>{});
+    } else {
+      fetch(kvEp, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${APP.kvToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(()=>{});
+    }
+  }
+
+  // 2. GAS Sync
+  if (APP.gasUrl) {
+    if (immediate && navigator.sendBeacon) {
+      navigator.sendBeacon(APP.gasUrl, body);
+    } else {
+      fetch(APP.gasUrl, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body
+      }).catch(() => {});
+    }
   }
 }
 
 /**
- * GASから最新データを取得してマージ
+ * リモートから最新データを取得してマージ
  * スマホ側データを優先（タイムスタンプが新しい方を採用）
  */
 async function pullSyncFromGas() {
-  if (!APP.gasUrl) return;
+  if (!APP.gasUrl && !APP.kvUrl) return;
   try {
     showSyncIndicator('syncing');
-    const res = await fetch(`${APP.gasUrl}?action=sync`, { method: 'GET', cache: 'no-cache' });
-    if (!res.ok) { showSyncIndicator('offline'); return; }
-    const json = await res.json();
-    if (json.status !== 'ok' || !json.data) { showSyncIndicator('offline'); return; }
+    let remote = null;
 
-    const remote = json.data;
+    // Upstash KVがあれば優先する
+    if (APP.kvUrl && APP.kvToken) {
+      try {
+        const res = await fetch(`${APP.kvUrl.replace(/\/$/, '')}/get/bm_sync_data`, {
+          headers: { 'Authorization': `Bearer ${APP.kvToken}` }, cache: 'no-cache'
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.result) {
+            remote = typeof json.result === 'string' ? JSON.parse(json.result) : json.result;
+          }
+        }
+      } catch(e) { console.warn('KV GET error', e); }
+    }
+
+    // KVで取得できなかったらGASにフォールバック
+    if (!remote && APP.gasUrl) {
+      const res = await fetch(`${APP.gasUrl}?action=sync`, { method: 'GET', cache: 'no-cache' });
+      if (!res.ok) { showSyncIndicator('offline'); return; }
+      const json = await res.json();
+      if (json.status !== 'ok' || !json.data) { showSyncIndicator('offline'); return; }
+      remote = json.data;
+    }
+
+    if (!remote) { showSyncIndicator('offline'); return; }
+
     const remoteAt = new Date(remote._syncedAt || 0).getTime();
     const localAt  = parseInt(localStorage.getItem('bm_last_push') || '0', 10);
 
-    // リモート（GAS）が新しければマージ
+    // リモートが新しければマージ
     if (remoteAt > localAt) {
       applyRemoteData(remote);
       showSyncIndicator('synced');
-      showToast(`クラウドから最新データを取得しました（${IS_MOBILE ? 'スマホ' : 'PC'}）`, 'success');
+      showToast(`クラウドから最新データを取得しました`, 'success');
     } else {
       showSyncIndicator('local');
     }
   } catch (e) {
     showSyncIndicator('offline');
-    console.warn('GAS同期エラー:', e);
+    console.warn('同期エラー:', e);
   }
 }
 
@@ -604,6 +688,10 @@ function applyRemoteData(remote) {
   if (Array.isArray(remote.trainingLogs) && remote.trainingLogs.length >= (APP.trainingLogs || []).length) {
     APP.trainingLogs = remote.trainingLogs;
     localStorage.setItem('trainingLogs', JSON.stringify(APP.trainingLogs));
+  }
+  if (remote.mealPlans && Object.keys(remote.mealPlans).length >= Object.keys(APP.mealPlans || {}).length) {
+    APP.mealPlans = Object.assign({}, APP.mealPlans, remote.mealPlans);
+    localStorage.setItem('mealPlans', JSON.stringify(APP.mealPlans));
   }
   if (Array.isArray(remote.routines)) {
     APP.routines = remote.routines;
@@ -647,6 +735,7 @@ function buildSyncPayload() {
     profile: APP.profile,
     dailyLogs: APP.dailyLogs,
     trainingLogs: APP.trainingLogs,
+    mealPlans: APP.mealPlans,
     customExercises: APP.customExercises,
     routines: APP.routines,
     soundSettings: APP.soundSettings,
@@ -1039,6 +1128,11 @@ function createCalendarDay(day, isOtherMonth, isToday = false, dateStr = '') {
   if (isToday) el.classList.add('today');
 
   if (dateStr && !isOtherMonth) {
+    let mealHtml = '';
+    if (APP.mealPlans && APP.mealPlans[dateStr] && APP.mealPlans[dateStr].length > 0) {
+      mealHtml = `<div class="calendar__day-meal-macros"><span class="m-dot p"></span><span class="m-dot f"></span><span class="m-dot c"></span></div>`;
+    }
+
     const logs = APP.trainingLogs.filter(l => l.date === dateStr);
     if (logs.length > 0) {
       const categories = [...new Set(logs.flatMap(l => l.exercises.map(e => e.category)))];
@@ -1048,18 +1142,18 @@ function createCalendarDay(day, isOtherMonth, isToday = false, dateStr = '') {
       ).join('');
 
       el.innerHTML = `
+        ${mealHtml}
         <span class="cal-day-num">${day}</span>
         <div class="cal-day-info">${catDots}</div>
         <span class="cal-day-sets">${totalSets}s</span>
       `;
     } else {
-      el.innerHTML = `<span class="cal-day-num">${day}</span>`;
-    }
-
-    // 日次データがあるかチェックしてドットを追加
-    const dailyLog = APP.dailyLogs.find(l => l.date === dateStr);
-    if (dailyLog && logs.length === 0) {
-      el.innerHTML = `<span class="cal-day-num">${day}</span><div class="cal-day-info"><span style="font-size:6px;color:var(--victory-gold);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M16 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"/><path d="M2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"/><path d="M7 21h10M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg></span></div>`;
+      const dailyLog = APP.dailyLogs.find(l => l.date === dateStr);
+      if (dailyLog) {
+        el.innerHTML = `${mealHtml}<span class="cal-day-num">${day}</span><div class="cal-day-info"><span style="font-size:6px;color:var(--victory-gold);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M16 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"/><path d="M2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"/><path d="M7 21h10M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg></span></div>`;
+      } else {
+        el.innerHTML = `${mealHtml}<span class="cal-day-num">${day}</span>`;
+      }
     }
 
     el.onclick = () => {
@@ -1180,7 +1274,7 @@ function submitBodyData() {
 
 // ==================== DAILY DATA ====================
 function switchSettingsTab(tab) {
-  ['profile','timer','sound','exercises','routines','system'].forEach(t => {
+  ['profile','meal','timer','sound','exercises','routines','system'].forEach(t => {
     const btn = document.getElementById(`stab-${t}`);
     const panel = document.getElementById(`spanel-${t}`);
     if (btn) btn.classList.toggle('active', t === tab);
@@ -1190,6 +1284,7 @@ function switchSettingsTab(tab) {
   if (tab === 'sound') loadSoundSettingsUI();
   if (tab === 'exercises') renderExerciseManageList('all');
   if (tab === 'profile') renderProfileLockState();
+  if (tab === 'meal') renderMealTab();
 }
 
 function loadSettingsUI() {
@@ -3000,6 +3095,9 @@ function openDayEditModal(dateStr) {
   // トレーニングデータを表示
   renderEditTrainingSummary(dateStr);
 
+  // 食事データを表示
+  renderEditMealSummary(dateStr);
+
   // 最初は日次タブを表示
   switchDayTab('daily');
   openModal('day-edit-modal');
@@ -3060,8 +3158,10 @@ function renderEditTrainingSummary(dateStr) {
 function switchDayTab(tab) {
   document.getElementById('day-panel-daily').style.display = tab === 'daily' ? '' : 'none';
   document.getElementById('day-panel-training').style.display = tab === 'training' ? '' : 'none';
+  document.getElementById('day-panel-meal').style.display = tab === 'meal' ? '' : 'none';
   document.getElementById('day-tab-daily').classList.toggle('active', tab === 'daily');
   document.getElementById('day-tab-training').classList.toggle('active', tab === 'training');
+  document.getElementById('day-tab-meal').classList.toggle('active', tab === 'meal');
 }
 
 function saveDayEdit() {
@@ -3141,3 +3241,239 @@ function gotoTrainingEdit() {
   showSubPage('training-home');
   showToast(`${editingDate} のトレーニングを編集中`, 'success');
 }
+
+// ==================== MEAL PLANNING ====================
+function renderMealTab() {
+  const phaseSelect = document.getElementById('meal-phase');
+  if (!phaseSelect) return;
+  updateMealTargets();
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('today-plan-date').textContent = today;
+  renderMealPlannedList(today, 'meal-planned-list');
+}
+
+window.updateMealTargets = function() {
+  const phaseSelect = document.getElementById('meal-phase');
+  const phase = phaseSelect ? phaseSelect.value : 'phase1';
+  const weight = APP.profile.weight || 80;
+  targetPFC = calculateMealTargets(phase, weight);
+  
+  document.getElementById('mt-p').textContent = targetPFC.p + 'g';
+  document.getElementById('mt-f').textContent = targetPFC.f + 'g';
+  document.getElementById('mt-c').textContent = targetPFC.c + 'g';
+  document.getElementById('meal-target-kcal').textContent = targetPFC.kcal + ' kcal';
+  document.getElementById('meal-targets-view').style.display = 'block';
+};
+
+function renderMealPlannedList(dateStr, containerId) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  const plan = APP.mealPlans[dateStr];
+  if (!plan || plan.length === 0) {
+    c.innerHTML = '<p style="color:#666;font-size:12px;text-align:center;">プランが作成されていません</p>';
+    // also update day summary
+    const dp = document.getElementById('dm-p');
+    if (dp) {
+      dp.textContent = '0g';
+      document.getElementById('dm-f').textContent = '0g';
+      document.getElementById('dm-c').textContent = '0g';
+    }
+    return;
+  }
+  let totalP=0, totalF=0, totalC=0, totalKcal=0;
+  let html = '';
+  plan.forEach(item => {
+    totalP += item.p; totalF += item.f; totalC += item.c; totalKcal += item.kcal;
+    html += `
+      <div class="meal-item">
+        <span class="meal-item__timing">${formatTiming(item.timing)}</span>
+        <div class="meal-item__name">${item.name} <span class="meal-item__amount">${item.amount}g</span></div>
+        <div class="meal-item__macros">
+          <span class="meal-item__p">P:${item.p.toFixed(1)}</span>
+          <span class="meal-item__f">F:${item.f.toFixed(1)}</span>
+          <span class="meal-item__c">C:${item.c.toFixed(1)}</span>
+        </div>
+      </div>
+    `;
+  });
+  c.innerHTML = html;
+  
+  // also update day summary
+  const dp = document.getElementById('dm-p');
+  if (dp) {
+    dp.textContent = totalP.toFixed(1) + 'g';
+    document.getElementById('dm-f').textContent = totalF.toFixed(1) + 'g';
+    document.getElementById('dm-c').textContent = totalC.toFixed(1) + 'g';
+  }
+}
+
+function renderEditMealSummary(dateStr) {
+  renderMealPlannedList(dateStr, 'edit-meal-list');
+}
+
+function formatTiming(timing) {
+  const map = { 'morning': '☀ 朝', 'lunch': '🕛 昼', 'pre_workout': '⚡ プレWO', 'night': '🌙 夜' };
+  return map[timing] || timing;
+}
+
+window.openMealPlannerModalForDay = function() {
+  if (!editingDate) return;
+  closeModal('day-edit-modal');
+  openMealPlannerModal(editingDate);
+};
+
+window.openMealPlannerModal = function(dateStr) {
+  const inputDate = (typeof dateStr === 'string') ? dateStr : '';
+  currentMealDate = inputDate || new Date().toISOString().split('T')[0];
+  const title = document.getElementById('meal-planner-title');
+  if (title) title.textContent = `食事プラン構築 (${currentMealDate})`;
+  
+  updateMealTargets();
+  
+  // Load existing plan
+  currentMealDraft = APP.mealPlans[currentMealDate] ? JSON.parse(JSON.stringify(APP.mealPlans[currentMealDate])) : [];
+  
+  updateMpTimingHint();
+  renderMpDraftList();
+  openModal('meal-planner-modal');
+};
+
+window.updateMpTimingHint = function() {
+  const val = document.getElementById('mp-ingredient-select').value;
+  const amtInput = document.getElementById('mp-amount');
+  const dbItem = INGREDIENTS_DB[val];
+  if (dbItem && dbItem.fixedAmount) {
+    amtInput.value = dbItem.fixedAmount;
+    amtInput.disabled = true;
+  } else {
+    amtInput.disabled = false;
+  }
+  
+  const hint = document.getElementById('mp-timing-hint');
+  let hintText = '';
+  if (val === 'potato') hintText = "💡 食物繊維・難消化性デンプンが多く腹持ちが良いので「夜」への配置がおすすめです。";
+  else if (val === 'white_rice') hintText = "💡 速やかなグリコーゲン補充に向くため「プレWO」や「朝」への配置がおすすめです。";
+  else if (val === 'mackerel_can') hintText = "💡 サバ缶は1缶約28gの脂質を含むため、1日の脂質ターゲットに大きく影響します。Phaseに応じて調整。";
+  
+  if (hintText) {
+    hint.textContent = hintText;
+    hint.style.display = 'block';
+  } else {
+    hint.style.display = 'none';
+  }
+};
+
+let activeMpTiming = 'morning';
+window.setMpTiming = function(timing, btnEl) {
+  activeMpTiming = timing;
+  document.querySelectorAll('#mp-timing-group .chip').forEach(c => c.classList.remove('active'));
+  btnEl.classList.add('active');
+};
+
+window.addMpIngredient = function() {
+  const val = document.getElementById('mp-ingredient-select').value;
+  let amount = parseFloat(document.getElementById('mp-amount').value) || 0;
+  const dbItem = INGREDIENTS_DB[val];
+  if (!dbItem) return;
+  
+  if (dbItem.fixedAmount) amount = dbItem.fixedAmount;
+  if (amount <= 0 && dbItem.name.indexOf('サプリ') === -1) { showToast('グラム数を入力してください'); return; }
+  
+  const ratio = amount / 100;
+  const itemP = dbItem.p * ratio;
+  const itemF = dbItem.f * ratio;
+  const itemC = dbItem.c * ratio;
+  const itemKcal = dbItem.kcal * ratio;
+  
+  currentMealDraft.push({
+    id: 'mp_' + Date.now(),
+    ingredientId: val,
+    name: dbItem.name,
+    amount: amount,
+    timing: activeMpTiming,
+    p: itemP,
+    f: itemF,
+    c: itemC,
+    kcal: itemKcal
+  });
+  
+  // Sort by timing
+  const tOrder = { 'morning':1, 'lunch':2, 'pre_workout':3, 'night':4 };
+  currentMealDraft.sort((a,b) => tOrder[a.timing] - tOrder[b.timing]);
+  
+  renderMpDraftList();
+};
+
+window.removeMpIngredient = function(id) {
+  currentMealDraft = currentMealDraft.filter(i => i.id !== id);
+  renderMpDraftList();
+};
+
+function renderMpDraftList() {
+  let totalP=0, totalF=0, totalC=0, totalKcal=0;
+  let html = '';
+  
+  currentMealDraft.forEach(item => {
+    totalP += item.p; totalF += item.f; totalC += item.c; totalKcal += item.kcal;
+    html += `
+      <div class="meal-item" style="position:relative; padding-right: 32px;">
+        <span class="meal-item__timing">${formatTiming(item.timing)}</span>
+        <div class="meal-item__name">${item.name} <span class="meal-item__amount">${item.amount}g</span></div>
+        <div class="meal-item__macros">
+          <span class="meal-item__p">P:${item.p.toFixed(1)}</span>
+          <span class="meal-item__f">F:${item.f.toFixed(1)}</span>
+          <span class="meal-item__c">C:${item.c.toFixed(1)}</span>
+        </div>
+        <button onclick="removeMpIngredient('${item.id}')" style="position:absolute;right:4px;background:none;border:none;color:#999;font-size:18px;cursor:pointer;">&times;</button>
+      </div>
+    `;
+  });
+  
+  if (currentMealDraft.length === 0) {
+    html = '<p style="color:#666;font-size:12px;text-align:center;">追加された食材はありません</p>';
+  }
+  
+  document.getElementById('mp-added-list').innerHTML = html;
+  
+  document.getElementById('mp-total-kcal').textContent = `${totalKcal.toFixed(0)} kcal / ${targetPFC.kcal} kcal`;
+  
+  const pPerc = targetPFC.p > 0 ? Math.min(100, (totalP / targetPFC.p) * 100) : 0;
+  const fPerc = targetPFC.f > 0 ? Math.min(100, (totalF / targetPFC.f) * 100) : 0;
+  const cPerc = targetPFC.c > 0 ? Math.min(100, (totalC / targetPFC.c) * 100) : 0;
+  
+  const pb = document.getElementById('mp-p-bar'); if(pb) pb.style.width = pPerc + '%';
+  const fb = document.getElementById('mp-f-bar'); if(fb) fb.style.width = fPerc + '%';
+  const cb = document.getElementById('mp-c-bar'); if(cb) cb.style.width = cPerc + '%';
+  
+  const pt = document.getElementById('mp-p-text'); if(pt) pt.textContent = `${totalP.toFixed(0)}/${targetPFC.p}g`;
+  const ft = document.getElementById('mp-f-text'); if(ft) ft.textContent = `${totalF.toFixed(0)}/${targetPFC.f}g`;
+  const ct = document.getElementById('mp-c-text'); if(ct) ct.textContent = `${totalC.toFixed(0)}/${targetPFC.c}g`;
+}
+
+window.saveMealPlan = function() {
+  APP.mealPlans[currentMealDate] = JSON.parse(JSON.stringify(currentMealDraft));
+  localStorage.setItem('mealPlans', JSON.stringify(APP.mealPlans));
+  
+  pushSyncToGas();
+  closeModal('meal-planner-modal');
+  showToast(`${currentMealDate}の食事プランを保存しました`, 'success');
+  
+  const spanelMeal = document.getElementById('spanel-meal');
+  if (spanelMeal && spanelMeal.style.display !== 'none') {
+    renderMealTab();
+  }
+  
+  renderCalendar();
+};
+
+window.saveKVSettings = function() {
+  const url = document.getElementById('settings-kv-url').value.trim();
+  const token = document.getElementById('settings-kv-token').value.trim();
+  APP.kvUrl = url;
+  APP.kvToken = token;
+  localStorage.setItem('kvUrl', url);
+  localStorage.setItem('kvToken', token);
+  showToast('Upstash KV設定を保存しました', 'success');
+  if (url && token) pullSyncFromGas();
+};
+
