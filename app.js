@@ -193,16 +193,31 @@ let currentMealDraft = [];
 let targetPFC = { p: 0, f: 0, c: 0, kcal: 0 };
 let currentMealDate = '';
 
-function calculateMealTargets(phase, weight) {
+function calculateMealTargets(phase, weight, intensity = 'mid') {
   let targets = { p: 0, f: 0, c: 0, kcal: 0 };
   let pRatio, fRatio, cRatio;
+  
   switch (phase) {
-    case 'phase1': pRatio = 2.2; fRatio = 1.0; cRatio = 2.0; break;
-    case 'phase2': pRatio = 2.3; fRatio = 0.9; cRatio = 3.0; break;
-    case 'phase3': pRatio = 2.0; fRatio = 0.8; cRatio = 3.5; break;
-    case 'phase4': pRatio = 2.5; fRatio = 0.7; cRatio = 2.5; break;
-    default:       pRatio = 2.0; fRatio = 0.9; cRatio = 2.5; break;
+    case 'phase1': 
+      pRatio = 2.2; fRatio = 0.9;
+      if (intensity === 'high') cRatio = 2.5; else if (intensity === 'rest') cRatio = 1.5; else cRatio = 2.0;
+      break;
+    case 'phase2': 
+      pRatio = 2.2; fRatio = 0.9;
+      if (intensity === 'high') cRatio = 3.5; else if (intensity === 'rest') cRatio = 2.0; else cRatio = 2.8;
+      break;
+    case 'phase3': 
+      pRatio = 2.0; fRatio = 1.0; 
+      if (intensity === 'high') cRatio = 4.0; else if (intensity === 'rest') cRatio = 2.5; else cRatio = 3.5;
+      break;
+    case 'phase4': 
+      pRatio = 2.5; fRatio = 0.8;
+      if (intensity === 'high') cRatio = 3.5; else if (intensity === 'rest') cRatio = 1.5; else cRatio = 2.5;
+      break;
+    default:       
+      pRatio = 2.0; fRatio = 0.9; cRatio = 2.5; break;
   }
+  
   targets.p = Math.round(weight * pRatio);
   targets.f = Math.round(weight * fRatio);
   targets.c = Math.round(weight * cRatio);
@@ -1557,6 +1572,36 @@ function getContrastColor(hex) {
   const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
   return (r*299 + g*587 + b*114) / 1000 > 128 ? '#000' : '#fff';
 }
+window.generatePhaseRoutines = function() {
+  const phaseSelect = document.getElementById('meal-phase');
+  const phase = phaseSelect ? phaseSelect.value : 'phase1';
+  
+  if (!confirm(`現在のフェーズ (${phase.toUpperCase()}) の推奨トレーニング・ルーティーンを自動生成して追加しますか？`)) return;
+
+  const newRoutines = [];
+  
+  if (phase === 'phase1') {
+    newRoutines.push({ id: 'rt_' + Date.now() + '_1', name: 'Upper A', color: '#1E88E5', exercises: ['ベンチプレス', 'ダンベルロウ', 'ラットプルダウン', 'ダンベルサイドレイズ'] });
+    newRoutines.push({ id: 'rt_' + Date.now() + '_2', name: 'Lower A', color: '#CE1141', exercises: ['バックスクワット', 'レッグプレス', 'シーテッドレッグカール', 'ハンギングレッグレイズ'] });
+    newRoutines.push({ id: 'rt_' + Date.now() + '_3', name: 'Upper B', color: '#1E88E5', exercises: ['インクラインダンベルベンチプレス', 'シーテッドケーブルロウ', 'ダンベルサイドレイズ', 'ケーブルプレスダウン'] });
+    newRoutines.push({ id: 'rt_' + Date.now() + '_4', name: 'Lower B', color: '#CE1141', exercises: ['ダンベルブルガリアンスプリットスクワット', 'ヒップアブダクションマシン', 'レッグエクステンション', 'ハンギングレッグレイズ'] });
+  } else {
+    // Phase 2, 3, 4 uses Push/Pull/Legs
+    newRoutines.push({ id: 'rt_' + Date.now() + '_p1', name: 'Push', color: '#CE1141', exercises: ['ベンチプレス', 'インクラインダンベルベンチプレス', 'シーテッドダンベルショルダープレス', 'ダンベルサイドレイズ', 'ケーブルプレスダウン'] });
+    newRoutines.push({ id: 'rt_' + Date.now() + '_p2', name: 'Pull', color: '#1E88E5', exercises: ['ラットプルダウン', 'シーテッドケーブルロウ', 'ダンベルロウ', 'リアデルトフライマシン', 'アシストプルアップマシン'] });
+    newRoutines.push({ id: 'rt_' + Date.now() + '_l1', name: 'Legs', color: '#43A047', exercises: ['バックスクワット', 'ダンベルブルガリアンスプリットスクワット', 'レッグプレス', 'シーテッドレッグカール', 'ハンギングレッグレイズ'] });
+  }
+
+  APP.routines = APP.routines.concat(newRoutines);
+  localStorage.setItem('routines', JSON.stringify(APP.routines));
+  pushSyncToGas();
+  
+  const rl = document.getElementById('routines-list');
+  if (rl) renderRoutinesList();
+  
+  showToast(`${phase.toUpperCase()} の推奨ルーティーンを生成しました！`, 'success');
+};
+
 
 function openAddRoutineModal() {
   editingRoutineId = null;
@@ -2686,6 +2731,15 @@ function getVolumeMultiplier(sessionVolume, group) {
 
 function updateRecoveryView() {
   const sleepHours = parseFloat(document.getElementById('recovery-sleep-hours')?.value) || 7;
+  
+  const sleepWarningEl = document.getElementById('recovery-sleep-warning');
+  if (sleepWarningEl) {
+    if (sleepHours < 6) {
+      sleepWarningEl.style.display = 'block';
+    } else {
+      sleepWarningEl.style.display = 'none';
+    }
+  }
   const now = Date.now();
   const listContainer = document.getElementById('recovery-list');
 
@@ -3255,14 +3309,44 @@ function renderMealTab() {
 window.updateMealTargets = function() {
   const phaseSelect = document.getElementById('meal-phase');
   const phase = phaseSelect ? phaseSelect.value : 'phase1';
-  const weight = APP.profile.weight || 80;
-  targetPFC = calculateMealTargets(phase, weight);
+  let intensity = 'mid';
   
-  document.getElementById('mt-p').textContent = targetPFC.p + 'g';
-  document.getElementById('mt-f').textContent = targetPFC.f + 'g';
-  document.getElementById('mt-c').textContent = targetPFC.c + 'g';
-  document.getElementById('meal-target-kcal').textContent = targetPFC.kcal + ' kcal';
-  document.getElementById('meal-targets-view').style.display = 'block';
+  const intensitySelect = document.querySelector('.meal-intensity-chip.active');
+  if (intensitySelect) {
+    intensity = intensitySelect.getAttribute('data-intensity');
+  }
+
+  const weight = APP.profile.weight || 80;
+  targetPFC = calculateMealTargets(phase, weight, intensity);
+  
+  const pfcelP = document.getElementById('mt-p');
+  if (pfcelP) pfcelP.textContent = targetPFC.p + 'g';
+  const pfcelF = document.getElementById('mt-f');
+  if (pfcelF) pfcelF.textContent = targetPFC.f + 'g';
+  const pfcelC = document.getElementById('mt-c');
+  if (pfcelC) pfcelC.textContent = targetPFC.c + 'g';
+  const pfcelKcal = document.getElementById('meal-target-kcal');
+  if (pfcelKcal) pfcelKcal.textContent = targetPFC.kcal + ' kcal';
+  const pfcelView = document.getElementById('meal-targets-view');
+  if (pfcelView) pfcelView.style.display = 'block';
+
+  if (typeof renderMpDraftList === 'function' && document.getElementById('meal-planner-modal') && document.getElementById('meal-planner-modal').classList.contains('active')) {
+    renderMpDraftList();
+  }
+};
+
+window.setMealIntensity = function(intensity, btnEl) {
+  const chips = document.querySelectorAll('.meal-intensity-chip');
+  chips.forEach(c => c.classList.remove('active'));
+  
+  if (btnEl) {
+    btnEl.classList.add('active');
+  } else {
+    const targets = document.querySelectorAll('.meal-intensity-chip[data-intensity="' + intensity + '"]');
+    targets.forEach(t => t.classList.add('active'));
+  }
+  
+  updateMealTargets();
 };
 
 function renderMealPlannedList(dateStr, containerId) {

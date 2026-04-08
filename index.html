@@ -142,6 +142,63 @@
       </div>
     </div>
 
+    <!-- Daily User Optimized Flow -->
+    <div class="card card--gold" style="margin-top: 12px;">
+      <div class="card__title"><span class="card__title-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>Myスケジュールフロー</div>
+      <div style="font-size: 11px; color: #888; margin-bottom: 8px;">6:30起床 / 24:30就寝 に合わせた最適化サイクル</div>
+      <div class="daily-flow-timeline">
+        <div class="daily-flow-item">
+          <div class="daily-flow-time">06:30</div>
+          <div class="daily-flow-content">
+            <div class="daily-flow-title">起床 & 水分補給</div>
+            <div class="daily-flow-desc">起床後すぐに朝日を浴び体内時計をリセット。<br>マルチビタミン・ミネラル等サプリ摂取。</div>
+          </div>
+        </div>
+        <div class="daily-flow-item">
+          <div class="daily-flow-time">07:30</div>
+          <div class="daily-flow-content">
+            <div class="daily-flow-title">☀️ 朝食 (高P / 中C / 高F)</div>
+            <div class="daily-flow-desc">例：サバ缶、玄米・大麦混合ご飯、卵<br><span style="color:var(--victory-gold);">※脂質は朝〜昼に集中させる</span></div>
+          </div>
+        </div>
+        <div class="daily-flow-item">
+          <div class="daily-flow-time">12:30</div>
+          <div class="daily-flow-content">
+            <div class="daily-flow-title">🕛 昼食 (高P / 中C / 低F)</div>
+            <div class="daily-flow-desc">例：鶏中心、白米・玄米混合ご飯、わかめ</div>
+          </div>
+        </div>
+        <div class="daily-flow-item">
+          <div class="daily-flow-time">16:00</div>
+          <div class="daily-flow-content">
+            <div class="daily-flow-title">⚡ プレWO (中P / 高C / 無F)</div>
+            <div class="daily-flow-desc">例：白米＋プロテイン、または卵白等。<br>エネルギーをグリコーゲンとして確保。</div>
+          </div>
+        </div>
+        <div class="daily-flow-item">
+          <div class="daily-flow-time">18:00</div>
+          <div class="daily-flow-content">
+            <div class="daily-flow-title">💪 トレーニング</div>
+            <div class="daily-flow-desc">フェーズに応じた分割法を実施（60〜90分）。</div>
+          </div>
+        </div>
+        <div class="daily-flow-item">
+          <div class="daily-flow-time">21:00</div>
+          <div class="daily-flow-content">
+            <div class="daily-flow-title">🌙 夜食 (高P / 低C / 無F)</div>
+            <div class="daily-flow-desc">例：鶏胸肉、じゃがいも、切り干し大根。<br>難消化性デンプンで緩やかな吸収。</div>
+          </div>
+        </div>
+        <div class="daily-flow-item">
+          <div class="daily-flow-time">24:30</div>
+          <div class="daily-flow-content">
+            <div class="daily-flow-title">💤 就寝</div>
+            <div class="daily-flow-desc">睡眠時間5.5〜6Hのため非常に消耗しやすい。<br><span style="color:var(--bulls-red);">日中のNEAT（歩数）を極力稼ぎ疲労を逃す重要性</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Daily Data Input (ホーム画面) -->
     <div class="card card--gold">
       <div class="card__title"><span class="card__title-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>日次データ入力</div>
@@ -325,6 +382,15 @@
             <option value="phase4">Phase 4 (体脂肪率 10〜15%) - 筋量維持・超絞込期</option>
           </select>
         </div>
+        <div class="form-group">
+          <label class="form-label">本日のトレーニング強度</label>
+          <div class="chip-group" id="meal-intensity-group" style="flex-wrap: nowrap;">
+            <div class="chip meal-intensity-chip active" data-intensity="mid" onclick="setMealIntensity('mid', this)">中強度</div>
+            <div class="chip meal-intensity-chip" data-intensity="high" onclick="setMealIntensity('high', this)">高強度</div>
+            <div class="chip meal-intensity-chip" data-intensity="rest" onclick="setMealIntensity('rest', this)">休息日</div>
+          </div>
+          <p style="font-size: 11px; color: #888; margin-top: 4px;">強度に合わせて「糖質ピリオダイゼーション」に基づくPFCが自動算出されます。</p>
+        </div>
         
         <div id="meal-targets-view" style="margin-top: 12px; display: none;">
           <div style="font-size:12px;color:#888;margin-bottom:4px;">1日の目標PFC（フェーズ自動計算） <span id="meal-target-kcal" style="float:right;color:#eee;">-- kcal</span></div>
@@ -454,7 +520,8 @@
         <div class="card__title"><span class="card__title-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></span>ルーティーン管理</div>
         <p style="font-size:12px;color:#666;margin-bottom:12px;">カラーフォルダでトレーニングメニューを事前登録。トレーニング画面から呼び出せます。</p>
         <div id="routines-list"></div>
-        <button class="btn btn--secondary btn--full" onclick="openAddRoutineModal()" style="margin-top:12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> ルーティーンを追加</button>
+        <button class="btn btn--primary btn--full" onclick="generatePhaseRoutines()" style="margin-top:12px; background: linear-gradient(135deg, #1E88E5, #0D47A1);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><polyline points="12 16 16 12 12 8"/><line x1="8" y1="12" x2="16" y2="12"/></svg> フェーズ推奨ルーティーンを自動生成</button>
+        <button class="btn btn--secondary btn--full" onclick="openAddRoutineModal()" style="margin-top:8px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> 手動で追加</button>
       </div>
     </div>
 
@@ -655,6 +722,9 @@
       <span class="sleep-input-row__label">平均睡眠時間</span>
       <input type="number" id="recovery-sleep-hours" step="0.5" min="0" max="14" value="5" inputmode="decimal" onchange="updateRecoveryView()">
       <span style="color: #888; font-size: 12px;">時間</span>
+    </div>
+    <div id="recovery-sleep-warning" style="display:none; color: var(--bulls-red); font-size: 12px; margin-bottom: 12px; padding: 8px; background: rgba(206,17,65,0.1); border-radius: 4px; border-left: 2px solid var(--bulls-red);">
+      ⚠️ <b>睡眠アラート</b>: 6時間未満の睡眠はテストステロンを低下させコルチゾールを慢性的に上昇させます。除脂肪と筋量維持の妨げになるため、最優先で睡眠時間の確保（または分割睡眠等の工夫）を検討してください。
     </div>
 
     <!-- Body Model (Detailed Muscle Groups) -->
@@ -1038,8 +1108,14 @@
     </div>
     
     <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;color:#888;">
-      <span>ターゲットPFC差分</span>
-      <span id="mp-total-kcal">0 kcal / 0 kcal</span>
+      <div class="chip-group" id="modal-meal-intensity-group" style="flex-wrap: nowrap; transform: scale(0.85); transform-origin: left center;">
+        <div class="chip meal-intensity-chip active" data-intensity="mid" onclick="setMealIntensity('mid')">中強度</div>
+        <div class="chip meal-intensity-chip" data-intensity="high" onclick="setMealIntensity('high')">高強度</div>
+        <div class="chip meal-intensity-chip" data-intensity="rest" onclick="setMealIntensity('rest')">休息日</div>
+      </div>
+      <div style="align-self:center;">
+        ターゲット: <span id="mp-total-kcal" style="color:#eee;">0 kcal / 0 kcal</span>
+      </div>
     </div>
 
     <!-- Progress bars for PFC -->
