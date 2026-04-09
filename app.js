@@ -2840,7 +2840,7 @@ function updateRecoveryView() {
     }
 
     // Record SVG body model colors into dictionary
-    updateMuscleColor(muscle, color, muscleStatuses, priorityMap);
+    updateMuscleColor(muscle, color, recoveryPercent, muscleStatuses, priorityMap);
 
     // Group header
     if (base.group !== currentGroup) {
@@ -2869,24 +2869,76 @@ function updateRecoveryView() {
   listContainer.innerHTML = html;
 
   // Finalize all SVGs: apply colors based on priorities collected
-  for (const [slug, finalColor] of Object.entries(muscleStatuses)) {
+  const slugToName = {
+    'chest': '大胸筋', 'deltoids': '三角筋', 'trapezius': '僧帽筋', 'upper-back': '背部（広背筋・小円筋）',
+    'lower-back': '背部下部（脊柱起立筋）', 'biceps': '上腕二頭筋', 'triceps': '上腕三頭筋',
+    'forearm': '前腕', 'abs': '腹筋', 'obliques': '腹斜筋', 'adductors': '内転筋',
+    'quadriceps': '大腿四頭筋', 'hamstring': 'ハムストリングス', 'gluteal': '大臀筋',
+    'calves': 'ふくらはぎ', 'neck': '首'
+  };
+
+  for (const [slug, statusObj] of Object.entries(muscleStatuses)) {
     document.querySelectorAll(`.real-muscle-path[data-muscle-id="${slug}"]`).forEach(el => {
-      el.style.fill = finalColor;
+      el.style.fill = statusObj.color;
       el.style.fillOpacity = '0.85';
+      el.dataset.tooltipName = slugToName[slug] || slug;
+      el.dataset.tooltipPercent = Math.round(statusObj.percent);
+      el.dataset.tooltipColor = statusObj.color;
     });
   }
 }
 
+// ==================== MUSCLE TOOLTIP EVENTS ====================
+document.addEventListener('mouseover', (e) => {
+  if (e.target && e.target.classList && e.target.classList.contains('real-muscle-path')) {
+    const tooltip = document.getElementById('muscle-tooltip');
+    if (!tooltip) return;
+    const name = e.target.dataset.tooltipName;
+    const percent = e.target.dataset.tooltipPercent;
+    const color = e.target.dataset.tooltipColor;
+    
+    if (name) {
+      tooltip.innerHTML = `
+        <div style="display:flex; align-items:center; gap:6px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:${color};"></div>
+          <span>${name}</span>
+          <span style="color:${color}; margin-left:4px;">${percent}%</span>
+        </div>
+      `;
+      tooltip.style.opacity = '1';
+    }
+  }
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (e.target && e.target.classList && e.target.classList.contains('real-muscle-path')) {
+    const tooltip = document.getElementById('muscle-tooltip');
+    if (tooltip) {
+      tooltip.style.left = e.pageX + 'px';
+      tooltip.style.top = e.pageY + 'px';
+    }
+  }
+});
+
+document.addEventListener('mouseout', (e) => {
+  if (e.target && e.target.classList && e.target.classList.contains('real-muscle-path')) {
+    const tooltip = document.getElementById('muscle-tooltip');
+    if (tooltip) {
+      tooltip.style.opacity = '0';
+    }
+  }
+});
+
 // Detailed muscle → SVG element ID mapping
-function updateMuscleColor(muscle, color, muscleStatuses, priorityMap) {
+function updateMuscleColor(muscle, color, percent, muscleStatuses, priorityMap) {
   const mappings = {
     '大胸筋上部':   ['chest'],
     '大胸筋下部':   ['chest'],
-    '三角筋前部':   ['front-deltoids', 'shoulders'],
-    '三角筋側部':   ['shoulders'],
-    '三角筋後部':   ['back-deltoids', 'shoulders'],
-    '僧帽筋':       ['trapezius'],
-    '広背筋':       ['lats'],
+    '三角筋前部':   ['deltoids'],    // SVG only has one large 'deltoids'
+    '三角筋側部':   ['deltoids'],
+    '三角筋後部':   ['deltoids'],
+    '僧帽筋':       ['trapezius', 'neck'],
+    '広背筋':       ['upper-back', 'lower-back'], // Lats maps to valid SVG slugs
     '脊柱起立筋':   ['lower-back'],
     '上腕二頭筋':   ['biceps'],
     '上腕三頭筋':   ['triceps'],
@@ -2894,9 +2946,9 @@ function updateMuscleColor(muscle, color, muscleStatuses, priorityMap) {
     '腹直筋上部':   ['abs'],
     '腹直筋下部':   ['abs'],
     '腹斜筋':       ['obliques'],
-    '腸腰筋':       ['abs', 'adductor'], 
+    '腸腰筋':       ['abs', 'adductors'], 
     '大腿四頭筋':   ['quadriceps'],
-    '内転筋':       ['adductor'],
+    '内転筋':       ['adductors'],
     'ハムストリング': ['hamstring'],
     '臀筋':         ['gluteal'],
     '腓腹筋':       ['calves'],
@@ -2905,9 +2957,14 @@ function updateMuscleColor(muscle, color, muscleStatuses, priorityMap) {
   const slugs = mappings[muscle] || [];
   slugs.forEach(slug => {
     // Check if the area hasn't been colored yet, or if the new color is more severe
-    const existingColor = muscleStatuses[slug];
-    if (!existingColor || (priorityMap[color] > priorityMap[existingColor])) {
-      muscleStatuses[slug] = color;
+    const existing = muscleStatuses[slug];
+    if (!existing || (priorityMap[color] > priorityMap[existing.color])) {
+      muscleStatuses[slug] = { color: color, percent: percent };
+    } else if (priorityMap[color] === priorityMap[existing.color]) {
+      // If same color, keep the lowest percentage
+      if (percent < existing.percent) {
+        muscleStatuses[slug] = { color: color, percent: percent };
+      }
     }
   });
 }
