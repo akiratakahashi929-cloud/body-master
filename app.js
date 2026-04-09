@@ -2884,6 +2884,7 @@ function updateRecoveryView() {
       el.dataset.tooltipName = slugToName[slug] || slug;
       el.dataset.tooltipPercent = Math.round(statusObj.percent);
       el.dataset.tooltipColor = statusObj.color;
+      el.dataset.tooltipDetails = JSON.stringify(statusObj.details);
     });
   }
 }
@@ -2898,12 +2899,35 @@ document.addEventListener('mouseover', (e) => {
     const color = e.target.dataset.tooltipColor;
     
     if (name) {
+      let detailsHtml = '';
+      try {
+        const detailsStr = e.target.dataset.tooltipDetails || '[]';
+        const details = JSON.parse(detailsStr);
+        // Only show list if there are multiple details or it differs from the main name
+        if (details.length > 0) {
+          detailsHtml = '<div style="margin-top:6px; padding-top:6px; border-top:1px solid rgba(255,255,255,0.1); font-size:10px; font-weight:400;">';
+          details.sort((a, b) => a.percent - b.percent).forEach(d => {
+            detailsHtml += `
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+                <span style="display:flex; align-items:center; gap:4px;">
+                  <div style="width:6px;height:6px;border-radius:50%;background:${d.color};"></div>
+                  <span style="color:#aaa;">${d.name}</span>
+                </span>
+                <span style="color:${d.color}; margin-left:12px;">${Math.round(d.percent)}%</span>
+              </div>
+            `;
+          });
+          detailsHtml += '</div>';
+        }
+      } catch (err) {}
+
       tooltip.innerHTML = `
-        <div style="display:flex; align-items:center; gap:6px;">
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom:2px;">
           <div style="width:8px;height:8px;border-radius:50%;background:${color};"></div>
-          <span>${name}</span>
-          <span style="color:${color}; margin-left:4px;">${percent}%</span>
+          <span style="font-size:12px;">${name}</span>
+          <span style="color:${color}; margin-left:auto;">${percent}%</span>
         </div>
+        ${detailsHtml}
       `;
       tooltip.style.opacity = '1';
     }
@@ -2956,14 +2980,25 @@ function updateMuscleColor(muscle, color, percent, muscleStatuses, priorityMap) 
 
   const slugs = mappings[muscle] || [];
   slugs.forEach(slug => {
-    // Check if the area hasn't been colored yet, or if the new color is more severe
+    if (!muscleStatuses[slug]) {
+      muscleStatuses[slug] = { color: 'var(--recovery-green)', percent: 100, details: [] };
+    }
+    
+    // Add specific detailed muscle info
+    muscleStatuses[slug].details.push({
+      name: muscle,
+      percent: percent,
+      color: color
+    });
+
+    // Update the worst-case color/percent for the parent SVG path
     const existing = muscleStatuses[slug];
-    if (!existing || (priorityMap[color] > priorityMap[existing.color])) {
-      muscleStatuses[slug] = { color: color, percent: percent };
+    if (priorityMap[color] > priorityMap[existing.color]) {
+      existing.color = color;
+      existing.percent = percent;
     } else if (priorityMap[color] === priorityMap[existing.color]) {
-      // If same color, keep the lowest percentage
       if (percent < existing.percent) {
-        muscleStatuses[slug] = { color: color, percent: percent };
+        existing.percent = percent;
       }
     }
   });
