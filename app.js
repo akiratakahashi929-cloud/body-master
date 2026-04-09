@@ -2760,6 +2760,11 @@ function updateRecoveryView() {
   const now = Date.now();
   const listContainer = document.getElementById('recovery-list');
 
+  // Reset all muscle SVG opacities
+  document.querySelectorAll('.real-muscle-path').forEach(el => {
+    el.style.fillOpacity = '0';
+  });
+
   const detailedMuscles = Object.keys(RECOVERY_BASE);
   let html = '';
   let currentGroup = '';
@@ -2858,32 +2863,40 @@ function updateRecoveryView() {
 // Detailed muscle → SVG element ID mapping
 function updateMuscleColor(muscle, color) {
   const mappings = {
-    '大胸筋上部':   ['m-chest-upper-l','m-chest-upper-r'],
-    '大胸筋下部':   ['m-chest-lower-l','m-chest-lower-r'],
-    '三角筋前部':   ['m-delt-front-l','m-delt-front-r'],
-    '三角筋側部':   ['m-delt-side-l','m-delt-side-r'],
-    '三角筋後部':   ['m-delt-rear-l','m-delt-rear-r'],
-    '僧帽筋':       ['m-traps'],
-    '広背筋':       ['m-lat-l','m-lat-r'],
-    '脊柱起立筋':   ['m-erector','m-lower-back'],
-    '上腕二頭筋':   ['m-bicep-l','m-bicep-r'],
-    '上腕三頭筋':   ['m-tricep-l','m-tricep-r'],
-    '前腕':         ['m-forearm-l','m-forearm-r','m-forearm-back-l','m-forearm-back-r'],
-    '腹直筋上部':   ['m-abs-upper'],
-    '腹直筋下部':   ['m-abs-lower'],
-    '腹斜筋':       ['m-oblique-l','m-oblique-r'],
-    '腸腰筋':       ['m-hipflex-l','m-hipflex-r'],
-    '大腿四頭筋':   ['m-quad-l','m-quad-r'],
-    '内転筋':       ['m-adduct-l','m-adduct-r'],
-    'ハムストリング': ['m-ham-l','m-ham-r','m-ham-inner-l','m-ham-inner-r'],
-    '臀筋':         ['m-glute-l','m-glute-r'],
-    '腓腹筋':       ['m-calf-front-l','m-calf-front-r','m-calf-back-l','m-calf-back-r'],
+    '大胸筋上部':   ['chest'],
+    '大胸筋下部':   ['chest'],
+    '三角筋前部':   ['front-deltoids', 'shoulders'],
+    '三角筋側部':   ['shoulders'],
+    '三角筋後部':   ['back-deltoids', 'shoulders'],
+    '僧帽筋':       ['trapezius'],
+    '広背筋':       ['lats'],
+    '脊柱起立筋':   ['lower-back'],
+    '上腕二頭筋':   ['biceps'],
+    '上腕三頭筋':   ['triceps'],
+    '前腕':         ['forearm'],
+    '腹直筋上部':   ['abs'],
+    '腹直筋下部':   ['abs'],
+    '腹斜筋':       ['obliques'],
+    '腸腰筋':       ['abs', 'adductor'], 
+    '大腿四頭筋':   ['quadriceps'],
+    '内転筋':       ['adductor'],
+    'ハムストリング': ['hamstring'],
+    '臀筋':         ['gluteal'],
+    '腓腹筋':       ['calves'],
   };
 
-  const ids = mappings[muscle] || [];
-  ids.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.fill = color;
+  const slugs = mappings[muscle] || [];
+  slugs.forEach(slug => {
+    document.querySelectorAll(`.real-muscle-path[data-muscle-id="${slug}"]`).forEach(el => {
+      // Only apply non-green colors. If it's red/orange/yellow, it will show up.
+      // This prevents a 'green' (recovered) sub-muscle from hiding a 'red' (fatigued) sub-muscle on the same path.
+      if (!color.includes('recovery-green')) {
+        // If it's already red, and we're trying to set yellow, don't overwrite the worse color.
+        // We'll trust the order or just let it overwrite for now, but definitely don't let green overwrite!
+        el.style.fill = color;
+        el.style.fillOpacity = '0.85';
+      }
+    });
   });
 }
 
