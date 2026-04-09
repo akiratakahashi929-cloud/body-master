@@ -33,6 +33,53 @@
        ============================================= -->
   <div class="section active" id="sec-home" data-title="ホーム">
 
+    <!-- Calendar Toggle -->
+    <div style="margin-bottom: 12px;">
+      <button class="btn btn--secondary btn--full" id="home-calendar-toggle-btn" onclick="toggleHomeCalendar()" style="justify-content: center;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> カレンダーを開く / 閉じる
+      </button>
+    </div>
+    <div id="home-calendar-container" style="display:none;">
+<!-- Calendar -->
+    <div class="card calendar" id="calendar-card">
+      <div class="calendar__header">
+        <span class="calendar__month" id="calendar-month"></span>
+        <div class="calendar__nav">
+          <button class="calendar__nav-btn" onclick="changeMonth(-1)"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="19 3 5 12 19 21 19 3"/></svg></button>
+          <button class="calendar__nav-btn" onclick="changeMonth(0)">●</button>
+          <button class="calendar__nav-btn" onclick="changeMonth(1)"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+        </div>
+      </div>
+      <div class="calendar__weekdays">
+        <div class="calendar__weekday">日</div>
+        <div class="calendar__weekday">月</div>
+        <div class="calendar__weekday">火</div>
+        <div class="calendar__weekday">水</div>
+        <div class="calendar__weekday">木</div>
+        <div class="calendar__weekday">金</div>
+        <div class="calendar__weekday">土</div>
+      </div>
+      <div class="calendar__days" id="calendar-days"></div>
+    </div>
+
+    <!-- Monthly summary -->
+    <div class="stat-grid stat-grid--3" id="home-monthly-stats">
+      <div class="stat-box">
+        <div class="stat-box__value stat-box__value--red" id="home-train-days">0</div>
+        <div class="stat-box__label">トレ日数</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box__value stat-box__value--gold" id="home-total-sets">0</div>
+        <div class="stat-box__label">合計セット</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box__value stat-box__value--green" id="home-total-volume">0</div>
+        <div class="stat-box__label">総ボリューム(kg)</div>
+      </div>
+    </div>
+
+        </div>
+
     <!-- <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 目標減量進捗ゲージ (最上部) -->
     <div class="card calorie-hero-card" id="calorie-tracker-card">
       <!-- ヘッダー -->
@@ -102,44 +149,6 @@
       })();
       </script>
       <div id="calorie-tracker-empty" style="color:#555;font-size:12px;text-align:center;padding:6px 0;display:none;">日次データを入力すると進捗が表示されます</div>
-    </div>
-
-    <!-- Calendar -->
-    <div class="card calendar" id="calendar-card">
-      <div class="calendar__header">
-        <span class="calendar__month" id="calendar-month"></span>
-        <div class="calendar__nav">
-          <button class="calendar__nav-btn" onclick="changeMonth(-1)"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="19 3 5 12 19 21 19 3"/></svg></button>
-          <button class="calendar__nav-btn" onclick="changeMonth(0)">●</button>
-          <button class="calendar__nav-btn" onclick="changeMonth(1)"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-1px;display:inline-block"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
-        </div>
-      </div>
-      <div class="calendar__weekdays">
-        <div class="calendar__weekday">日</div>
-        <div class="calendar__weekday">月</div>
-        <div class="calendar__weekday">火</div>
-        <div class="calendar__weekday">水</div>
-        <div class="calendar__weekday">木</div>
-        <div class="calendar__weekday">金</div>
-        <div class="calendar__weekday">土</div>
-      </div>
-      <div class="calendar__days" id="calendar-days"></div>
-    </div>
-
-    <!-- Monthly summary -->
-    <div class="stat-grid stat-grid--3" id="home-monthly-stats">
-      <div class="stat-box">
-        <div class="stat-box__value stat-box__value--red" id="home-train-days">0</div>
-        <div class="stat-box__label">トレ日数</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-box__value stat-box__value--gold" id="home-total-sets">0</div>
-        <div class="stat-box__label">合計セット</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-box__value stat-box__value--green" id="home-total-volume">0</div>
-        <div class="stat-box__label">総ボリューム(kg)</div>
-      </div>
     </div>
 
     <!-- Daily User Optimized Flow -->
@@ -243,6 +252,40 @@
       </div>
       <button class="btn btn--gold btn--full" onclick="submitHomeDaily()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> 日次データを記録</button>
     </div>
+
+<!-- PANEL: Meal Planning -->
+    <div id="spanel-meal" style="margin-top:12px;">
+      <div class="card card--gold">
+        <div class="card__title">
+          <span class="card__title-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg></span>
+          食事プランニング設定
+        </div>
+        <div class="form-group">
+          <label class="form-label">現在のフェーズ</label>
+          <select class="form-select" id="meal-phase" onchange="updateMealTargets()">
+            <option value="phase1">Phase 1 (体脂肪率 25〜30%) - 糖質絞込期</option>
+            <option value="phase2">Phase 2 (体脂肪率 20〜25%) - 本格除脂肪期</option>
+            <option value="phase3">Phase 3 (体脂肪率 15〜20%) - 仕上げ期</option>
+            <option value="phase4">Phase 4 (体脂肪率 10〜15%) - 筋量維持・超絞込期</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">本日のトレーニング強度</label>
+          <div class="chip-group" id="meal-intensity-group" style="flex-wrap: nowrap;">
+            <div class="chip meal-intensity-chip active" data-intensity="mid" onclick="setMealIntensity('mid', this)">中強度</div>
+            <div class="chip meal-intensity-chip" data-intensity="high" onclick="setMealIntensity('high', this)">高強度</div>
+            <div class="chip meal-intensity-chip" data-intensity="rest" onclick="setMealIntensity('rest', this)">休息日</div>
+          </div>
+          <p style="font-size: 11px; color: #888; margin-top: 4px;">強度に合わせて「糖質ピリオダイゼーション」に基づくPFCが自動算出されます。</p>
+        </div>
+        
+        <div id="meal-targets-view" style="margin-top: 12px; display: none;">
+          <div style="font-size:12px;color:#888;margin-bottom:4px;">1日の目標PFC（フェーズ自動計算） <span id="meal-target-kcal" style="float:right;color:#eee;">-- kcal</span></div>
+          <div class="stat-grid stat-grid--3" style="margin-bottom: 12px;">
+             <div class="stat-box"><div class="stat-box__value stat-box__value--red" id="mt-p">--g</div><div class="stat-box__label">タンパク質(P)</div></div>
+             <div class="stat-box"><div class="stat-box__value stat-box__value--gold" id="mt-f">--g</div><div class="stat-box__label">脂質(F)</div></div>
+             <div class="stat-box"><div class="stat-box__value stat-box__value--green" id="mt-c">--g</div><div class="stat-box__label">糖質(C)</div></div>
+          </div>
   </div>
 
   <!-- =============================================
@@ -255,9 +298,7 @@
       <button class="settings-nav__item active" id="stab-profile" onclick="switchSettingsTab('profile')">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:4px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>プロフィール
       </button>
-      <button class="settings-nav__item" id="stab-meal" onclick="switchSettingsTab('meal')">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:4px;"><path d="M3 12h18M3 6h18M3 18h18" stroke-linecap="round"/></svg>食事プラン
-      </button>
+      
       <button class="settings-nav__item" id="stab-timer" onclick="switchSettingsTab('timer')">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:4px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>タイマー
       </button>
@@ -374,39 +415,7 @@
       </div><!-- /profile-form-area -->
     </div>
 
-    <!-- PANEL: Meal Planning -->
-    <div class="settings-panel" id="spanel-meal" style="display:none;">
-      <div class="card card--gold">
-        <div class="card__title">
-          <span class="card__title-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg></span>
-          食事プランニング設定
-        </div>
-        <div class="form-group">
-          <label class="form-label">現在のフェーズ</label>
-          <select class="form-select" id="meal-phase" onchange="updateMealTargets()">
-            <option value="phase1">Phase 1 (体脂肪率 25〜30%) - 糖質絞込期</option>
-            <option value="phase2">Phase 2 (体脂肪率 20〜25%) - 本格除脂肪期</option>
-            <option value="phase3">Phase 3 (体脂肪率 15〜20%) - 仕上げ期</option>
-            <option value="phase4">Phase 4 (体脂肪率 10〜15%) - 筋量維持・超絞込期</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">本日のトレーニング強度</label>
-          <div class="chip-group" id="meal-intensity-group" style="flex-wrap: nowrap;">
-            <div class="chip meal-intensity-chip active" data-intensity="mid" onclick="setMealIntensity('mid', this)">中強度</div>
-            <div class="chip meal-intensity-chip" data-intensity="high" onclick="setMealIntensity('high', this)">高強度</div>
-            <div class="chip meal-intensity-chip" data-intensity="rest" onclick="setMealIntensity('rest', this)">休息日</div>
-          </div>
-          <p style="font-size: 11px; color: #888; margin-top: 4px;">強度に合わせて「糖質ピリオダイゼーション」に基づくPFCが自動算出されます。</p>
-        </div>
-        
-        <div id="meal-targets-view" style="margin-top: 12px; display: none;">
-          <div style="font-size:12px;color:#888;margin-bottom:4px;">1日の目標PFC（フェーズ自動計算） <span id="meal-target-kcal" style="float:right;color:#eee;">-- kcal</span></div>
-          <div class="stat-grid stat-grid--3" style="margin-bottom: 12px;">
-             <div class="stat-box"><div class="stat-box__value stat-box__value--red" id="mt-p">--g</div><div class="stat-box__label">タンパク質(P)</div></div>
-             <div class="stat-box"><div class="stat-box__value stat-box__value--gold" id="mt-f">--g</div><div class="stat-box__label">脂質(F)</div></div>
-             <div class="stat-box"><div class="stat-box__value stat-box__value--green" id="mt-c">--g</div><div class="stat-box__label">糖質(C)</div></div>
-          </div>
+    
         </div>
 
         <button class="btn btn--secondary btn--full" onclick="openMealPlannerModal()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;display:inline-block"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> 本日の食事メニューを構築する</button>

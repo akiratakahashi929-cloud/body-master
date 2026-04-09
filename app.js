@@ -547,6 +547,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCalendar();
   updateHomeStats();
   updateCalorieTracker();
+  renderMealTab();
   updateGasConfigBanner();
   updateAnalysis();
   updateRecoveryView();
@@ -1082,7 +1083,7 @@ function switchSection(sectionId) {
   document.querySelectorAll('.tabbar__item').forEach(t => {
     t.classList.toggle('active', t.dataset.section === sectionId);
   });
-  if (sectionId === 'sec-home') { renderCalendar(); updateCalorieTracker(); }
+  if (sectionId === 'sec-home') { renderCalendar(); updateCalorieTracker(); renderMealTab(); }
   if (sectionId === 'sec-recovery') updateRecoveryView();
   if (sectionId === 'sec-analysis') updateAnalysis();
   if (sectionId === 'sec-settings') loadSettingsUI();
@@ -3693,3 +3694,13 @@ window.saveKVSettings = function() {
   if (url && token) pullSyncFromGas();
 };
 
+
+window.toggleHomeCalendar = function() {
+  const container = document.getElementById('home-calendar-container');
+  if (!container) return;
+  if (container.style.display === 'none') {
+    container.style.display = 'block';
+  } else {
+    container.style.display = 'none';
+  }
+};
