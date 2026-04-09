@@ -230,27 +230,27 @@ function calculateMealTargets(phase, weight, intensity = 'mid') {
 
 // ==================== EXERCISE DATABASE ====================
 const DEFAULT_EXERCISES = [
-  { name: 'バックスクワット', category: '脚', freq: 36, muscles: ['大腿四頭筋','ハムストリング','臀筋','脊柱起立筋'] },
-  { name: 'レッグプレス', category: '脚', freq: 47, muscles: ['大腿四頭筋','臀筋'] },
-  { name: 'レッグエクステンション', category: '脚', freq: 41, muscles: ['大腿四頭筋'] },
-  { name: 'シーテッドレッグカール', category: '脚', freq: 63, muscles: ['ハムストリング'] },
-  { name: 'ヒップアブダクションマシン', category: '脚', freq: 42, muscles: ['臀筋','内転筋'] },
-  { name: 'ダンベルブルガリアンスプリットスクワット', category: '脚', freq: 33, muscles: ['大腿四頭筋','臀筋','ハムストリング'] },
-  { name: 'インクラインダンベルベンチプレス', category: '胸', freq: 54, muscles: ['大胸筋上部','三角筋前部','上腕三頭筋'] },
-  { name: 'ディップチンアシスト', category: '胸', freq: 67, muscles: ['大胸筋下部','上腕三頭筋','三角筋前部'] },
-  { name: 'スミスマシンインクラインベンチプレス', category: '胸', freq: 31, muscles: ['大胸筋上部','三角筋前部','上腕三頭筋'] },
-  { name: 'ラットプルダウン', category: '背筋', freq: 53, muscles: ['広背筋','僧帽筋','上腕二頭筋'] },
-  { name: 'シーテッドケーブルロウ', category: '背筋', freq: 63, muscles: ['広背筋','僧帽筋','脊柱起立筋','上腕二頭筋'] },
-  { name: 'パラレルグリップラットプルダウン', category: '背筋', freq: 56, muscles: ['広背筋','僧帽筋','上腕二頭筋'] },
-  { name: 'ストレートアームプルダウン', category: '背筋', freq: 40, muscles: ['広背筋','腹直筋下部'] },
-  { name: 'アシストプルアップマシン', category: '背筋', freq: 34, muscles: ['広背筋','上腕二頭筋','僧帽筋'] },
-  { name: 'ダンベルサイドレイズ', category: '肩', freq: 81, muscles: ['三角筋側部'] },
-  { name: 'シーテッドダンベルショルダープレス', category: '肩', freq: 50, muscles: ['三角筋前部','三角筋側部','上腕三頭筋'] },
-  { name: 'リアデルトフライマシン', category: '肩', freq: 56, muscles: ['三角筋後部','僧帽筋'] },
-  { name: 'ダンベルアップライトロウ', category: '肩', freq: 32, muscles: ['三角筋側部','僧帽筋'] },
-  { name: 'ケーブルプレスダウン', category: '腕', freq: 41, muscles: ['上腕三頭筋'] },
-  { name: 'ハンギングレッグレイズ', category: '腹筋', freq: 45, muscles: ['腹直筋下部','腸腰筋','腹斜筋'] },
-  { name: 'トレッドミル', category: 'カーディオ', freq: 49, muscles: ['大腿四頭筋','ハムストリング','腓腹筋'] },
+  { name: 'バックスクワット', category: '脚', freq: 36, stimulus: {'大腿四頭筋': 1.0, '臀筋': 0.8, 'ハムストリング': 0.5, '脊柱起立筋': 0.4} },
+  { name: 'レッグプレス', category: '脚', freq: 47, stimulus: {'大腿四頭筋': 1.0, '臀筋': 0.6} },
+  { name: 'レッグエクステンション', category: '脚', freq: 41, stimulus: {'大腿四頭筋': 1.0} },
+  { name: 'シーテッドレッグカール', category: '脚', freq: 63, stimulus: {'ハムストリング': 1.0} },
+  { name: 'ヒップアブダクションマシン', category: '脚', freq: 42, stimulus: {'臀筋': 1.0, '内転筋': 0.6} },
+  { name: 'ダンベルブルガリアンスプリットスクワット', category: '脚', freq: 33, stimulus: {'大腿四頭筋': 1.0, '臀筋': 0.8, 'ハムストリング': 0.4} },
+  { name: 'インクラインダンベルベンチプレス', category: '胸', freq: 54, stimulus: {'大胸筋上部': 1.0, '三角筋前部': 0.6, '上腕三頭筋': 0.5} },
+  { name: 'ディップチンアシスト', category: '胸', freq: 67, stimulus: {'大胸筋下部': 1.0, '上腕三頭筋': 0.8, '三角筋前部': 0.5} },
+  { name: 'スミスマシンインクラインベンチプレス', category: '胸', freq: 31, stimulus: {'大胸筋上部': 1.0, '三角筋前部': 0.6, '上腕三頭筋': 0.5} },
+  { name: 'ラットプルダウン', category: '背筋', freq: 53, stimulus: {'広背筋': 1.0, '僧帽筋': 0.6, '上腕二頭筋': 0.5} },
+  { name: 'シーテッドケーブルロウ', category: '背筋', freq: 63, stimulus: {'広背筋': 0.8, '僧帽筋': 1.0, '脊柱起立筋': 0.5, '上腕二頭筋': 0.5} },
+  { name: 'パラレルグリップラットプルダウン', category: '背筋', freq: 56, stimulus: {'広背筋': 1.0, '僧帽筋': 0.5, '上腕二頭筋': 0.6} },
+  { name: 'ストレートアームプルダウン', category: '背筋', freq: 40, stimulus: {'広背筋': 1.0, '腹直筋下部': 0.2} },
+  { name: 'アシストプルアップマシン', category: '背筋', freq: 34, stimulus: {'広背筋': 1.0, '上腕二頭筋': 0.7, '僧帽筋': 0.5} },
+  { name: 'ダンベルサイドレイズ', category: '肩', freq: 81, stimulus: {'三角筋側部': 1.0, '僧帽筋': 0.2} },
+  { name: 'シーテッドダンベルショルダープレス', category: '肩', freq: 50, stimulus: {'三角筋前部': 1.0, '三角筋側部': 0.6, '上腕三頭筋': 0.6} },
+  { name: 'リアデルトフライマシン', category: '肩', freq: 56, stimulus: {'三角筋後部': 1.0, '僧帽筋': 0.4} },
+  { name: 'ダンベルアップライトロウ', category: '肩', freq: 32, stimulus: {'三角筋側部': 1.0, '僧帽筋': 0.8} },
+  { name: 'ケーブルプレスダウン', category: '腕', freq: 41, stimulus: {'上腕三頭筋': 1.0} },
+  { name: 'ハンギングレッグレイズ', category: '腹筋', freq: 45, stimulus: {'腹直筋下部': 1.0, '腸腰筋': 0.8, '腹斜筋': 0.4} },
+  { name: 'トレッドミル', category: 'カーディオ', freq: 49, stimulus: {'大腿四頭筋': 0.3, 'ハムストリング': 0.3, '腓腹筋': 0.5} },
 ];
 
 // Exercise name → detailed muscles (for recovery tracking)
@@ -266,6 +266,7 @@ const CATEGORY_MUSCLES_MAP = {
 };
 
 function getExerciseMuscles(exercise) {
+  if (exercise.stimulus) return Object.keys(exercise.stimulus);
   if (exercise.muscles && exercise.muscles.length > 0) return exercise.muscles;
   return CATEGORY_MUSCLES_MAP[exercise.category] || [];
 }
@@ -2791,13 +2792,24 @@ function updateRecoveryView() {
       log.exercises.forEach(ex => {
         const allEx = getAllExercises();
         const found = allEx.find(e => e.name === ex.name);
-        const muscles = found ? getExerciseMuscles(found) : (CATEGORY_MUSCLES_MAP[ex.category] || []);
-        if (muscles.includes(muscle)) {
-          // Sum volume from this exercise's sets
+        
+        let stimulusMap = {};
+        if (found && found.stimulus) {
+          stimulusMap = found.stimulus;
+        } else if (found && found.muscles && found.muscles.length > 0) {
+          found.muscles.forEach(m => stimulusMap[m] = 1.0);
+        } else {
+          const catMuscles = CATEGORY_MUSCLES_MAP[ex.category] || [];
+          catMuscles.forEach(m => stimulusMap[m] = 1.0);
+        }
+
+        if (stimulusMap[muscle]) {
+          const multiplier = stimulusMap[muscle];
+          // Sum volume from this exercise's sets, weighted by stimulus multiplier
           if (ex.sets) {
             ex.sets.forEach(s => {
               if (s.weight && s.reps) {
-                muscleVolume += s.weight * s.reps;
+                muscleVolume += s.weight * s.reps * multiplier;
               }
             });
           }
