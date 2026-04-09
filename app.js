@@ -2769,6 +2769,15 @@ function updateRecoveryView() {
   let html = '';
   let currentGroup = '';
 
+  // Priorities: Red(4) > Orange(3) > Yellow(2) > Green(1)
+  const priorityMap = {
+    'var(--recovery-red)': 4,
+    'var(--recovery-orange)': 3,
+    'var(--recovery-yellow)': 2,
+    'var(--recovery-green)': 1
+  };
+  const muscleStatuses = {}; // slug -> color
+
   detailedMuscles.forEach(muscle => {
     const base = RECOVERY_BASE[muscle];
     const sleepEfficiency = Math.pow(sleepHours / SLEEP_BASELINE, 0.6);
@@ -2830,8 +2839,8 @@ function updateRecoveryView() {
       else color = 'var(--recovery-green)';
     }
 
-    // Update SVG body model colors
-    updateMuscleColor(muscle, color);
+    // Record SVG body model colors into dictionary
+    updateMuscleColor(muscle, color, muscleStatuses, priorityMap);
 
     // Group header
     if (base.group !== currentGroup) {
@@ -2858,10 +2867,18 @@ function updateRecoveryView() {
   });
 
   listContainer.innerHTML = html;
+
+  // Finalize all SVGs: apply colors based on priorities collected
+  for (const [slug, finalColor] of Object.entries(muscleStatuses)) {
+    document.querySelectorAll(`.real-muscle-path[data-muscle-id="${slug}"]`).forEach(el => {
+      el.style.fill = finalColor;
+      el.style.fillOpacity = '0.85';
+    });
+  }
 }
 
 // Detailed muscle → SVG element ID mapping
-function updateMuscleColor(muscle, color) {
+function updateMuscleColor(muscle, color, muscleStatuses, priorityMap) {
   const mappings = {
     '大胸筋上部':   ['chest'],
     '大胸筋下部':   ['chest'],
@@ -2887,16 +2904,11 @@ function updateMuscleColor(muscle, color) {
 
   const slugs = mappings[muscle] || [];
   slugs.forEach(slug => {
-    document.querySelectorAll(`.real-muscle-path[data-muscle-id="${slug}"]`).forEach(el => {
-      // Only apply non-green colors. If it's red/orange/yellow, it will show up.
-      // This prevents a 'green' (recovered) sub-muscle from hiding a 'red' (fatigued) sub-muscle on the same path.
-      if (!color.includes('recovery-green')) {
-        // If it's already red, and we're trying to set yellow, don't overwrite the worse color.
-        // We'll trust the order or just let it overwrite for now, but definitely don't let green overwrite!
-        el.style.fill = color;
-        el.style.fillOpacity = '0.85';
-      }
-    });
+    // Check if the area hasn't been colored yet, or if the new color is more severe
+    const existingColor = muscleStatuses[slug];
+    if (!existingColor || (priorityMap[color] > priorityMap[existingColor])) {
+      muscleStatuses[slug] = color;
+    }
   });
 }
 
