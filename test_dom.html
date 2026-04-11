@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      function check() {
+        const home = document.getElementById('sec-home');
+        const settings = document.getElementById('sec-settings');
+        const meal = document.getElementById('meal-planned-list');
+        console.log("home contains meal?", home.contains(meal));
+        console.log("settings contains meal?", settings.contains(meal));
+        console.log("meal parent:", meal.parentElement.tagName, meal.parentElement.id, meal.parentElement.className);
+        console.log("home display:", getComputedStyle(home).display);
+      }
+    </script>
+  </head>
+  <body onload="check()">

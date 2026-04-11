@@ -1,0 +1,21 @@
+{
+  "TargetFile": "/Users/takahashiakira/アキラmgtsys/BODY_MASTERのコピー/app.js",
+  "Instruction": "Bulletproof updateRecoveryView to prevent TypeError if log.exercises contains anomalies.",
+  "Description": "Fixed a bug where updateRecoveryView would crash (silent TypeError) due to malformed training logs or missing categories, causing the recovery UI to never update.",
+  "ReplacementChunks": [
+    {
+      "AllowMultiple": false,
+      "TargetContent": "        } else {\n          const catMuscles = CATEGORY_MUSCLES_MAP[ex.category] || [];\n          catMuscles.forEach(m => stimulusMap[m] = 1.0);\n        }",
+      "ReplacementContent": "        } else {\n          const catMuscles = (ex && ex.category ? CATEGORY_MUSCLES_MAP[ex.category] : null) || [];\n          catMuscles.forEach(m => stimulusMap[m] = 1.0);\n        }",
+      "StartLine": 2915,
+      "EndLine": 2918
+    },
+    {
+      "AllowMultiple": false,
+      "TargetContent": "      if (muscleVolume > 0 || log.exercises.some(ex => {\n        const allEx = getAllExercises();\n        const found = allEx.find(e => e.name === ex.name);\n        const muscles = found ? getExerciseMuscles(found) : (CATEGORY_MUSCLES_MAP[ex.category] || []);\n        return muscles.includes(muscle);\n      })) {",
+      "ReplacementContent": "      if (muscleVolume > 0 || log.exercises.some(ex => {\n        if (!ex) return false;\n        const allEx = getAllExercises();\n        const found = allEx.find(e => e.name === (ex.name || ex));\n        const muscles = found ? getExerciseMuscles(found) : (CATEGORY_MUSCLES_MAP[ex.category] || []);\n        return muscles ? muscles.includes(muscle) : false;\n      })) {",
+      "StartLine": 2933,
+      "EndLine": 2938
+    }
+  ]
+}

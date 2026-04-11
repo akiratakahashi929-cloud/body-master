@@ -1,0 +1,21 @@
+{
+  "TargetFile": "/Users/takahashiakira/アキラmgtsys/BODY_MASTERのコピー/app.js",
+  "Instruction": "Fix routine exercise parsing in modal and preserve objects.",
+  "Description": "Fixed bug where routine exercises were lost when editing a routine with default sets.",
+  "ReplacementChunks": [
+    {
+      "AllowMultiple": false,
+      "TargetContent": "  renderColorPicker(r.color);\n  renderExercisePicker(r.exercises);\n  openModal('routine-edit-modal');",
+      "ReplacementContent": "  renderColorPicker(r.color);\n  const stringExArray = r.exercises.map(e => typeof e === 'object' ? e.name : e);\n  renderExercisePicker(stringExArray);\n  openModal('routine-edit-modal');",
+      "StartLine": 1715,
+      "EndLine": 1717
+    },
+    {
+      "AllowMultiple": false,
+      "TargetContent": "  const name = document.getElementById('routine-name-input').value.trim();\n  if (!name) { showToast('名前を入力してください', 'error'); return; }\n  const exercises = Array.from(document.querySelectorAll('#routine-exercise-picker input:checked')).map(i => i.value);\n  const colorObj = ROUTINE_COLORS.find(c => c.hex === selectedRoutineColor) || ROUTINE_COLORS[0];\n  if (editingRoutineId) {",
+      "ReplacementContent": "  const name = document.getElementById('routine-name-input').value.trim();\n  if (!name) { showToast('名前を入力してください', 'error'); return; }\n  \n  const tempR = editingRoutineId ? APP.routines.find(r => r.id === editingRoutineId) : null;\n  const exercises = Array.from(document.querySelectorAll('#routine-exercise-picker input:checked')).map(i => {\n    const oldEx = tempR ? tempR.exercises.find(e => (typeof e === 'object' ? e.name : e) === i.value) : null;\n    return oldEx && typeof oldEx === 'object' ? oldEx : i.value;\n  });\n\n  const colorObj = ROUTINE_COLORS.find(c => c.hex === selectedRoutineColor) || ROUTINE_COLORS[0];\n  if (editingRoutineId) {",
+      "StartLine": 1798,
+      "EndLine": 1802
+    }
+  ]
+}

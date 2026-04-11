@@ -1713,7 +1713,8 @@ function openEditRoutineModal(id) {
   document.getElementById('routine-name-input').value = r.name;
   document.getElementById('routine-delete-btn').style.display = '';
   renderColorPicker(r.color);
-  renderExercisePicker(r.exercises);
+  const stringExArray = r.exercises.map(e => typeof e === 'object' ? e.name : e);
+  renderExercisePicker(stringExArray);
   openModal('routine-edit-modal');
 }
 
@@ -1797,7 +1798,13 @@ function updateRoutineCatCount(cat) {
 function saveRoutine() {
   const name = document.getElementById('routine-name-input').value.trim();
   if (!name) { showToast('名前を入力してください', 'error'); return; }
-  const exercises = Array.from(document.querySelectorAll('#routine-exercise-picker input:checked')).map(i => i.value);
+  
+  const tempR = editingRoutineId ? APP.routines.find(r => r.id === editingRoutineId) : null;
+  const exercises = Array.from(document.querySelectorAll('#routine-exercise-picker input:checked')).map(i => {
+    const oldEx = tempR ? tempR.exercises.find(e => (typeof e === 'object' ? e.name : e) === i.value) : null;
+    return oldEx && typeof oldEx === 'object' ? oldEx : i.value;
+  });
+
   const colorObj = ROUTINE_COLORS.find(c => c.hex === selectedRoutineColor) || ROUTINE_COLORS[0];
   if (editingRoutineId) {
     const idx = APP.routines.findIndex(r => r.id === editingRoutineId);
@@ -1854,9 +1861,34 @@ function loadRoutineToMenu(routineId) {
     const found = allEx.find(e => e.name === name);
     if (!found) return null;
     let sets = [];
-    if (isObj && Array.isArray(exItem.defaultSets)) {
-      sets = exItem.defaultSets.map(s => ({ weight: 0, reps: s.reps }));
+    
+    // 過去のログからこの種目の最新セットを取得
+    let prevEx = null;
+    for (let i = APP.trainingLogs.length - 1; i >= 0; i--) {
+      const log = APP.trainingLogs[i];
+      const matched = log.exercises.find(e => e.name === name && e.recorded);
+      if (matched) {
+        prevEx = matched;
+        break;
+      }
     }
+
+    if (isObj && Array.isArray(exItem.defaultSets)) {
+      // ルーティーンにデフォルトレップ数が定義されている場合（MRTなど）
+      sets = exItem.defaultSets.map((s, idx) => {
+        let w = 0;
+        if (prevEx && prevEx.sets[idx]) w = prevEx.sets[idx].weight;
+        else if (prevEx && prevEx.sets.length > 0) w = prevEx.sets[0].weight; // 足りない場合は1セット目の重量をコピペ
+        return { weight: w, reps: s.reps };
+      });
+    } else if (prevEx && prevEx.sets && prevEx.sets.length > 0) {
+      // ユーザーが編集して文字列のみになった場合や、単純なルーティーンの場合、前回のセット履歴を丸ごとコピー
+      sets = prevEx.sets.map(s => ({ weight: s.weight, reps: s.reps }));
+    } else {
+      // 履歴もデフォルトもない場合は空の1セットを用意する
+      sets = [{ weight: 0, reps: 0 }];
+    }
+    
     return { ...found, sets, totalSets: sets.length, totalVolume: 0, recorded: false };
   }).filter(Boolean);
   renderTodayMenu();
@@ -2881,7 +2913,7 @@ function updateRecoveryView() {
         } else if (found && found.muscles && found.muscles.length > 0) {
           found.muscles.forEach(m => stimulusMap[m] = 1.0);
         } else {
-          const catMuscles = CATEGORY_MUSCLES_MAP[ex.category] || [];
+          const catMuscles = (ex && ex.category ? CATEGORY_MUSCLES_MAP[ex.category] : null) || [];
           catMuscles.forEach(m => stimulusMap[m] = 1.0);
         }
 
@@ -2899,10 +2931,11 @@ function updateRecoveryView() {
       });
 
       if (muscleVolume > 0 || log.exercises.some(ex => {
+        if (!ex) return false;
         const allEx = getAllExercises();
-        const found = allEx.find(e => e.name === ex.name);
+        const found = allEx.find(e => e.name === (ex.name || ex));
         const muscles = found ? getExerciseMuscles(found) : (CATEGORY_MUSCLES_MAP[ex.category] || []);
-        return muscles.includes(muscle);
+        return muscles ? muscles.includes(muscle) : false;
       })) {
         const sessionSleep = log.sleepHours || sleepHours;
         const eff = Math.pow(sessionSleep / SLEEP_BASELINE, 0.6);
@@ -2924,7 +2957,7 @@ function updateRecoveryView() {
     let color = 'var(--recovery-green)';
 
     if (lastTrained) {
-      hoursElapsed = (now - lastTrained.date.getTime()) / (1000 * 60 * 60);
+      hoursElapsed = Math.max(0, (now - lastTrained.date.getTime()) / (1000 * 60 * 60));
       recoveryPercent = Math.min(100, (hoursElapsed / lastTrained.adjustedHours) * 100);
 
       if (recoveryPercent < 25) color = 'var(--recovery-red)';

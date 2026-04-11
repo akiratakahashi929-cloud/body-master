@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html><body><script>
+const SLEEP_BASELINE = 7.5;
+const RECOVERY_BASE = {
+  '大胸筋上部': { group: '胸', hours: 48, displayName: '大胸筋(上部)' },
+  '三角筋前部': { group: '肩', hours: 36, displayName: '三角筋(前部)' },
+};
+const CATEGORY_MUSCLES_MAP = {
+  '胸': ['大胸筋上部','大胸筋下部'],
+  '肩': ['三角筋前部','三角筋側部','三角筋後部'],
+};
+function getAllExercises() { return []; } 
+
+let APP = {
+  trainingLogs: [
+    { date: '2026-04-11', sleepHours: 7, exercises: [
+      { name: 'インクラインダンベルベンチプレス', category: '胸', sets: [{weight: 10, reps: 10}] }
+    ]}
+  ]
+};
+
+function test() {
+  const now = Date.now();
+  let html = '';
+  Object.keys(RECOVERY_BASE).forEach(muscle => {
+    const base = RECOVERY_BASE[muscle];
+    let lastTrained = null;
+    for (let i = APP.trainingLogs.length - 1; i >= 0; i--) {
+      const log = APP.trainingLogs[i];
+      let muscleVolume = 0;
+      log.exercises.forEach(ex => {
+        let stimulusMap = {};
+        if (ex.category === '胸') stimulusMap['大胸筋上部'] = 1.0;
+        
+        if (stimulusMap[muscle]) {
+          const multiplier = stimulusMap[muscle];
+          if (ex.sets) ex.sets.forEach(s => muscleVolume += s.weight * s.reps * multiplier);
+        }
+      });
+      if (muscleVolume > 0) {
+        lastTrained = { date: new Date(log.date), adjH: base.hours, volume: muscleVolume };
+        break;
+      }
+    }
+    
+    if (lastTrained) {
+      const hoursElapsed = (now - lastTrained.date.getTime()) / (1000 * 60 * 60);
+      const recoveryPercent = Math.min(100, (hoursElapsed / lastTrained.adjH) * 100);
+      html += `${muscle}: hoursElapsed=${hoursElapsed.toFixed(2)}, rec%=${recoveryPercent.toFixed(2)}\n`;
+    } else {
+      html += `${muscle}: not trained\n`;
+    }
+  });
+  console.log(html);
+}
+test();
+</script></body></html>
