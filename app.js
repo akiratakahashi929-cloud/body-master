@@ -3741,16 +3741,51 @@ window.addMpIngredient = function() {
   renderMpDraftList();
 };
 
-window.autoGenerateOptimalMealPlan = function() {
+window.openMealAutoGenModal = function() {
   if (!targetPFC.p || !targetPFC.kcal) {
     showToast('先にフェーズと強度を選択してターゲットを算出してください', 'error');
     return;
   }
-  if (!confirm('現在のスケジュールに合わせて（トレ後を夜に統合）、自動生成しますか？\n(※現在のプランは上書きされます)')) return;
+  
+  const ptDiv = document.getElementById('autogen-protein-list');
+  const cbDiv = document.getElementById('autogen-carb-list');
+  if(!ptDiv || !cbDiv) return;
+  ptDiv.innerHTML = ''; 
+  cbDiv.innerHTML = '';
+  
+  Object.keys(INGREDIENTS_DB).forEach(key => {
+    if(['multi_v', 'vit_d_ca', 'potassium', 'wakame', 'daikon', 'niboshi', 'walnut'].includes(key)) return; // 固定ベース・微量栄養素は除外
+    
+    const ing = INGREDIENTS_DB[key];
+    const isCarb = ing.c > 30; // 炭水化物が多ければ主食系
+    const div = isCarb ? cbDiv : ptDiv;
+    div.insertAdjacentHTML('beforeend', `
+       <label style="display:flex;align-items:center;margin-bottom:8px;font-size:13px;background:rgba(0,0,0,0.2);padding:10px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.05);">
+          <input type="checkbox" value="${key}" class="autogen-check" checked style="margin-right:12px; width:16px; height:16px; accent-color:var(--victory-gold);">
+          <div style="flex:1;">
+             <div style="font-weight:700;">${ing.name}</div>
+             <div style="color:#aaa;font-size:11px;margin-top:2px;">P:${ing.p}g / F:${ing.f}g / C:${ing.c}g</div>
+          </div>
+       </label>
+    `);
+  });
+
+  openModal('meal-autogen-modal');
+};
+
+window.executeAutoGenerateMealPlan = function() {
+  if (!confirm('選択された食材の組み合わせでプランを自動生成しますか？\n(※現在のプランは上書きされます)')) return;
+
+  const checkedNodes = document.querySelectorAll('.autogen-check:checked');
+  const allowedKeys = Array.from(checkedNodes).map(n => n.value);
+
+  if (allowedKeys.length === 0) {
+    showToast('食材を1つ以上選択してください', 'error');
+    return;
+  }
 
   const plan = [];
-  // EAAや調味料分としてざっくり150kcal(P:-15g, F:-2g, C:-20g)をアンダーにする
-  let remainingP = targetPFC.p - 15;
+  let remainingP = targetPFC.p - 15; // 遊びマージン
   let remainingF = Math.max(0, targetPFC.f - 2);
   let remainingC = Math.max(0, targetPFC.c - 20);
 
@@ -3770,57 +3805,70 @@ window.autoGenerateOptimalMealPlan = function() {
     remainingP -= p; remainingF -= f; remainingC -= c;
   };
 
-  // サプリと乾物の固定配置
+  // サプリと食物繊維の固定配置
   add('multi_v', 'morning', 1);
   add('vit_d_ca', 'morning', 1);
   add('potassium', 'night', 1);
   add('wakame', 'lunch', 5);
   add('daikon', 'night', 10);
-
-  // 1. Fat充当: 朝〜昼。サバ缶(190g=54.15F) と 卵(10.3F)
-  if (remainingF >= 40) {
-    add('mackerel_can', 'morning', 190); 
-  }
-  if (remainingF > 5) {
-    const eggNeedGrams = (remainingF / INGREDIENTS_DB['egg'].f) * 100;
-    const eggAmount = Math.min(250, eggNeedGrams); // 最大5個まで
-    add('egg', 'lunch', eggAmount);
-  }
-
-  // 2. Protein充当
   add('niboshi', 'lunch', 15);
 
-  // 残りのPを鶏胸肉で分配 (朝はサバ缶があるので、昼、プレ、夜の3分割)
-  if (remainingP > 0) {
-    const chickenNeedGrams = (remainingP / INGREDIENTS_DB['chicken_breast'].p) * 100;
-    const ckcPerMeal = chickenNeedGrams / 3;
-    add('chicken_breast', 'lunch', ckcPerMeal);
-    add('chicken_breast', 'pre_workout', ckcPerMeal);
-    add('chicken_breast', 'night', ckcPerMeal);
+  // 1. 脂質(F)の充当
+  const fatItems = allowedKeys.filter(k => INGREDIENTS_DB[k].f > 5).sort((a,b) => INGREDIENTS_DB[b].f - INGREDIENTS_DB[a].f);
+  fatItems.forEach(itemKey => {
+    if (remainingF <= 0) return;
+    let maxAmount = 150;
+    let timing = 'morning';
+    if (itemKey === 'mackerel_can') { maxAmount = 190; } // サバ缶は1缶丸ごと使うことが多い
+    else if (itemKey === 'egg') { maxAmount = 200; timing = 'lunch'; } // 卵は昼
+    
+    const requiredAmount = (remainingF / INGREDIENTS_DB[itemKey].f) * 100;
+    const amountToUse = Math.min(requiredAmount, maxAmount);
+    add(itemKey, timing, amountToUse);
+  });
+
+  // 2. タンパク質(P)の充当
+  const proteinItems = allowedKeys.filter(k => INGREDIENTS_DB[k].p > 15 && INGREDIENTS_DB[k].f < 10).sort((a,b) => INGREDIENTS_DB[b].p - INGREDIENTS_DB[a].p);
+  if (proteinItems.length > 0 && remainingP > 0) {
+    const mainPItem = proteinItems[0];
+    const requiredAmount = (remainingP / INGREDIENTS_DB[mainPItem].p) * 100;
+    const perMeal = requiredAmount / 3;
+    if(perMeal > 0){
+       add(mainPItem, 'lunch', perMeal * 0.8);
+       add(mainPItem, 'pre_workout', perMeal * 0.7); // トレ前
+       add(mainPItem, 'night', perMeal * 1.5); // トレ後・夜リフィード
+    }
   }
 
-  // 3. Carb充当 (残りの全てを分配)
-  if (remainingC > 0) {
-    // プレWO: 20% (白米)
-    const woC = remainingC * 0.20;
-    add('white_rice', 'pre_workout', (woC / INGREDIENTS_DB['white_rice'].c) * 100);
-    remainingC -= woC;
-
-    // 朝・昼: 残りのうち40%ずつをミックスご飯 (大体全体から20%, 20%)
-    const dayC = remainingC * 0.50;
-    add('mixed_rice', 'morning', (dayC * 0.5 / INGREDIENTS_DB['mixed_rice'].c) * 100);
-    add('mixed_rice', 'lunch', (dayC * 0.5 / INGREDIENTS_DB['mixed_rice'].c) * 100);
-    remainingC -= dayC;
-
-    // 夜(トレ後兼用): 残りのすべてのCarb (全体から約40%)
-    // じゃがいもはMax200g (C約35g) として残りは白米で吸収を早める
-    const potatoGrams = Math.min(200, (remainingC / INGREDIENTS_DB['potato'].c) * 100);
-    const actualPotatoC = (potatoGrams / 100) * INGREDIENTS_DB['potato'].c;
-    add('potato', 'night', potatoGrams);
-    remainingC -= actualPotatoC;
+  // 3. 炭水化物(C)の充当
+  const carbItems = allowedKeys.filter(k => INGREDIENTS_DB[k].c > 20).sort((a,b) => INGREDIENTS_DB[b].c - INGREDIENTS_DB[a].c);
+  if (carbItems.length > 0 && remainingC > 0) {
+    // プレWO
+    const itemForPre = carbItems.includes('white_rice') ? 'white_rice' : carbItems[0];
+    const targetForPre = remainingC * 0.25;
+    add(itemForPre, 'pre_workout', (targetForPre / INGREDIENTS_DB[itemForPre].c) * 100);
     
+    // 昼
     if (remainingC > 0) {
-       add('white_rice', 'night', (remainingC / INGREDIENTS_DB['white_rice'].c) * 100);
+       const itemForDay = carbItems.includes('mixed_rice') ? 'mixed_rice' : (carbItems.includes('brown_rice') ? 'brown_rice' : carbItems[0]);
+       const targetForDay = remainingC * 0.5;
+       add(itemForDay, 'lunch', (targetForDay / INGREDIENTS_DB[itemForDay].c) * 100);
+    }
+    
+    // 夜(トレ後も含む)に残りの全Cを投下
+    if (remainingC > 0) {
+       const itemForNight = carbItems.includes('potato') ? 'potato' : carbItems[0];
+       // ジャガイモの場合は上限200g
+       if(itemForNight === 'potato') {
+          const potatoGrams = Math.min(200, (remainingC / INGREDIENTS_DB['potato'].c) * 100);
+          add('potato', 'night', potatoGrams);
+          // それでも余る場合は白米で
+          if (remainingC > 0 && carbItems.includes('white_rice')) {
+             add('white_rice', 'night', (remainingC / INGREDIENTS_DB['white_rice'].c) * 100);
+          }
+       } else {
+          add(itemForNight, 'night', (remainingC / INGREDIENTS_DB[itemForNight].c) * 100);
+       }
     }
   }
 
@@ -3829,7 +3877,9 @@ window.autoGenerateOptimalMealPlan = function() {
   
   currentMealDraft = plan;
   renderMpDraftList();
-  showToast('食事プランをスケジュールに合わせて再構築しました！', 'success');
+
+  closeModal('meal-autogen-modal');
+  showToast('選択された食材でプランを最適構築しました！', 'success');
 };
 
 window.removeMpIngredient = function(id) {

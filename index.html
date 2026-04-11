@@ -287,8 +287,19 @@
              <div class="stat-box"><div class="stat-box__value stat-box__value--green" id="mt-c">--g</div><div class="stat-box__label">糖質(C)</div></div>
           </div>
         </div>
+        
+        <button class="btn btn--secondary btn--full" onclick="openMealPlannerModal()" style="margin-top:12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;display:inline-block"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> 本日の食事メニューを構築する</button>
+      </div>
+
+      <div class="card" style="margin-top: 12px;">
+        <div class="card__title">本日の構築済みプラン <span id="today-plan-date" style="float:right;font-size:11px;color:#888;"></span></div>
+        <div id="meal-planned-list">
+           <p style="color:#666;font-size:12px;text-align:center;">プランが作成されていません</p>
+        </div>
       </div>
     </div>
+  </div>
+
 
   <!-- =============================================
        SECTION 2: SETTINGS
@@ -415,20 +426,6 @@
         <button class="btn btn--gold btn--full" onclick="submitBodyData()" style="margin-top: 8px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> スプレッドシートに保存</button>
       </div>
       </div><!-- /profile-form-area -->
-    </div>
-
-    
-        </div>
-
-        <button class="btn btn--secondary btn--full" onclick="openMealPlannerModal()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;display:inline-block"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> 本日の食事メニューを構築する</button>
-      </div>
-
-      <div class="card" style="margin-top: 12px;">
-        <div class="card__title">本日の構築済みプラン <span id="today-plan-date" style="float:right;font-size:11px;color:#888;"></span></div>
-        <div id="meal-planned-list">
-           <p style="color:#666;font-size:12px;text-align:center;">プランが作成されていません</p>
-        </div>
-      </div>
     </div>
 
     <!-- PANEL: Timer -->
@@ -1064,7 +1061,7 @@
 
     <div style="font-size:12px;font-weight:700;margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
       <span>当日の食事メニュー</span>
-      <button class="btn btn--secondary" style="font-size:10px; padding:4px 8px; border: 1px solid var(--victory-gold); color: var(--victory-gold);" onclick="autoGenerateOptimalMealPlan()">🤖 ターゲットから自動生成</button>
+      <button class="btn btn--secondary" style="font-size:10px; padding:4px 8px; border: 1px solid var(--victory-gold); color: var(--victory-gold);" onclick="openMealAutoGenModal()">🤖 ターゲットから自動生成</button>
     </div>
     <!-- Added Ingredients List -->
     <div id="mp-added-list"></div>
@@ -1072,6 +1069,35 @@
     <button class="btn btn--primary btn--full" onclick="saveMealPlan()" style="margin-top:16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> プランを日時保存</button>
   </div>
 </div>
+
+<!-- Meal Auto-Gen Options Modal -->
+<div class="modal-overlay" id="meal-autogen-modal">
+  <div class="modal" style="max-height:88vh;overflow-y:auto;">
+    <div class="modal__header">
+      <span class="modal__title">食材を選択して自動生成</span>
+      <button class="modal__close" onclick="closeModal('meal-autogen-modal')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-1px;display:inline-block"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    
+    <p style="font-size:12px;color:#888;margin-bottom:12px;">本日使える食材にチェックを入れてください。選択された食材を組み合わせてPFC目標に最適なプランを自動計算します。</p>
+    
+    <div class="form-group">
+      <label class="form-label" style="display:flex;align-items:center;margin-bottom:4px;"><span style="display:inline-block;width:8px;height:8px;background:var(--bulls-red);border-radius:50%;margin-right:6px;"></span>タンパク質・脂質源</label>
+      <div id="autogen-protein-list" style="background:rgba(0,0,0,0.2);padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.05);margin-bottom:12px;display:flex;flex-direction:column;gap:8px;">
+        <!-- JSで動的生成 -->
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label" style="display:flex;align-items:center;margin-bottom:4px;"><span style="display:inline-block;width:8px;height:8px;background:var(--recovery-green);border-radius:50%;margin-right:6px;"></span>炭水化物源</label>
+      <div id="autogen-carb-list" style="background:rgba(0,0,0,0.2);padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.05);margin-bottom:16px;display:flex;flex-direction:column;gap:8px;">
+        <!-- JSで動的生成 -->
+      </div>
+    </div>
+
+    <button class="btn btn--gold btn--full" onclick="executeAutoGenerateMealPlan()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;display:inline-block"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> 選択した食材で生成する</button>
+  </div>
+</div>
+
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
