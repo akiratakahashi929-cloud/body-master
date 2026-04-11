@@ -1617,6 +1617,81 @@ window.generatePhaseRoutines = function() {
   showToast(`${phase.toUpperCase()} の推奨ルーティーンを生成しました！`, 'success');
 };
 
+window.generateMRTRoutines = function() {
+  if (!confirm('MRTハイブリッド・ルーティーン（週3回 A/B/C）を自動生成して追加しますか？')) return;
+
+  // まず必要な種目が存在するかチェックし、なければ自動追加
+  const requiredEx = ['バックスクワット', 'ベンチプレス', 'ダンベルロウ', 'ダンベルサイドレイズ', 'アームカール', 'ルーマニアンデッドリフト', 'ラットプルダウン', 'インクラインダンベルプレス', 'オーバーヘッドプレス', 'ケーブルプレスダウン', 'ブルガリアンスプリットスクワット', 'チェストプレスマシン', 'シーテッドケーブルロウ', 'フェイスプル'];
+  const allEx = getAllExercises();
+  requiredEx.forEach(req => {
+    if (!allEx.find(e => e.name === req)) {
+      let cat = '肩';
+      if (req.includes('胸') || req.includes('ベンチ') || req.includes('ペック')) cat = '胸';
+      if (req.includes('脚') || req.includes('スクワット') || req.includes('デッド')) cat = '脚';
+      if (req.includes('背') || req.includes('ロウ') || req.includes('プルダウン') || req.includes('懸垂') || req.includes('フェイスプル')) cat = '背筋';
+      if (req.includes('カール') || req.includes('プレスダウン')) cat = '腕';
+      APP.customExercises.push({ id: `custom_${Date.now()}_${Math.random()}`, name: req, category: cat, isCustom: true });
+    }
+  });
+
+  const newRoutines = [];
+  
+  // A: 1+2set (1st: 8reps, 2nd: 20reps, 3rd: 20reps)
+  const A = [{reps:8}, {reps:20}, {reps:20}];
+  // B: 2set (20reps)
+  const B = [{reps:20}, {reps:20}];
+
+  newRoutines.push({
+    id: 'rt_mrt_dayA_' + Date.now(),
+    name: 'MRT Day A (王道コンパウンド)',
+    color: '#CE1141',
+    label: '赤',
+    exercises: [
+      { name: 'バックスクワット', defaultSets: A },
+      { name: 'ベンチプレス', defaultSets: A },
+      { name: 'ダンベルロウ', defaultSets: A },
+      { name: 'ダンベルサイドレイズ', defaultSets: B },
+      { name: 'アームカール', defaultSets: B }
+    ]
+  });
+
+  newRoutines.push({
+    id: 'rt_mrt_dayB_' + Date.now(),
+    name: 'MRT Day B (背面・インクライン)',
+    color: '#1E88E5',
+    label: '青',
+    exercises: [
+      { name: 'ルーマニアンデッドリフト', defaultSets: A },
+      { name: 'ラットプルダウン', defaultSets: A },
+      { name: 'インクラインダンベルプレス', defaultSets: A },
+      { name: 'オーバーヘッドプレス', defaultSets: B },
+      { name: 'ケーブルプレスダウン', defaultSets: B }
+    ]
+  });
+
+  newRoutines.push({
+    id: 'rt_mrt_dayC_' + Date.now(),
+    name: 'MRT Day C (マシン・アイソレ)',
+    color: '#43A047',
+    label: '緑',
+    exercises: [
+      { name: 'ブルガリアンスプリットスクワット', defaultSets: A },
+      { name: 'チェストプレスマシン', defaultSets: A },
+      { name: 'シーテッドケーブルロウ', defaultSets: A },
+      { name: 'フェイスプル', defaultSets: B }
+    ]
+  });
+
+  APP.routines = APP.routines.concat(newRoutines);
+  localStorage.setItem('customExercises', JSON.stringify(APP.customExercises));
+  localStorage.setItem('routines', JSON.stringify(APP.routines));
+  pushSyncToGas();
+  
+  const rl = document.getElementById('routines-list');
+  if (rl) renderRoutinesList();
+  
+  showToast('MRT減量ハイブリッドルーティーンを追加しました！', 'success');
+};
 
 function openAddRoutineModal() {
   editingRoutineId = null;
@@ -1773,9 +1848,16 @@ function loadRoutineToMenu(routineId) {
   if (!r) return;
   const allEx = getAllExercises();
   // ルーティーンの種目を今日のメニューにセット
-  APP.todayExercises = r.exercises.map(name => {
+  APP.todayExercises = r.exercises.map(exItem => {
+    const isObj = typeof exItem === 'object';
+    const name = isObj ? exItem.name : exItem;
     const found = allEx.find(e => e.name === name);
-    return found ? { ...found, sets: [], totalSets: 0, totalVolume: 0, recorded: false } : null;
+    if (!found) return null;
+    let sets = [];
+    if (isObj && Array.isArray(exItem.defaultSets)) {
+      sets = exItem.defaultSets.map(s => ({ weight: 0, reps: s.reps }));
+    }
+    return { ...found, sets, totalSets: sets.length, totalVolume: 0, recorded: false };
   }).filter(Boolean);
   renderTodayMenu();
   closeModal('routine-sheet');
